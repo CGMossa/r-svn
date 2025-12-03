@@ -1184,11 +1184,9 @@ if test "${r_cv_prog_objc_m}" = "${OBJC} -MM"; then
 elif  test "${r_cv_prog_objc_m}" = "${OBJC} -M"; then
   r_cv_prog_objc_m="\$(OBJC) -M"
 fi
-if test -z "${r_cv_prog_objc_m}"; then
-  AC_MSG_RESULT([no])
-else
-  AC_MSG_RESULT([yes, using ${r_cv_prog_objc_m}])
-fi
+## Silence ObjC dep generation on platforms where we do not need it.
+r_cv_prog_objc_m=":"
+AC_MSG_RESULT([using no-op for ObjC deps])
 ])# R_PROG_OBJC_M
 
 ## R_PROG_OBJC_MAKEFRAG
