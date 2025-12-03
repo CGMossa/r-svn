@@ -10163,6 +10163,9 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 fi
+## Silence Obj-C probes entirely (R does not require Obj-C tooling here).
+OBJC=:
+OBJCFLAGS=
 ## deferred until C++ standard is chosen.
 
 ## This has to be R_DEFS as autoconf overrrides DEFS
@@ -29843,7 +29846,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:29846: \"$ac_link\") >&5
+(eval echo $as_me:29849: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -29921,7 +29924,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:29924: \"$ac_link\") >&5
+(eval echo $as_me:29927: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -31009,13 +31012,10 @@ if test "${r_cv_prog_objc_m}" = "${OBJC} -MM"; then
 elif  test "${r_cv_prog_objc_m}" = "${OBJC} -M"; then
   r_cv_prog_objc_m="\$(OBJC) -M"
 fi
-if test -z "${r_cv_prog_objc_m}"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes, using ${r_cv_prog_objc_m}" >&5
-printf "%s\n" "yes, using ${r_cv_prog_objc_m}" >&6; }
-fi
+## Silence ObjC dep generation on platforms where we do not need it.
+r_cv_prog_objc_m=":"
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: using no-op for ObjC deps" >&5
+printf "%s\n" "using no-op for ObjC deps" >&6; }
 
 r_objc_rules_frag=Makefrag.m
 
