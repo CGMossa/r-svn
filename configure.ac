@@ -1183,6 +1183,24 @@ AC_LANG_POP(Fortran)
 
 R_PROG_CXX_MAKEFRAG
 
+### *** Rust compiler
+
+R_PROG_RUST_MAKEFRAG
+AC_PATH_PROG([RUSTC], [rustc])
+if test -z "${RUSTC}"; then
+  AC_MSG_WARN([rustc not found: Rust sources will not be built])
+  RUSTC=:
+fi
+if test -z "${RUSTFLAGS}"; then
+  RUSTFLAGS=""
+fi
+if test -z "${RUSTPICFLAGS}"; then
+  RUSTPICFLAGS="-C relocation-model=pic"
+fi
+AC_SUBST(RUSTC)
+AC_SUBST(RUSTFLAGS)
+AC_SUBST(RUSTPICFLAGS)
+
 ## OpenMP selection has to come after dialect is chosen.
 
 ### *** ObjC compiler

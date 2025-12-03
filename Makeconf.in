@@ -3,6 +3,8 @@ VERSION = @VERSION@
 
 abs_top_srcdir = @abs_top_srcdir@
 abs_top_builddir = @abs_top_builddir@
+top_srcdir = @top_srcdir@
+top_builddir = @top_builddir@
 
 include $(top_srcdir)/share/make/vars.mk
 
@@ -91,6 +93,9 @@ R_XTRA_CPPFLAGS = @R_XTRA_CPPFLAGS@ -I. -I$(top_builddir)/src/include -I$(top_sr
 R_XTRA_FFLAGS = @R_XTRA_FFLAGS@
 RANLIB = @RANLIB@
 READLINE_LIBS = @READLINE_LIBS@
+RUSTC = @RUSTC@
+RUSTFLAGS = @RUSTFLAGS@
+RUSTPICFLAGS = @RUSTPICFLAGS@
 SED = @SED@
 SHELL = @R_SHELL@
 SHLIB_EXT = @SHLIB_EXT@
@@ -114,6 +119,8 @@ YACC = @YACC@
 ALL_CFLAGS = $(R_XTRA_CFLAGS) $(R_OPENMP_CFLAGS) $(MAIN_CFLAGS) $(CFLAGS)
 ALL_CPPFLAGS = $(R_XTRA_CPPFLAGS) $(CPPFLAGS) $(DEFS)
 ALL_FFLAGS = $(R_XTRA_FFLAGS) $(MAIN_FFLAGS) $(FFLAGS)
+PKG_RUSTFLAGS =
+ALL_RUSTFLAGS = $(PKG_RUSTFLAGS) $(RUSTPICFLAGS) $(RUSTFLAGS)
 
 ## For use in src/{appl,main} when R is a shared library, src/modules/lapack
 ## and src/extra/blas when internal BLAS is built as a shared library
@@ -123,9 +130,10 @@ ALL_FFLAGS_LO = $(R_XTRA_FFLAGS) $(FPICFLAGS) $(SHLIB_FFLAGS) $(FFLAGS)
 ALL_FFLAGS_PIE = $(R_XTRA_FFLAGS) $(FPIEFLAGS) $(SHLIB_FFLAGS) $(FFLAGS)
 
 .SUFFIXES:
-.SUFFIXES: .c .f .m .d .o
+.SUFFIXES: .c .f .m .rs .d .o
 
 -include $(abs_top_builddir)/Makefrag.cc
+-include $(abs_top_builddir)/Makefrag.rs
 .f.o:
 	$(FC) $(ALL_FFLAGS) -c $< -o $@
 

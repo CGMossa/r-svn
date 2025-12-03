@@ -888,6 +888,10 @@ FPIEFLAGS
 FOUNDATION_LIBS
 FOUNDATION_CPPFLAGS
 r_objc_rules_frag
+RUSTPICFLAGS
+RUSTFLAGS
+RUSTC
+r_rust_rules_frag
 r_cxx_rules_frag
 OPENMP_FCFLAGS
 COMPILE_FORTRAN_DOUBLE_COMPLEX_FALSE
@@ -1121,6 +1125,7 @@ SHELL'
 ac_subst_files='r_cc_rules_frag
 r_cc_lo_rules_frag
 r_cxx_rules_frag
+r_rust_rules_frag
 r_objc_rules_frag'
 ac_user_opts='
 enable_option_checking
@@ -30808,7 +30813,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:30811: \"$ac_link\") >&5
+(eval echo $as_me:30816: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -30886,7 +30891,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:30889: \"$ac_link\") >&5
+(eval echo $as_me:30894: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -31574,6 +31579,77 @@ r_cxx_rules_frag=Makefrag.cxx
 
 
 ac_config_commands="$ac_config_commands r_cxx_rules_frag"
+
+
+
+### *** Rust compiler
+
+r_rust_rules_frag=Makefrag.rs
+r_rust_rules_frag=Makefrag.rs
+
+
+
+ac_config_commands="$ac_config_commands r_rust_rules_frag"
+
+
+# Extract the first word of "rustc", so it can be a program name with args.
+set dummy rustc; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_RUSTC+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) case $RUSTC in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_RUSTC="$RUSTC" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_RUSTC="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac ;;
+esac
+fi
+RUSTC=$ac_cv_path_RUSTC
+if test -n "$RUSTC"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $RUSTC" >&5
+printf "%s\n" "$RUSTC" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+if test -z "${RUSTC}"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: rustc not found: Rust sources will not be built" >&5
+printf "%s\n" "$as_me: WARNING: rustc not found: Rust sources will not be built" >&2;}
+  RUSTC=:
+fi
+if test -z "${RUSTFLAGS}"; then
+  RUSTFLAGS=""
+fi
+if test -z "${RUSTPICFLAGS}"; then
+  RUSTPICFLAGS="-C relocation-model=pic"
+fi
+
 
 
 
@@ -34846,7 +34922,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:34849: \"$ac_link\") >&5
+(eval echo $as_me:34925: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -34932,7 +35008,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:34935: \"$ac_link\") >&5
+(eval echo $as_me:35011: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -35617,6 +35693,75 @@ r_cxx_rules_frag=Makefrag.cxx
 
 r_cxx_rules_frag=Makefrag.cxx
 
+
+
+
+
+### *** Rust compiler
+
+r_rust_rules_frag=Makefrag.rs
+r_rust_rules_frag=Makefrag.rs
+
+
+
+
+# Extract the first word of "rustc", so it can be a program name with args.
+set dummy rustc; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_RUSTC+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) case $RUSTC in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_RUSTC="$RUSTC" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_RUSTC="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac ;;
+esac
+fi
+RUSTC=$ac_cv_path_RUSTC
+if test -n "$RUSTC"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $RUSTC" >&5
+printf "%s\n" "$RUSTC" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+if test -z "${RUSTC}"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: rustc not found: Rust sources will not be built" >&5
+printf "%s\n" "$as_me: WARNING: rustc not found: Rust sources will not be built" >&2;}
+  RUSTC=:
+fi
+if test -z "${RUSTFLAGS}"; then
+  RUSTFLAGS=""
+fi
+if test -z "${RUSTPICFLAGS}"; then
+  RUSTPICFLAGS="-C relocation-model=pic"
+fi
 
 
 
@@ -72232,6 +72377,7 @@ do
     "r_cc_rules_frag") CONFIG_COMMANDS="$CONFIG_COMMANDS r_cc_rules_frag" ;;
     "r_cc_lo_rules_frag") CONFIG_COMMANDS="$CONFIG_COMMANDS r_cc_lo_rules_frag" ;;
     "r_cxx_rules_frag") CONFIG_COMMANDS="$CONFIG_COMMANDS r_cxx_rules_frag" ;;
+    "r_rust_rules_frag") CONFIG_COMMANDS="$CONFIG_COMMANDS r_rust_rules_frag" ;;
     "r_objc_rules_frag") CONFIG_COMMANDS="$CONFIG_COMMANDS r_objc_rules_frag" ;;
     "src/include/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/config.h" ;;
     "Makeconf") CONFIG_FILES="$CONFIG_FILES Makeconf" ;;
@@ -73841,6 +73987,25 @@ else
 	@echo > $@
 EOF
 fi
+ ;;
+    "r_rust_rules_frag":C)
+cat << 'EOF' > Makefrag.rs
+.rs.o:
+	@if test "x$(RUSTC)" = "x:"; then \
+	  echo "rustc is not available but a Rust source was encountered: $<" 1>&2; \
+	  exit 1; \
+	fi
+	$(RUSTC) $(ALL_RUSTFLAGS) --emit=obj -o  $<
+EOF
+cat << 'EOF' >> Makefrag.rs
+.rs.d:
+	@if test "x$(RUSTC)" = "x:"; then \
+	  echo "rustc is not available but a Rust source was encountered: $<" 1>&2; \
+	  exit 1; \
+	fi
+	@echo "making  from $<"
+	@$(RUSTC) $(ALL_RUSTFLAGS) --emit=dep-info -o  $<
+EOF
  ;;
     "r_objc_rules_frag":C)
 cat << 'EOF' > Makefrag.m
