@@ -1959,7 +1959,7 @@ add_dummies <- function(dir, Log)
                                            c("Makefile", "Makefile.win",
                                              "Makefile.ucrt",
                                              "install.libs.R"))))) {
-                if (!length(dir("src", pattern = "\\.([cfmM]|cc|cpp|f90|f95|mm)"))) {
+                if (!length(dir("src", pattern = "\\.([cfmM]|cc|cpp|f90|f95|mm|rs)"))) {
                     if (!any) warningLog(Log)
                     printLog(Log, "Subdirectory 'src' contains no source files.\n")
                     any <- TRUE
@@ -6920,7 +6920,7 @@ add_dummies <- function(dir, Log)
                     srcfiles <- dir(".", all.files = TRUE)
                     srcfiles <- srcfiles[!dir.exists(srcfiles)]
                     srcfiles <- filtergrep(
-                        "(\\.([cfmCM]|cc|cpp|f90|f95|mm|h|o|so)$|^Makevars|-win\\.def|^install\\.libs\\.R$)",
+                        "(\\.([cfmCM]|cc|cpp|f90|f95|mm|rs|h|o|so)$|^Makevars|-win\\.def|^install\\.libs\\.R$)",
                         srcfiles)
                     if (length(srcfiles)) {
                         if (!any) warningLog(Log)

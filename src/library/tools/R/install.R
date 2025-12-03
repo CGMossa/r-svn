@@ -1318,7 +1318,7 @@ if(FALSE) {
                     if (res == 0L) shlib_install(instdir, rarch)
                     else has_error <- TRUE
                 } else { ## no src/Makefile.win
-                    srcs <- dir(pattern = "\\.([cfmM]|cc|cpp|f90|f95|mm)$",
+                    srcs <- dir(pattern = "\\.([cfmM]|cc|cpp|f90|f95|mm|rs)$",
                                 all.files = TRUE)
                     archs <- if(have_cross) {
                         if (cross == "singlearch") "" else cross
@@ -1401,7 +1401,7 @@ if(FALSE) {
                     setwd(owd)
                 } else { ## no src/Makefile
                     owd <- setwd("src")
-                    srcs <- dir(pattern = "\\.([cfmM]|cc|cpp|f90|f95|mm)$",
+                    srcs <- dir(pattern = "\\.([cfmM]|cc|cpp|f90|f95|mm|rs)$",
                                 all.files = TRUE)
                     ## This allows Makevars to set OBJECTS or its own targets.
                     allfiles <- if (file.exists("Makevars")) c("Makevars", srcs) else srcs

@@ -436,6 +436,37 @@ fi
 ])# R_PROG_CC_LO_MAKEFRAG
 
 
+## R_PROG_RUST_MAKEFRAG
+## --------------------
+## Generate a Make fragment with suffix rules for the Rust compiler.
+AC_DEFUN([R_PROG_RUST_MAKEFRAG],
+[r_rust_rules_frag=Makefrag.rs
+AC_SUBST([r_rust_rules_frag], [Makefrag.rs])
+AC_SUBST_FILE(r_rust_rules_frag)
+m4_ifndef([_R_RUST_RULES_FRAG_SEEN],
+[m4_define([_R_RUST_RULES_FRAG_SEEN], 1)
+AC_CONFIG_COMMANDS([r_rust_rules_frag],[
+cat << 'EOF' > Makefrag.rs
+.rs.o:
+	@if test "x$(RUSTC)" = "x:"; then \
+	  echo "rustc is not available but a Rust source was encountered: $<" 1>&2; \
+	  exit 1; \
+	fi
+	$(RUSTC) $(ALL_RUSTFLAGS) --emit=obj -o $@ $<
+EOF
+cat << 'EOF' >> Makefrag.rs
+.rs.d:
+	@if test "x$(RUSTC)" = "x:"; then \
+	  echo "rustc is not available but a Rust source was encountered: $<" 1>&2; \
+	  exit 1; \
+	fi
+	@echo "making $@ from $<"
+	@$(RUSTC) $(ALL_RUSTFLAGS) --emit=dep-info -o $@ $<
+EOF
+])])
+])# R_PROG_RUST_MAKEFRAG
+
+
 ## R_PROG_CC_FLAG(FLAG, [ACTION-IF-TRUE])
 ## ---------------------------------------
 ## Check whether the C compiler handles command line option FLAG,

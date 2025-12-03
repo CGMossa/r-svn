@@ -79,6 +79,11 @@ FPICFLAGS = @FPICFLAGS@
 FPIEFLAGS = @FPIEFLAGS@
 F_VISIBILITY = @F_VISIBILITY@
 
+## Rust
+RUSTC = @RUSTC@
+RUSTFLAGS = @RUSTFLAGS@
+RUSTPICFLAGS = @RUSTPICFLAGS@
+
 FOUNDATION_CPPFLAGS = @FOUNDATION_CPPFLAGS@
 FOUNDATION_LIBS = @FOUNDATION_LIBS@
 JAR = @JAR@
@@ -195,13 +200,16 @@ P_FCFLAGS = $(PKG_FFLAGS)
 ALL_FCFLAGS = @R_XTRA_FFLAGS@ $(P_FCFLAGS) $(FPICFLAGS) $(SHLIB_FFLAGS) $(FCFLAGS)
 ## LIBR here as a couple of packages use this without SHLIB_LINK
 ALL_LIBS = $(PKG_LIBS) $(SHLIB_LIBADD) $(SAN_LIBS) $(LIBR)@DYLIB_UNDEFINED_ALLOWED_FALSE@ $(LIBINTL)
+PKG_RUSTFLAGS =
+ALL_RUSTFLAGS = $(PKG_RUSTFLAGS) $(RUSTPICFLAGS) $(RUSTFLAGS)
 
 .SUFFIXES:
-.SUFFIXES: .c .cc .cpp .d .f .f90 .f95 .m .mm .M .o
+.SUFFIXES: .c .cc .cpp .d .f .f90 .f95 .m .mm .M .rs .o
 
 -include $(abs_top_builddir)/Makefrag.cc
 -include $(abs_top_builddir)/Makefrag.cxx
 -include $(abs_top_builddir)/Makefrag.m
+-include $(abs_top_builddir)/Makefrag.rs
 .mm.o:
 	$(OBJCXX) $(ALL_CPPFLAGS) $(ALL_OBJCXXFLAGS) -c $< -o $@
 .M.o:
