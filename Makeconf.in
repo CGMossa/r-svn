@@ -125,7 +125,7 @@ ALL_FFLAGS_PIE = $(R_XTRA_FFLAGS) $(FPIEFLAGS) $(SHLIB_FFLAGS) $(FFLAGS)
 .SUFFIXES:
 .SUFFIXES: .c .f .m .d .o
 
-@r_cc_rules_frag@
+-include $(abs_top_builddir)/Makefrag.cc
 .f.o:
 	$(FC) $(ALL_FFLAGS) -c $< -o $@
 

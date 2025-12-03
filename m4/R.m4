@@ -396,18 +396,11 @@ cat << 'EOF' > Makefrag.cc
 .c.o:
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $[@]
 EOF
-if test -n "${r_cv_prog_cc_m}"; then
-  cat << EOF >> Makefrag.cc
+cat << 'EOF' >> Makefrag.cc
 .c.d:
-	@echo "making \$[@] from \$<"
-	@${r_cv_prog_cc_m} \$(ALL_CPPFLAGS) $< > \$[@]
+	@echo "making $[@] from $<"
+	@$(CC) -MM $(ALL_CPPFLAGS) $< > $[@]
 EOF
-else
-  cat << 'EOF' >> Makefrag.cc
-.c.d:
-	@echo > $[@]
-EOF
-fi
 ], [r_cv_prog_cc_m="${r_cv_prog_cc_m}"])])
 ])# R_PROG_CC_MAKEFRAG
 

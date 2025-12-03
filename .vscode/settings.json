@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "Makefile.in": "makefile",
+    "Makevars.in": "makefile",
+    "Makeconf.in": "makefile"
+  }
+}

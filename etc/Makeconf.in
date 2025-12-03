@@ -7,6 +7,7 @@
 # configure @R_CONFIG_ARGS@
 
 ## This fails if it contains spaces, or if it is quoted
+abs_top_builddir = @abs_top_builddir@
 include $(R_SHARE_DIR)/make/vars.mk
 
 AR = @AR@
@@ -198,9 +199,9 @@ ALL_LIBS = $(PKG_LIBS) $(SHLIB_LIBADD) $(SAN_LIBS) $(LIBR)@DYLIB_UNDEFINED_ALLOW
 .SUFFIXES:
 .SUFFIXES: .c .cc .cpp .d .f .f90 .f95 .m .mm .M .o
 
-@r_cc_rules_frag@
-@r_cxx_rules_frag@
-@r_objc_rules_frag@
+-include $(abs_top_builddir)/Makefrag.cc
+-include $(abs_top_builddir)/Makefrag.cxx
+-include $(abs_top_builddir)/Makefrag.m
 .mm.o:
 	$(OBJCXX) $(ALL_CPPFLAGS) $(ALL_OBJCXXFLAGS) -c $< -o $@
 .M.o:
