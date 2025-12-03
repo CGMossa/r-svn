@@ -3724,39 +3724,27 @@ fi
 
 ## R_LIBDEFLATE
 ## ------------
-## Try finding libdeflate library and headers.
-## We check that both are installed,
 AC_DEFUN([R_LIBDEFLATE],
 [
-  AC_CHECK_HEADERS(libdeflate.h, [have_libdeflate=yes], [have_libdeflate=no])
-if test "${have_libdeflate}" = yes; then
-  AC_CHECK_LIB(deflate, libdeflate_alloc_compressor, [have_libdeflate=yes], [have_libdeflate=no])
-fi
-if test "x${r_cv_have_libdeflate}" = xno; then
-  have_libdeflate=no
-fi
-if test "x${have_libdeflate}" = xyes; then
-  AC_MSG_RESULT([yes])
-  LIBS="-ldeflate ${LIBS}"
-  AC_DEFINE(HAVE_LIBDEFLATE, 1,
-            [Define to 1 if you have libdeflate headers and library.])
-fi
+  PKG_CHECK_MODULES([LIBDEFLATE],[libdeflate],
+    [AC_DEFINE(HAVE_LIBDEFLATE, 1,
+               [Define to 1 if you have libdeflate headers and library.])
+     CPPFLAGS="${CPPFLAGS} ${LIBDEFLATE_CFLAGS}"
+     LIBS="${LIBDEFLATE_LIBS} ${LIBS}"],
+    [have_libdeflate=no])
 ])# R_LIBDEFLATE
 
 ## R_TRE
 ## -------
 ## Try finding tre library and headers.
-## We check that both are installed,
 AC_DEFUN([R_TRE],
 [if test "x${use_system_tre}" = xyes; then
-  AC_CHECK_LIB(tre, tre_regncompb, [have_tre=yes], [have_tre=no])
-  if test "${have_tre}" = yes; then
-    AC_CHECK_HEADERS(tre/tre.h, [have_tre=yes], [have_tre=no])
-  fi
-if test "x${have_tre}" = xyes; then
-  AC_DEFINE(HAVE_TRE, 1, [Define if your system has tre.])
-  LIBS="-ltre ${LIBS}"
-fi
+  PKG_CHECK_MODULES([TRE],[tre],
+    [AC_DEFINE(HAVE_TRE, 1, [Define if your system has tre.])
+     CPPFLAGS="${CPPFLAGS} ${TRE_CFLAGS}"
+     LIBS="${TRE_LIBS} ${LIBS}"
+     have_tre=yes],
+    [have_tre=no])
 else
   have_tre="no"
 fi
@@ -3776,45 +3764,15 @@ AC_DEFUN([R_LZMA],
 
 ## R_ZSTD
 ## -------
-## Try finding libzstd library and headers.
-## We check that both are installed,
 AC_DEFUN([R_ZSTD],
-[AC_CHECK_LIB(zstd, ZSTD_versionNumber, [have_zstd=yes], [have_zstd=no])
-if test "${have_zstd}" = yes; then
-  AC_CHECK_HEADERS(zstd.h, [have_zstd=yes], [have_zstd=no])
-fi
-if test "x${have_zstd}" = xyes; then
-AC_CACHE_CHECK([if zstd version >= 1.3.3], [r_cv_have_zstd],
-[AC_LANG_PUSH(C)
-r_save_LIBS="${LIBS}"
-LIBS="-lzstd ${LIBS}"
-AC_RUN_IFELSE([AC_LANG_SOURCE([[
-#ifdef HAVE_ZSTD_H
-#include <zstd.h>
-#endif
-#include <stdlib.h>
-int main(void) {
-    exit(ZSTD_versionNumber() < 10303);
-}
-]])], [r_cv_have_zstd=yes], [r_cv_have_zstd=no], [r_cv_have_zstd=no])
-LIBS="${r_save_LIBS}"
-AC_LANG_POP(C)])
-fi
-if test "x${r_cv_have_zstd}" = xno; then
-  have_zstd=no
-fi
-if test "x${have_zstd}" = xyes; then
-  AC_DEFINE(HAVE_ZSTD, 1, [Define if your system has zstd >= 1.3.3.])
-  LIBS="-lzstd ${LIBS}"
-  # check if we can use single-shot decompression on stream-compressed files (was added as static in 1.4.0)
-  AC_CHECK_FUNC(ZSTD_decompressBound, [have_zstd_decompressbound=yes], [have_zstd_decompressbound=no])
-  if test "x${have_zstd_decompressbound}" = xyes; then
-    AC_DEFINE(HAVE_ZSTD_DECOMPRESSBOUND, 1, [Define if zstd has ZSTD_decompressBound])
-  fi
-# so far we don't require it, but we might
-#else
-#  AC_MSG_ERROR("libzstd library and headers are required")
-fi
+[PKG_CHECK_MODULES([ZSTD],[libzstd >= 1.3.3],
+  [AC_DEFINE(HAVE_ZSTD, 1, [Define if your system has zstd >= 1.3.3.])
+   CPPFLAGS="${CPPFLAGS} ${ZSTD_CFLAGS}"
+   LIBS="${ZSTD_LIBS} ${LIBS}"
+   PKG_CHECK_EXISTS([libzstd >= 1.4.0],
+     [AC_DEFINE(HAVE_ZSTD_DECOMPRESSBOUND, 1, [Define if zstd has ZSTD_decompressBound])],
+     [])],
+  [have_zstd=no])
 ])# R_ZSTD
 
 

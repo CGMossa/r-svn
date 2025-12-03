@@ -5,7 +5,7 @@
 - Runtime Switchboard: tracks configure-time knobs that affect the running R binary; ensures defaults are sane.
 - Tooling Shepherd: keeps the Autotools stack minimal (m4 dir, autoreconf hygiene, no redundant helpers).
 
-## Runtime switches map (pkg-config is required)
+## Runtime switches map (pkg-config is required; compression libs resolved via pkg-config)
 ### Feature toggles (AC_ARG_ENABLE)
 | Flag | Purpose | Default | configure.ac |
 | --- | --- | --- | --- |
@@ -49,7 +49,7 @@
 | --with-recommended-packages | Install recommended pkgs | yes | configure.ac:557 |
 | --with-ICU | ICU i18n | yes | configure.ac:564 |
 | --with-static-cairo | Allow static cairo | default (yes on macOS) | configure.ac:578 |
-| --with-libdeflate-compression | libdeflate for lazyload | yes | configure.ac:2646 |
+| --with-libdeflate-compression | libdeflate for lazyload (via pkg-config) | yes | configure.ac:2646 |
 | --with-newAccelerate | macOS Accelerate BLAS/LAPACK | no | configure.ac:3001 |
 
 ### Precious environment variables (AC_ARG_VAR)
