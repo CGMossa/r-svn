@@ -883,6 +883,7 @@ CFLAGS=${CFLAGS_save}
 ## Libtool.
 ## (Run this after selecting the Fortan compiler as AC_PROG_LIBTOOL
 ## checks for a Fortran 77 compiler and sets F77 accordingly.)
+: ${lt_cv_sys_max_cmd_len=65536}
 AC_DISABLE_STATIC
 LT_INIT
 AC_SUBST(LIBTOOL_DEPS)
@@ -3050,6 +3051,9 @@ esac
 AC_SUBST(LIBS_PKGS)
 
 AC_OUTPUT
+
+## Tidy transient artifacts from configure probes (notably on macOS).
+rm -rf libconftest.dSYM
 
 ## Summarize configure results.
 ## <NOTE>

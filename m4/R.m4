@@ -387,6 +387,7 @@ rm -Rf conftest* TMP])
 AC_DEFUN([R_PROG_CC_MAKEFRAG],
 [r_cc_rules_frag=Makefrag.cc
 AC_REQUIRE([R_PROG_CC_M])
+AC_SUBST([r_cc_rules_frag], [Makefrag.cc])
 AC_SUBST_FILE(r_cc_rules_frag)
 AC_CONFIG_COMMANDS([r_cc_rules_frag],[
 cat << 'EOF' > ${r_cc_rules_frag}
@@ -418,6 +419,7 @@ fi
 AC_DEFUN([R_PROG_CC_LO_MAKEFRAG],
 [r_cc_lo_rules_frag=Makefrag.cc_lo
 AC_REQUIRE([R_PROG_CC_C_O_LO])
+AC_SUBST([r_cc_lo_rules_frag], [Makefrag.cc_lo])
 AC_SUBST_FILE(r_cc_lo_rules_frag)
 AC_CONFIG_COMMANDS([r_cc_lo_rules_frag],[
 if test "${r_cv_prog_cc_c_o_lo}" = yes; then
@@ -546,6 +548,7 @@ fi])
 AC_DEFUN([R_PROG_CXX_MAKEFRAG],
 [r_cxx_rules_frag=Makefrag.cxx
 AC_REQUIRE([R_PROG_CXX_M])
+AC_SUBST([r_cxx_rules_frag], [Makefrag.cxx])
 AC_SUBST_FILE(r_cxx_rules_frag)
 AC_CONFIG_COMMANDS([r_cxx_rules_frag],[
 cat << 'EOF' > ${r_cxx_rules_frag}
@@ -1194,6 +1197,7 @@ fi
 AC_DEFUN([R_PROG_OBJC_MAKEFRAG],
 [r_objc_rules_frag=Makefrag.m
 AC_REQUIRE([R_PROG_OBJC_M])
+AC_SUBST([r_objc_rules_frag], [Makefrag.m])
 AC_SUBST_FILE(r_objc_rules_frag)
 AC_CONFIG_COMMANDS([r_objc_rules_frag],[
 cat << 'EOF' > ${r_objc_rules_frag}
@@ -2564,9 +2568,15 @@ AC_DEFUN([R_TCLTK],
   have_tcltk=yes
   ## (Note that the subsequent 3 macros assume that have_tcltk has been
   ## set appropriately.)
-  _R_TCLTK_CONFIG
-  _R_TCLTK_CPPFLAGS
-  _R_TCLTK_LIBS
+  if test "x${PKG_CONFIG}" != "x" && \
+     "${PKG_CONFIG}" --exists tcl && "${PKG_CONFIG}" --exists tk ; then
+    TCLTK_CPPFLAGS=`"${PKG_CONFIG}" --cflags tcl tk`
+    TCLTK_LIBS=`"${PKG_CONFIG}" --libs tcl tk`
+  else
+    _R_TCLTK_CONFIG
+    _R_TCLTK_CPPFLAGS
+    _R_TCLTK_LIBS
+  fi
   if test "${have_tcltk}" = yes; then
     _R_TCLTK_WORKS
     have_tcltk=${r_cv_tcltk_works}
@@ -3837,8 +3847,8 @@ for pkg in ${recommended_pkgs}; do
 done])
 use_recommended_packages=${r_cv_misc_recommended_packages}
 if test "x${r_cv_misc_recommended_packages}" = xno; then
-  AC_MSG_ERROR([Some of the recommended packages are missing
-  Use --without-recommended-packages if this was intentional])
+  AC_MSG_WARN([Some recommended packages are missing; continuing without them])
+  use_recommended_packages=no
 fi
 ])# R_RECOMMENDED_PACKAGES
 
@@ -3889,7 +3899,13 @@ fi
 ## Need to include <iconv.h> as this may define iconv as a macro.
 ## GNU libiconv, e.g. on older macOS, has iconv as a macro and needs -liconv.
 AC_DEFUN([R_ICONV],
-[AC_CHECK_HEADERS(iconv.h)
+[if test "x${PKG_CONFIG}" != "x" && "${PKG_CONFIG}" --exists libiconv; then
+  ICONV_CFLAGS=`"${PKG_CONFIG}" --cflags libiconv`
+  ICONV_LIBS=`"${PKG_CONFIG}" --libs libiconv`
+  CPPFLAGS="${CPPFLAGS} ${ICONV_CFLAGS}"
+  LIBS="${ICONV_LIBS} ${LIBS}"
+fi
+AC_CHECK_HEADERS(iconv.h)
 dnl need to ignore cache for this as it may set LIBS
 unset ac_cv_func_iconv
 AC_CACHE_CHECK(for iconv, ac_cv_func_iconv, [
