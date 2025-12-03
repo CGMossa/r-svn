@@ -33,6 +33,7 @@ m4_define([R_VERSION],
 AC_INIT([R],[R_VERSION],[https://bugs.r-project.org],[R],[https://www.r-project.org])
 AC_CONFIG_SRCDIR([src/include/Defn.h])
 AC_CONFIG_AUX_DIR([tools])
+AC_CONFIG_MACRO_DIR([m4])
 
 ### * Information on the package.
 
