@@ -9,6 +9,5 @@
 - [x] Re-run autoreconf after cleanups and verify generated `configure`/`config.h.in` stay lean; documented remaining gettext warning.
 
 Next steps
-- [ ] Convert remaining library probes (iconv/libintl, Tcl/Tk, cairo stack) to pkg-config-first or drop fallbacks where safe.
-- [ ] Decide policy for Recommended packages: keep erroring when tarballs absent or default to `--without-recommended-packages` in developer builds.
-- [ ] Resolve expr(1) warning from libtool cmdline length probe (harmless but noisy).
+- [ ] Optional: tweak cairo stack to drop legacy branches now that pkg-config is required.
+- [ ] Optional: restore `tools/missing` if we want to match upstream layout.

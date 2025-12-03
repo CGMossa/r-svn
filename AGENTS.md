@@ -5,7 +5,7 @@
 - Runtime Switchboard: tracks configure-time knobs that affect the running R binary; ensures defaults are sane.
 - Tooling Shepherd: keeps the Autotools stack minimal (m4 dir, autoreconf hygiene, no redundant helpers).
 
-## Runtime switches map (pkg-config is required; compression libs resolved via pkg-config)
+## Runtime switches map (pkg-config is required; compression + tre + iconv/Tcl resolved via pkg-config; Recommended pkgs auto-disable if missing)
 ### Feature toggles (AC_ARG_ENABLE)
 | Flag | Purpose | Default | configure.ac |
 | --- | --- | --- | --- |
