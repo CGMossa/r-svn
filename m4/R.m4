@@ -1684,7 +1684,10 @@ PKG_CHECK_MODULES([X11STACK],[x11 xext xrender xft xt],
   [x_pkg_ok=yes
    X_CFLAGS="${X11STACK_CFLAGS}"
    X_LIBS="${X11STACK_LIBS}"],
-  [x_pkg_ok=no])
+  [x_pkg_ok=no
+   case "${host_os}" in
+     darwin*) AC_MSG_NOTICE([pkg-config could not find x11/xext/xrender/xft/xt; on macOS try: brew install libxft]) ;;
+   esac])
 if test "${x_pkg_ok}" = no; then
   AC_PATH_XTRA			# standard X11 search macro
 fi
@@ -2166,7 +2169,9 @@ if test "${use_libtiff}" = yes; then
         PKG_CHECK_MODULES([TIFFJBIG],[libjbig],
           [BITMAP_LIBS="${TIFFJBIG_LIBS} ${BITMAP_LIBS}"
            BITMAP_CPPFLAGS="${BITMAP_CPPFLAGS} ${TIFFJBIG_CFLAGS}"],
-          [:])
+          [case "${host_os}" in
+             darwin*) AC_MSG_NOTICE([pkg-config could not find libjbig; on macOS try: brew install jbigkit]) ;;
+           esac])
         PKG_CHECK_MODULES([TIFFZSTD],[libzstd],
           [BITMAP_LIBS="${TIFFZSTD_LIBS} ${BITMAP_LIBS}"
            BITMAP_CPPFLAGS="${BITMAP_CPPFLAGS} ${TIFFZSTD_CFLAGS}"],
@@ -3533,7 +3538,10 @@ PKG_CHECK_MODULES([TIRPCPKG],[libtirpc],
    TIRPC_LIBS="${TIRPCPKG_LIBS}"
    CPPFLAGS="${CPPFLAGS} ${TIRPC_CPPFLAGS}"
    LIBS="${TIRPC_LIBS} ${LIBS}"],
-  [r_xdr_pkg=no])
+  [r_xdr_pkg=no
+   case "${host_os}" in
+     darwin*) AC_MSG_NOTICE([pkg-config could not find libtirpc; on macOS try: brew install libtirpc]) ;;
+   esac])
 AC_CHECK_HEADER(rpc/types.h)
 if test "${ac_cv_header_rpc_types_h}" = yes ; then
   AC_CHECK_HEADER(rpc/xdr.h, , , [#include <rpc/types.h>])

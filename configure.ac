@@ -986,6 +986,11 @@ if test "${use_readline}" = yes; then
     LIBS="${READLINE_LIBS} ${LIBS}"
     use_readline=yes
   ],[
+  case "${host_os}" in
+    darwin*)
+      AC_MSG_NOTICE([pkg-config could not find readline; on macOS try: brew install readline && export PKG_CONFIG_PATH=/opt/homebrew/opt/readline/lib/pkgconfig])
+      ;;
+  esac
   dnl in libedit both headers exist as links to editline/readline.h
   AC_CHECK_HEADERS(readline/history.h readline/readline.h)
   r_save_LIBS="${LIBS}"
