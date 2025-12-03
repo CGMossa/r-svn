@@ -21,6 +21,7 @@
 | --enable-lto | Link-time optimisation | no | configure.ac:358 |
 | --enable-java | Java/JNI support | yes | configure.ac:409 |
 | --enable-byte-compiled-packages | Byte-compile base + recommended | yes | configure.ac:570 |
+| --disable-site-config | Skip sourcing config.site / ~/.R/config | no (enabled) | configure.ac:130 |
 | --enable-long-double | Use long double type | yes | configure.ac:1138 |
 
 ### Library / subsystem selection (AC_ARG_WITH)

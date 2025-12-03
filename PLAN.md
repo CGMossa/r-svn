@@ -11,3 +11,5 @@
 Next steps
 - [x] Optional: tweak cairo stack to drop legacy branches now that pkg-config is required.
 - [x] Optional: restore `tools/missing` if we want to match upstream layout.
+- [x] Add `--disable-site-config` to skip sourcing config.site / ~/.R/config for sandbox builds.
+- [ ] Remove configure-time header templating that is no longer needed; rely on standard headers and pkg-config CFLAGS where possible.
