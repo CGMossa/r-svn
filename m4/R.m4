@@ -389,24 +389,26 @@ AC_DEFUN([R_PROG_CC_MAKEFRAG],
 AC_REQUIRE([R_PROG_CC_M])
 AC_SUBST([r_cc_rules_frag], [Makefrag.cc])
 AC_SUBST_FILE(r_cc_rules_frag)
+m4_ifndef([_R_CC_RULES_FRAG_SEEN],
+[m4_define([_R_CC_RULES_FRAG_SEEN], 1)
 AC_CONFIG_COMMANDS([r_cc_rules_frag],[
-cat << 'EOF' > ${r_cc_rules_frag}
+cat << 'EOF' > Makefrag.cc
 .c.o:
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $[@]
 EOF
 if test -n "${r_cv_prog_cc_m}"; then
-  cat << EOF >> ${r_cc_rules_frag}
+  cat << EOF >> Makefrag.cc
 .c.d:
 	@echo "making \$[@] from \$<"
 	@${r_cv_prog_cc_m} \$(ALL_CPPFLAGS) $< > \$[@]
 EOF
 else
-  cat << 'EOF' >> ${r_cc_rules_frag}
+  cat << 'EOF' >> Makefrag.cc
 .c.d:
 	@echo > $[@]
 EOF
 fi
-], [r_cv_prog_cc_m="${r_cv_prog_cc_m}"])
+], [r_cv_prog_cc_m="${r_cv_prog_cc_m}"])])
 ])# R_PROG_CC_MAKEFRAG
 
 ## R_PROG_CC_LO_MAKEFRAG
@@ -421,21 +423,23 @@ AC_DEFUN([R_PROG_CC_LO_MAKEFRAG],
 AC_REQUIRE([R_PROG_CC_C_O_LO])
 AC_SUBST([r_cc_lo_rules_frag], [Makefrag.cc_lo])
 AC_SUBST_FILE(r_cc_lo_rules_frag)
+m4_ifndef([_R_CC_LO_RULES_FRAG_SEEN],
+[m4_define([_R_CC_LO_RULES_FRAG_SEEN], 1)
 AC_CONFIG_COMMANDS([r_cc_lo_rules_frag],[
 if test "${r_cv_prog_cc_c_o_lo}" = yes; then
-  cat << 'EOF' > ${r_cc_lo_rules_frag}
+  cat << 'EOF' > Makefrag.cc_lo
 .c.lo:
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS_LO) -c $< -o $[@]
 EOF
 else
-  cat << 'EOF' > ${r_cc_lo_rules_frag}
+  cat << 'EOF' > Makefrag.cc_lo
 .c.lo:
 	@-test -d .libs || mkdir .libs
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS_LO) -c $< -o .libs/$[*].o
 	mv .libs/$[*].o $[*].lo
 EOF
 fi
-], [r_cv_prog_cc_c_o_lo="${r_cv_prog_cc_c_o_lo}"])
+], [r_cv_prog_cc_c_o_lo="${r_cv_prog_cc_c_o_lo}"])])
 ])# R_PROG_CC_LO_MAKEFRAG
 
 
@@ -550,15 +554,17 @@ AC_DEFUN([R_PROG_CXX_MAKEFRAG],
 AC_REQUIRE([R_PROG_CXX_M])
 AC_SUBST([r_cxx_rules_frag], [Makefrag.cxx])
 AC_SUBST_FILE(r_cxx_rules_frag)
+m4_ifndef([_R_CXX_RULES_FRAG_SEEN],
+[m4_define([_R_CXX_RULES_FRAG_SEEN], 1)
 AC_CONFIG_COMMANDS([r_cxx_rules_frag],[
-cat << 'EOF' > ${r_cxx_rules_frag}
+cat << 'EOF' > Makefrag.cxx
 .cc.o:
 	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c $< -o $[@]
 .cpp.o:
 	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c $< -o $[@]
 EOF
 if test "${r_cv_prog_cxx_m}" = yes; then
-  cat << 'EOF' >> ${r_cxx_rules_frag}
+  cat << 'EOF' >> Makefrag.cxx
 .cc.d:
 	@echo "making $[@] from $<"
 	@$(CXX) -M $(ALL_CPPFLAGS) $< > $[@]
@@ -567,14 +573,14 @@ if test "${r_cv_prog_cxx_m}" = yes; then
 	@$(CXX) -M $(ALL_CPPFLAGS) $< > $[@]
 EOF
 else
-  cat << 'EOF' >> ${r_cxx_rules_frag}
+  cat << 'EOF' >> Makefrag.cxx
 .cc.d:
 	@echo > $[@]
 .cpp.d:
 	@echo > $[@]
 EOF
 fi
-], [r_cv_prog_cxx_m="${r_cv_prog_cxx_m}"])
+], [r_cv_prog_cxx_m="${r_cv_prog_cxx_m}"])])
 ])# R_PROG_CXX_MAKEFRAG
 
 ## R_PROG_CXX_FLAG
@@ -1197,24 +1203,26 @@ AC_DEFUN([R_PROG_OBJC_MAKEFRAG],
 AC_REQUIRE([R_PROG_OBJC_M])
 AC_SUBST([r_objc_rules_frag], [Makefrag.m])
 AC_SUBST_FILE(r_objc_rules_frag)
+m4_ifndef([_R_OBJC_RULES_FRAG_SEEN],
+[m4_define([_R_OBJC_RULES_FRAG_SEEN], 1)
 AC_CONFIG_COMMANDS([r_objc_rules_frag],[
-cat << 'EOF' > ${r_objc_rules_frag}
+cat << 'EOF' > Makefrag.m
 .m.o:
 	$(OBJC) $(ALL_CPPFLAGS) $(ALL_OBJCFLAGS) -c $< -o $[@]
 EOF
 if test -n "${r_cv_prog_objc_m}"; then
-  cat << EOF >> ${r_objc_rules_frag}
+  cat << EOF >> Makefrag.m
 .m.d:
 	@echo "making \$[@] from \$<"
 	@${r_cv_prog_objc_m} \$(ALL_CPPFLAGS) $< > \$[@]
 EOF
 else
-  cat << 'EOF' >> ${r_objc_rules_frag}
+  cat << 'EOF' >> Makefrag.m
 .m.d:
 	@echo > $[@]
 EOF
 fi
-], [r_cv_prog_objc_m="${r_cv_prog_objc_m}"])
+], [r_cv_prog_objc_m="${r_cv_prog_objc_m}"])])
 ])# R_PROG_OBJC_MAKEFRAG
 
 ## R_PROG_OBJC_FLAG(FLAG, [ACTION-IF-TRUE])
@@ -3752,7 +3760,8 @@ fi
 AC_DEFUN([R_LIBDEFLATE],
 [
   PKG_CHECK_MODULES([LIBDEFLATE],[libdeflate],
-    [AC_DEFINE(HAVE_LIBDEFLATE, 1,
+    [have_libdeflate=yes
+     AC_DEFINE(HAVE_LIBDEFLATE, 1,
                [Define to 1 if you have libdeflate headers and library.])
      CPPFLAGS="${CPPFLAGS} ${LIBDEFLATE_CFLAGS}"
      LIBS="${LIBDEFLATE_LIBS} ${LIBS}"],
@@ -4984,12 +4993,13 @@ if test -n "${CURL_CONFIG}"; then
     fi
   fi
 fi
+])
+
 r_save_CPPFLAGS="${CPPFLAGS}"
-CPPFLAGS="${CURL_CPPFLAGS} ${CPPFLAGS}"
 r_save_LIBS="${LIBS}"
+CPPFLAGS="${CURL_CPPFLAGS} ${CPPFLAGS}"
 LIBS="${CURL_LIBS} ${LIBS}"
 AC_CHECK_HEADERS(curl/curl.h, [have_libcurl=yes], [have_libcurl=no])
-])
 
 if test "x${have_libcurl}" = "xyes"; then
 AC_CACHE_CHECK([if libcurl is >= 7.28.0], [r_cv_have_curl728],
