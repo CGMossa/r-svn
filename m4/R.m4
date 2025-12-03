@@ -3765,43 +3765,12 @@ AM_CONDITIONAL(BUILD_TRE, [test x${have_tre} != xyes])
 
 ## R_LZMA
 ## -------
-## Try finding liblzma library and headers.
-## We check that both are installed,
 AC_DEFUN([R_LZMA],
-[AC_CHECK_LIB(lzma, lzma_version_number, [have_lzma=yes], [have_lzma=no])
-if test "${have_lzma}" = yes; then
-  AC_CHECK_HEADERS(lzma.h, [have_lzma=yes], [have_lzma=no])
-fi
-if test "x${have_lzma}" = xyes; then
-AC_CACHE_CHECK([if lzma version >= 5.0.3], [r_cv_have_lzma],
-[AC_LANG_PUSH(C)
-r_save_LIBS="${LIBS}"
-LIBS="-llzma ${LIBS}"
-AC_RUN_IFELSE([AC_LANG_SOURCE([[
-#ifdef HAVE_LZMA_H
-#include <lzma.h>
-#endif
-#include <stdlib.h>
-int main(void) {
-    unsigned int ver = lzma_version_number();
-    // This is 10000000*major + 10000*minor + 10*revision + [012]
-    // Where 2 is 'stable'.
-    // I.e. xyyyzzzs and 5.1.2 is 50010022, so this allows 5.0.3 alpha/beta
-    exit(ver < 50000030);
-}
-]])], [r_cv_have_lzma=yes], [r_cv_have_lzma=no], [r_cv_have_lzma=no])
-LIBS="${r_save_LIBS}"
-AC_LANG_POP(C)])
-fi
-if test "x${r_cv_have_lzma}" = xno; then
-  have_lzma=no
-fi
-if test "x${have_lzma}" = xyes; then
-  AC_DEFINE(HAVE_LZMA, 1, [Define if your system has lzma >= 5.0.3.])
-  LIBS="-llzma ${LIBS}"
-else
-  AC_MSG_ERROR("liblzma library and headers are required")
-fi
+[PKG_CHECK_MODULES([LZMA],[liblzma >= 5.0.3],
+  [AC_DEFINE(HAVE_LZMA, 1, [Define if your system has lzma >= 5.0.3.])
+   CPPFLAGS="${CPPFLAGS} ${LZMA_CFLAGS}"
+   LIBS="${LZMA_LIBS} ${LIBS}"],
+  [AC_MSG_ERROR([liblzma (>= 5.0.3) via pkg-config is required])])
 ])# R_LZMA
 
 
