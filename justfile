@@ -20,3 +20,12 @@ configure-full:
 	&& /Users/elea/Documents/GitHub/r_svn_reconfigure/configure \
 	      --prefix=$tmpdir/install
 
+# Smoke-test --disable-site-config and --no-create handling.
+configure-sandbox:
+	tmpdir=$(mktemp -d /tmp/r-conf-build-XXXXXX) \
+	&& cd "$tmpdir" \
+	&& /Users/elea/Documents/GitHub/r_svn_reconfigure/configure \
+	      --prefix=$tmpdir/install \
+	      --disable-site-config \
+	      --no-create \
+	&& ls -a "$tmpdir"
