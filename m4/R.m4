@@ -3531,7 +3531,11 @@ fi
 ## Try finding zlib library and headers.
 ## We check that both are installed, and that the header >= 1.2.3
 AC_DEFUN([R_ZLIB],
-[AC_CHECK_LIB(z, inflateInit2_, [have_zlib=yes], [have_zlib=no])
+[PKG_CHECK_MODULES([ZLIB],[zlib >= 1.2.5],
+  [have_zlib=yes
+   CPPFLAGS="${CPPFLAGS} ${ZLIB_CFLAGS}"
+   LIBS="${ZLIB_LIBS} ${LIBS}"],
+  [AC_CHECK_LIB(z, inflateInit2_, [have_zlib=yes], [have_zlib=no])])
 if test "${have_zlib}" = yes; then
   AC_CHECK_HEADER(zlib.h, [have_zlib=yes], [have_zlib=no])
 fi
@@ -3543,7 +3547,8 @@ AC_MSG_CHECKING([whether zlib support suffices])
 if test "${have_zlib}" != yes; then
   AC_MSG_ERROR([zlib library and headers are required])
 else
-  LIBS="-lz ${LIBS}"
+  : ${ZLIB_LIBS:="-lz"}
+  LIBS="${ZLIB_LIBS} ${LIBS}"
   AC_MSG_RESULT([yes])
 fi
 ])# R_ZLIB
@@ -3703,7 +3708,11 @@ fi
 ## We check that both are installed,
 ## and that BZ2_bzlibVersion is in the library.
 AC_DEFUN([R_BZLIB],
-[AC_CHECK_LIB(bz2, BZ2_bzlibVersion, [have_bzlib=yes], [have_bzlib=no])
+[PKG_CHECK_MODULES([BZIP2],[bzip2 >= 1.0.6],
+  [have_bzlib=yes
+   CPPFLAGS="${CPPFLAGS} ${BZIP2_CFLAGS}"
+   LIBS="${BZIP2_LIBS} ${LIBS}"],
+  [AC_CHECK_LIB(bz2, BZ2_bzlibVersion, [have_bzlib=yes], [have_bzlib=no])])
 if test "${have_bzlib}" = yes; then
   AC_CHECK_HEADERS(bzlib.h, [have_bzlib=yes], [have_bzlib=no])
 fi
@@ -4948,6 +4957,11 @@ AC_ARG_VAR([SHLIB_$2LDFLAGS], [special flags used by SHLIB_$2LD])
 ## ----------------
 AC_DEFUN([R_LIBCURL],
 [
+PKG_CHECK_MODULES([LIBCURL],[libcurl >= 7.28.0],[
+  have_libcurl=yes
+  CURL_CPPFLAGS="${LIBCURL_CFLAGS}"
+  CURL_LIBS="${LIBCURL_LIBS}"
+],[
 dnl curl-config might not match the installed libcurl,
 dnl so we allow the user to set CURL_CPPFLAGS, CURL_LIBS
 dnl and check the version directly rather than by curl-config --checkfor
@@ -4975,6 +4989,7 @@ CPPFLAGS="${CURL_CPPFLAGS} ${CPPFLAGS}"
 r_save_LIBS="${LIBS}"
 LIBS="${CURL_LIBS} ${LIBS}"
 AC_CHECK_HEADERS(curl/curl.h, [have_libcurl=yes], [have_libcurl=no])
+])
 
 if test "x${have_libcurl}" = "xyes"; then
 AC_CACHE_CHECK([if libcurl is >= 7.28.0], [r_cv_have_curl728],
