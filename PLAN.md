@@ -9,5 +9,5 @@
 - [x] Re-run autoreconf after cleanups and verify generated `configure`/`config.h.in` stay lean; documented remaining gettext warning.
 
 Next steps
-- [ ] Optional: tweak cairo stack to drop legacy branches now that pkg-config is required.
-- [ ] Optional: restore `tools/missing` if we want to match upstream layout.
+- [x] Optional: tweak cairo stack to drop legacy branches now that pkg-config is required.
+- [x] Optional: restore `tools/missing` if we want to match upstream layout.
