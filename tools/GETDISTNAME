@@ -10,8 +10,13 @@ TOOLS_DIR=`echo ${0} | sed 's%/[^/][^/]*$%%'`
   if test -z "${rev}" ; then
     res=R-${maj}.${min}
   else
-    dat=`sed  -e 1d -e 's/^Last Changed Date: //' SVN-REVISION`
-    svn=`sed  -e 2d -e 's/^Revision: //' SVN-REVISION`
+    if test -f SVN-REVISION ; then
+      dat=`sed  -e 1d -e 's/^Last Changed Date: //' SVN-REVISION`
+      svn=`sed  -e 2d -e 's/^Revision: //' SVN-REVISION`
+    else
+      dat=`LC_ALL=C TZ=UTC date '+%Y-%m-%d'`
+      svn=0
+    fi
     y=`echo ${dat} | cut -d- -f1`
     m=`echo ${dat} | cut -d- -f2`
     d=`echo ${dat} | cut -d- -f3`

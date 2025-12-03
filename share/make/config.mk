@@ -1,6 +1,6 @@
 print: FORCE
-	@echo $($(VAR))
+	@$(ECHO) $($(VAR))
 FORCE:
 
 print-name-and-value: FORCE
-	@echo $(VAR) = $($(VAR))
+	@$(ECHO) $(VAR) = $($(VAR))

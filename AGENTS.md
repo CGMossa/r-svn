@@ -4,6 +4,12 @@
 - Dependency Scout: switches dependency detection to pkg-config first, prunes non-pkg-config fallbacks.
 - Runtime Switchboard: tracks configure-time knobs that affect the running R binary; ensures defaults are sane.
 - Tooling Shepherd: keeps the Autotools stack minimal (m4 dir, autoreconf hygiene, no redundant helpers).
+- Legacy cleanup: removed SVN revision stamping/checks; dist naming falls back to UTC date + r0, doc installs skip missing legacy FAQ/resources.
+
+## Rust build path
+- `rustc` is auto-detected (`RUSTC`, `RUSTFLAGS`, `RUSTPICFLAGS`), and a new `Makefrag.rs` supplies `.rs -> .o/.d` rules.
+- Package tooling (`R CMD COMPILE`, `R CMD check`, `R CMD INSTALL`) now recognises `*.rs` as valid sources alongside C/C++/Fortran/ObjC.
+- Rust sources are built only if `rustc` is present; otherwise builds fail fast with a clear diagnostic when `.rs` files are encountered.
 
 ## Runtime switches map (pkg-config is required; compression + tre + iconv/Tcl resolved via pkg-config; Recommended pkgs auto-disable if missing)
 ### Feature toggles (AC_ARG_ENABLE)

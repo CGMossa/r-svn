@@ -1,51 +1,95 @@
 #! /bin/sh
-#
 # ${R_HOME}/tools/rsync-recommended
+# Fetch the recommended package tarballs over HTTPS and create
+# version-agnostic .tgz links for the build.
 
-: ${CRAN_RSYNC='cran.r-project.org::CRAN'}
+set -e
 
-## The intention here is infer TOOLS_DIR from an explicit path.
-## but the user might have called it from tools, so test that case
-## separately.
-TOOLS_DIR=`echo ${0} | sed 's%/[^/][^/]*$%%'`
-if test ${TOOLS_DIR} = ${0} ; then
-  TOOLS_DIR="."
-fi
+CRAN_URL=${CRAN_URL:-https://cran.r-project.org}
+
+TOOLS_DIR=$(
+  cd "$(dirname "$0")" || exit 1
+  pwd -P
+)
+
+fetch_to () {
+  url=$1
+  dest=$2
+  if command -v curl >/dev/null 2>&1 ; then
+    curl -fLSs --retry 2 -o "${dest}" "${url}"
+  elif command -v wget >/dev/null 2>&1 ; then
+    wget -q -O "${dest}" "${url}"
+  else
+    echo "*** need curl or wget to download ${url}" 1>&2
+    return 1
+  fi
+}
+
+pkg_version () {
+  pkg=$1
+  awk -v pkg="${pkg}" '
+    tolower($1)=="package:" {p=$2}
+    tolower($1)=="version:" && p==pkg {print $2; exit}
+  ' "${INDEX}"
+}
+
+link_or_copy () {
+  target=$1
+  link=$2
+  ln -sf "${target}" "${link}" 2>/dev/null || cp -f "${target}" "${link}"
+}
+
 (cd "${TOOLS_DIR}"/..
-  version=`cut -f1 -d' ' VERSION`
-  if test "`cut -f2 -d' ' VERSION`" = "Patched"; then
-    version=`echo ${version} | sed 's/\.[0-9]*$//'`
+  version=$(cut -f1 -d' ' VERSION)
+  if test "$(cut -f2 -d' ' VERSION)" = "Patched"; then
+    version=$(echo "${version}" | sed 's/\.[0-9]*$//')
     version="${version}-patched"
   fi
-  PKGS=`grep '^R_PKGS_RECOMMENDED *=' share/make/vars.mk | \
-    sed 's/.*=//'`
+  PKGS=$(grep '^R_PKGS_RECOMMENDED *= *' share/make/vars.mk | sed 's/.*=//')
   cd src/library/Recommended
 
-  ## The purpose of the rsync options is to get the timestamps on the
-  ## downloaded files to reflect time of download.
-  ## We can't use '-t' because then we could download a changed file
-  ## that was older the last build and therefore would not be installed.
-  ## The '-c' (checksum first) is necessary because otherwise all the
-  ## files get their mtime changed whether updated or not.
-  ## We would like to use '-C' to prevent '--delete' from removing the
-  ## CVS subdirectory, but in some versions of rsync this adds the
-  ## exclude patterns from .cvsignore without a way to override, so we
-  ## try using an exclude pattern.
+  BASE="${CRAN_URL%/}/src/contrib/${version}/Recommended"
+  WORK=${TMPDIR:-/tmp}
+  WORK=$(mktemp -d "${WORK%/}/r-rec.XXXXXX")
+  trap 'rm -rf "${WORK}"' EXIT INT HUP TERM
 
-  rsync -rcIz --timeout=60 --verbose --delete --include="*.tar.gz" \
-    --exclude=Makefile.in --exclude=Makefile.win --exclude=Makefile --exclude=".svn" \
-    --exclude="CVS*" --exclude=.cvsignore --exclude="*.tgz" \
-    "${CRAN_RSYNC}"/src/contrib/${version}/Recommended/ . || \
-    { echo "*** rsync failed to update Recommended files ***" && exit 1; }
+  INDEX="${WORK}/PACKAGES"
+  if fetch_to "${BASE}/PACKAGES.gz" "${WORK}/PACKAGES.gz" ; then
+    gzip -dc "${WORK}/PACKAGES.gz" > "${INDEX}"
+  elif fetch_to "${BASE}/PACKAGES" "${INDEX}" ; then
+    :
+  else
+    echo "*** unable to download PACKAGES index from ${BASE}" 1>&2
+    exit 1
+  fi
 
-  ## Link each package to a simplified name so that Make has an easier
-  ## time.  Notice that as far as Make is concerned, the symlinks have
-  ## the same timestamp as the file they point to.  Don't remove the 
-  ## existing links until now in case rsync fails.
-
-  echo "Creating links"
   rm -f *.tgz
+  KEPT=""
+
   for i in ${PKGS} ; do
-    ln -s $i*.tar.gz ${i}.tgz
+    ver=$(pkg_version "${i}")
+    if test -z "${ver}" ; then
+      echo "*** no version entry for ${i} in ${BASE}/PACKAGES" 1>&2
+      exit 1
+    fi
+    tarball="${i}_${ver}.tar.gz"
+    echo "Fetching ${tarball}"
+    if ! fetch_to "${BASE}/${tarball}" "${WORK}/${tarball}"; then
+      echo "*** failed to download ${tarball}" 1>&2
+      exit 1
+    fi
+    mv "${WORK}/${tarball}" "${tarball}"
+    link_or_copy "${tarball}" "${i}.tgz"
+    KEPT="${KEPT} ${tarball}"
+  done
+
+  for f in *.tar.gz ; do
+    case "${f}" in
+      '*.tar.gz') break ;;
+    esac
+    case " ${KEPT} " in
+      *" ${f} "*) ;;
+      *) rm -f "${f}" ;;
+    esac
   done
 )

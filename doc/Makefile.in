@@ -148,7 +148,9 @@ install-sources:
 ## installed from builddir
 install-sources2: installdirs
 	@for f in $(NON_SVN_INSTFILES) $(INSTFILES2); do \
-	  $(INSTALL_DATA) $${f} "$(DESTDIR)$(rdocdir)"; \
+	  if test -f "$${f}"; then \
+	    $(INSTALL_DATA) $${f} "$(DESTDIR)$(rdocdir)"; \
+	  fi; \
 	done
 install-strip: install
 

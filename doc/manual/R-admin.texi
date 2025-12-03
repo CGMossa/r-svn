@@ -176,16 +176,16 @@ early in the @command{make} process): the Subversion information is
 needed to build @R{}.
 
 The Subversion repository does not contain the current sources for the
-recommended packages, which can be obtained by @command{rsync} or
-downloaded from @acronym{CRAN}.  To use @code{rsync} to install the
-appropriate sources for the recommended packages, run
+recommended packages, which should be fetched from @acronym{CRAN}.  Run
 @code{./tools/rsync-recommended} from the top-level directory of the
-@R{} sources.
+@R{} sources to download the matching tarballs over @samp{https:} (using
+@command{curl} or @command{wget}) and create the @file{.tgz} convenience
+links.
 
 If downloading manually from @acronym{CRAN}, do ensure that you have the
 correct versions of the recommended packages: if the number in the file
-@file{VERSION} is @samp{@var{x}.@var{y}.@var{z}} you need to download
-the contents of @samp{https://CRAN.R-project.org/src/contrib/@var{dir}},
+@file{VERSION} is @samp{@var{x}.@var{y}.@var{z}} you need to download the
+contents of @samp{https://CRAN.R-project.org/src/contrib/@var{dir}},
 where @var{dir} is @samp{@var{x}.@var{y}.@var{z}/Recommended} for
 r-devel or @file{@var{x}.@var{y}-patched/Recommended} for r-patched,
 respectively, to directory @file{src/library/Recommended} in the sources
@@ -193,7 +193,8 @@ you have unpacked.  After downloading manually you need to execute
 @command{tools/link-recommended} from the top level of the sources to
 make the requisite links in @file{src/library/Recommended}.  A suitable
 incantation from the top level of the @R{} sources using @command{wget}
-might be (for the correct value of @file{@var{dir}})
+that mirrors what @code{tools/rsync-recommended} now does might be (for
+the correct value of @file{@var{dir}})
 
 @example
 wget -r -l1 --no-parent -A\*.gz -nd -P src/library/Recommended \

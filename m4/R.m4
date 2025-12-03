@@ -449,7 +449,7 @@ AC_CONFIG_COMMANDS([r_rust_rules_frag],[
 cat << 'EOF' > Makefrag.rs
 .rs.o:
 	@if test "x$(RUSTC)" = "x:"; then \
-	  echo "rustc is not available but a Rust source was encountered: $<" 1>&2; \
+	  $(ECHO) "rustc is not available but a Rust source was encountered: $<" 1>&2; \
 	  exit 1; \
 	fi
 	$(RUSTC) $(ALL_RUSTFLAGS) --emit=obj -o $@ $<
@@ -457,10 +457,10 @@ EOF
 cat << 'EOF' >> Makefrag.rs
 .rs.d:
 	@if test "x$(RUSTC)" = "x:"; then \
-	  echo "rustc is not available but a Rust source was encountered: $<" 1>&2; \
+	  $(ECHO) "rustc is not available but a Rust source was encountered: $<" 1>&2; \
 	  exit 1; \
 	fi
-	@echo "making $@ from $<"
+	@$(ECHO) "making $@ from $<"
 	@$(RUSTC) $(ALL_RUSTFLAGS) --emit=dep-info -o $@ $<
 EOF
 ])])

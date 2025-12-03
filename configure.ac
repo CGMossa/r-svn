@@ -1034,7 +1034,7 @@ if test "${use_readline}" = yes; then
                  )
   fi
   READLINE_LIBS="${LIBS}"
-  LIBS="${r_save_LIBS}"
+  LIBS="${READLINE_LIBS} ${r_save_LIBS}"
 fi
 AC_SUBST(READLINE_LIBS)
 

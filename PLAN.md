@@ -9,6 +9,10 @@
 - Investigated `--no-create`: configure still writes `config.log` and `config.status` but skips Makefiles; captured in sandbox recipe.
 - Ran `just configure-sandbox` with `PKG_CONFIG_PATH=/opt/homebrew/opt/readline/lib/pkgconfig`: fallback works; pkg-config still missing `xt` and `libjbig` (Homebrew lacks `xt.pc`, jbigkit ships no `.pc`), message emitted but X stack found via legacy probe.
 - Reviewed autom4te.cache `output.*`: only expected warnings (bundled libintl, missing TeX bits); no hidden errors. Removed stray backup files.
+- Added Rust toolchain detection + `Makefrag.rs`; R CMD tooling accepts `*.rs`. ECHO cleanup for new rules and shared shlib.mk.
+- Removed SVN revision stamping/checks; doc install tolerates missing FAQ/resources; GETDISTNAME falls back to date when no SVN-REVISION.
+- Sandbox builds now copy the tree into `/tmp` and configure via relative `../src`; new `sandbox-repl` recipe builds/installs to a temp prefix and launches R; LDFLAGS/CPPFLAGS pinned for Homebrew readline/xz.
+- Streamlined `tools/rsync-recommended` (mktemp, cleaner path handling) and added VS Code file associations for Makefile-like infiles.
 
 ## Next
 
@@ -18,3 +22,5 @@
 - Keep libcurl HTTPS test stable across SecureTransport/openssl builds; note current success with pkg-config `-lcurl`.
 - Decide how to handle missing `xt.pc` (Homebrew `libxt` or XQuartz path) and `libjbig` (add stub .pc or keep manual flags) so pkg-config path stays clean.
 - Optional: trim legacy platform checks that survived the first pass once pkg-config coverage is expanded.
+- Decide whether to ship/replace doc/FAQ + resources.html when missing from source tarball; current install skips them quietly.
+- Evaluate if readline detection should inject `-lncurses`/`-ltinfo` automatically rather than relying on Homebrew LDFLAGS overrides.
