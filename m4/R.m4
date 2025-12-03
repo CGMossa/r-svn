@@ -1679,7 +1679,15 @@ fi])# R_TYPE_KEYSYM
 ## -----
 ## Updated for R 2.5.0.  We need -lXt, and nowadays that is unbundled.
 AC_DEFUN([R_X11],
-[AC_PATH_XTRA			# standard X11 search macro
+[x_pkg_ok=no
+PKG_CHECK_MODULES([X11STACK],[x11 xext xrender xft xt],
+  [x_pkg_ok=yes
+   X_CFLAGS="${X11STACK_CFLAGS}"
+   X_LIBS="${X11STACK_LIBS}"],
+  [x_pkg_ok=no])
+if test "${x_pkg_ok}" = no; then
+  AC_PATH_XTRA			# standard X11 search macro
+fi
 use_X11="no"
 if test -z "${no_x}"; then
   ## now we look for Xt and its header: it seems Intrinsic.h is key.
@@ -2151,6 +2159,18 @@ if test "${use_libtiff}" = yes; then
         AC_DEFINE(HAVE_TIFF, 1, [Define this if libtiff is available.])
         BITMAP_LIBS="${TIF_LIBS} ${BITMAP_LIBS}"
         BITMAP_CPPFLAGS="${BITMAP_CPPFLAGS} ${TIF_CPPFLAGS}"
+        PKG_CHECK_MODULES([TIFFWEBP],[libwebp],
+          [BITMAP_LIBS="${TIFFWEBP_LIBS} ${BITMAP_LIBS}"
+           BITMAP_CPPFLAGS="${BITMAP_CPPFLAGS} ${TIFFWEBP_CFLAGS}"],
+          [:])
+        PKG_CHECK_MODULES([TIFFJBIG],[libjbig],
+          [BITMAP_LIBS="${TIFFJBIG_LIBS} ${BITMAP_LIBS}"
+           BITMAP_CPPFLAGS="${BITMAP_CPPFLAGS} ${TIFFJBIG_CFLAGS}"],
+          [:])
+        PKG_CHECK_MODULES([TIFFZSTD],[libzstd],
+          [BITMAP_LIBS="${TIFFZSTD_LIBS} ${BITMAP_LIBS}"
+           BITMAP_CPPFLAGS="${BITMAP_CPPFLAGS} ${TIFFZSTD_CFLAGS}"],
+          [:])
       fi
     fi
   fi
@@ -2640,6 +2660,18 @@ case "${with_blas}" in
     ;;
   *) BLAS_LIBS="-l${with_blas}" ;;
 esac
+
+if test "${acx_blas_ok}" = no && test -z "${BLAS_LIBS}"; then
+  PKG_CHECK_MODULES([OPENBLAS],[openblas],
+    [acx_blas_ok=yes
+     BLAS_LIBS="${OPENBLAS_LIBS}"
+     CPPFLAGS="${CPPFLAGS} ${OPENBLAS_CFLAGS}"],
+    [PKG_CHECK_MODULES([REFBLAS],[blas],
+      [acx_blas_ok=yes
+       BLAS_LIBS="${REFBLAS_LIBS}"
+       CPPFLAGS="${CPPFLAGS} ${REFBLAS_CFLAGS}"],
+      [])])
+fi
 
 if test "${r_cv_prog_fc_append_underscore}" = yes; then
   dgemm=dgemm_
@@ -3145,6 +3177,14 @@ if test "${acx_lapack_ok}" = no; then
   AC_CHECK_FUNC(${lapack}, [acx_lapack_ok=yes])
 fi
 
+if test "${acx_lapack_ok}" = no && test -z "${LAPACK_LIBS}"; then
+  PKG_CHECK_MODULES([LAPACK],[lapack],
+    [acx_lapack_ok=yes
+     LAPACK_LIBS="${LAPACK_LIBS}"
+     CPPFLAGS="${CPPFLAGS} ${LAPACK_CFLAGS}"],
+    [])
+fi
+
 
 dnl LAPACK in Sun Performance library?
 dnl No longer test here as will be picked up by the default test.
@@ -3486,7 +3526,15 @@ AS_VAR_POPDEF([r_Search])dnl
 ## Try finding XDR library functions and headers.
 ## FreeBSD in particular needs rpc/types.h before rpc/xdr.h.
 AC_DEFUN([R_XDR],
-[AC_CHECK_HEADER(rpc/types.h)
+[r_xdr_pkg=no
+PKG_CHECK_MODULES([TIRPCPKG],[libtirpc],
+  [r_xdr_pkg=yes
+   TIRPC_CPPFLAGS="${TIRPCPKG_CFLAGS}"
+   TIRPC_LIBS="${TIRPCPKG_LIBS}"
+   CPPFLAGS="${CPPFLAGS} ${TIRPC_CPPFLAGS}"
+   LIBS="${TIRPC_LIBS} ${LIBS}"],
+  [r_xdr_pkg=no])
+AC_CHECK_HEADER(rpc/types.h)
 if test "${ac_cv_header_rpc_types_h}" = yes ; then
   AC_CHECK_HEADER(rpc/xdr.h, , , [#include <rpc/types.h>])
 fi
@@ -3521,7 +3569,10 @@ if test "${r_xdr}" = yes ; then
   ## Use libtirpc instead, which has been a possible source since ca 2007
   r_save_CPPFLAGS="${CPPFLAGS}"
   CPPFLAGS="${CPPFLAGS} ${TIRPC_CPPFLAGS}"
+  r_save_LIBS="${LIBS}"
+  LIBS="${TIRPC_LIBS} ${LIBS}"
   R_SEARCH_XDR_LIBS([nsl tirpc],[],[r_xdr=no])
+  LIBS="${r_save_LIBS}"
   CPPFLAGS="${r_save_CPPFLAGS}"
 fi
 AC_MSG_CHECKING([for XDR support])

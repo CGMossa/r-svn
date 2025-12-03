@@ -735,6 +735,12 @@ BUILD_TZONE_TRUE
 R_PROFILING
 BITMAP_LIBS
 BITMAP_CPPFLAGS
+TIFFZSTD_LIBS
+TIFFZSTD_CFLAGS
+TIFFJBIG_LIBS
+TIFFJBIG_CFLAGS
+TIFFWEBP_LIBS
+TIFFWEBP_CFLAGS
 CURL_LIBS
 CURL_CPPFLAGS
 CURL_CONFIG
@@ -758,6 +764,8 @@ ZLIB_CFLAGS
 TIRPC_CPPFLAGS
 BUILD_XDR_FALSE
 BUILD_XDR_TRUE
+TIRPCPKG_LIBS
+TIRPCPKG_CFLAGS
 use_tcltk
 TK_CONFIG
 TCL_CONFIG
@@ -777,12 +785,15 @@ X_EXTRA_LIBS
 X_LIBS
 X_PRE_LIBS
 X_CFLAGS
+X11STACK_LIBS
+X11STACK_CFLAGS
 USE_ICU_APPLE
 USE_ICU
 LTLIBICONV
 LIBICONV
 USE_EXTERNAL_LAPACK_FALSE
 USE_EXTERNAL_LAPACK_TRUE
+LAPACK_CFLAGS
 USE_EXTERNAL_BLAS_FALSE
 USE_EXTERNAL_BLAS_TRUE
 USE_VECLIB_G95FIX_FALSE
@@ -792,6 +803,10 @@ LIBR1
 LIBR0
 BLAS_SHLIB_FALSE
 BLAS_SHLIB_TRUE
+REFBLAS_LIBS
+REFBLAS_CFLAGS
+OPENBLAS_LIBS
+OPENBLAS_CFLAGS
 RMATH_HAVE_WORKING_LOG1P
 LIBOBJS
 ALLOCA
@@ -1258,9 +1273,18 @@ CXX26FLAGS
 CXX26PICFLAGS
 SHLIB_CXX26LD
 SHLIB_CXX26LDFLAGS
+OPENBLAS_CFLAGS
+OPENBLAS_LIBS
+REFBLAS_CFLAGS
+REFBLAS_LIBS
+LAPACK_CFLAGS
+X11STACK_CFLAGS
+X11STACK_LIBS
 XMKMF
 PANGOCAIRO_CFLAGS
 PANGOCAIRO_LIBS
+TIRPCPKG_CFLAGS
+TIRPCPKG_LIBS
 ZLIB_CFLAGS
 ZLIB_LIBS
 BZIP2_CFLAGS
@@ -1274,7 +1298,13 @@ LIBDEFLATE_LIBS
 TRE_CFLAGS
 TRE_LIBS
 LIBCURL_CFLAGS
-LIBCURL_LIBS'
+LIBCURL_LIBS
+TIFFWEBP_CFLAGS
+TIFFWEBP_LIBS
+TIFFJBIG_CFLAGS
+TIFFJBIG_LIBS
+TIFFZSTD_CFLAGS
+TIFFZSTD_LIBS'
 
 
 # Initialize some variables set by options.
@@ -2154,11 +2184,29 @@ Some influential environment variables:
               from the C++26 compiler
   SHLIB_CXX26LDFLAGS
               special flags used by SHLIB_CXX26LD
+  OPENBLAS_CFLAGS
+              C compiler flags for OPENBLAS, overriding pkg-config
+  OPENBLAS_LIBS
+              linker flags for OPENBLAS, overriding pkg-config
+  REFBLAS_CFLAGS
+              C compiler flags for REFBLAS, overriding pkg-config
+  REFBLAS_LIBS
+              linker flags for REFBLAS, overriding pkg-config
+  LAPACK_CFLAGS
+              C compiler flags for LAPACK, overriding pkg-config
+  X11STACK_CFLAGS
+              C compiler flags for X11STACK, overriding pkg-config
+  X11STACK_LIBS
+              linker flags for X11STACK, overriding pkg-config
   XMKMF       Path to xmkmf, Makefile generator for X Window System
   PANGOCAIRO_CFLAGS
               C compiler flags for PANGOCAIRO, overriding pkg-config
   PANGOCAIRO_LIBS
               linker flags for PANGOCAIRO, overriding pkg-config
+  TIRPCPKG_CFLAGS
+              C compiler flags for TIRPCPKG, overriding pkg-config
+  TIRPCPKG_LIBS
+              linker flags for TIRPCPKG, overriding pkg-config
   ZLIB_CFLAGS C compiler flags for ZLIB, overriding pkg-config
   ZLIB_LIBS   linker flags for ZLIB, overriding pkg-config
   BZIP2_CFLAGS
@@ -2178,6 +2226,18 @@ Some influential environment variables:
               C compiler flags for LIBCURL, overriding pkg-config
   LIBCURL_LIBS
               linker flags for LIBCURL, overriding pkg-config
+  TIFFWEBP_CFLAGS
+              C compiler flags for TIFFWEBP, overriding pkg-config
+  TIFFWEBP_LIBS
+              linker flags for TIFFWEBP, overriding pkg-config
+  TIFFJBIG_CFLAGS
+              C compiler flags for TIFFJBIG, overriding pkg-config
+  TIFFJBIG_LIBS
+              linker flags for TIFFJBIG, overriding pkg-config
+  TIFFZSTD_CFLAGS
+              C compiler flags for TIFFZSTD, overriding pkg-config
+  TIFFZSTD_LIBS
+              linker flags for TIFFZSTD, overriding pkg-config
 
 Use these variables to override the choices made by 'configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -30730,7 +30790,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:30733: \"$ac_link\") >&5
+(eval echo $as_me:30793: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -30808,7 +30868,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:30811: \"$ac_link\") >&5
+(eval echo $as_me:30871: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -34762,7 +34822,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:34765: \"$ac_link\") >&5
+(eval echo $as_me:34825: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -34848,7 +34908,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:34851: \"$ac_link\") >&5
+(eval echo $as_me:34911: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -57243,6 +57303,266 @@ case "${with_blas}" in
   *) BLAS_LIBS="-l${with_blas}" ;;
 esac
 
+if test "${acx_blas_ok}" = no && test -z "${BLAS_LIBS}"; then
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for openblas" >&5
+printf %s "checking for openblas... " >&6; }
+
+if test -n "$OPENBLAS_CFLAGS"; then
+    pkg_cv_OPENBLAS_CFLAGS="$OPENBLAS_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"openblas\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "openblas") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_OPENBLAS_CFLAGS=`$PKG_CONFIG --cflags "openblas" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$OPENBLAS_LIBS"; then
+    pkg_cv_OPENBLAS_LIBS="$OPENBLAS_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"openblas\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "openblas") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_OPENBLAS_LIBS=`$PKG_CONFIG --libs "openblas" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                OPENBLAS_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "openblas" 2>&1`
+        else
+                OPENBLAS_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "openblas" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$OPENBLAS_PKG_ERRORS" >&5
+
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for blas" >&5
+printf %s "checking for blas... " >&6; }
+
+if test -n "$REFBLAS_CFLAGS"; then
+    pkg_cv_REFBLAS_CFLAGS="$REFBLAS_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"blas\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "blas") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_REFBLAS_CFLAGS=`$PKG_CONFIG --cflags "blas" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$REFBLAS_LIBS"; then
+    pkg_cv_REFBLAS_LIBS="$REFBLAS_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"blas\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "blas") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_REFBLAS_LIBS=`$PKG_CONFIG --libs "blas" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                REFBLAS_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "blas" 2>&1`
+        else
+                REFBLAS_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "blas" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$REFBLAS_PKG_ERRORS" >&5
+
+        as_fn_error $? "Package requirements (blas) were not met:
+
+$REFBLAS_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables REFBLAS_CFLAGS
+and REFBLAS_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in '$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in '$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables REFBLAS_CFLAGS
+and REFBLAS_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See 'config.log' for more details" "$LINENO" 5; }
+else
+        REFBLAS_CFLAGS=$pkg_cv_REFBLAS_CFLAGS
+        REFBLAS_LIBS=$pkg_cv_REFBLAS_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        acx_blas_ok=yes
+       BLAS_LIBS="${REFBLAS_LIBS}"
+       CPPFLAGS="${CPPFLAGS} ${REFBLAS_CFLAGS}"
+fi
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for blas" >&5
+printf %s "checking for blas... " >&6; }
+
+if test -n "$REFBLAS_CFLAGS"; then
+    pkg_cv_REFBLAS_CFLAGS="$REFBLAS_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"blas\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "blas") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_REFBLAS_CFLAGS=`$PKG_CONFIG --cflags "blas" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$REFBLAS_LIBS"; then
+    pkg_cv_REFBLAS_LIBS="$REFBLAS_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"blas\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "blas") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_REFBLAS_LIBS=`$PKG_CONFIG --libs "blas" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                REFBLAS_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "blas" 2>&1`
+        else
+                REFBLAS_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "blas" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$REFBLAS_PKG_ERRORS" >&5
+
+        as_fn_error $? "Package requirements (blas) were not met:
+
+$REFBLAS_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables REFBLAS_CFLAGS
+and REFBLAS_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in '$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in '$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables REFBLAS_CFLAGS
+and REFBLAS_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See 'config.log' for more details" "$LINENO" 5; }
+else
+        REFBLAS_CFLAGS=$pkg_cv_REFBLAS_CFLAGS
+        REFBLAS_LIBS=$pkg_cv_REFBLAS_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        acx_blas_ok=yes
+       BLAS_LIBS="${REFBLAS_LIBS}"
+       CPPFLAGS="${CPPFLAGS} ${REFBLAS_CFLAGS}"
+fi
+else
+        OPENBLAS_CFLAGS=$pkg_cv_OPENBLAS_CFLAGS
+        OPENBLAS_LIBS=$pkg_cv_OPENBLAS_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        acx_blas_ok=yes
+     BLAS_LIBS="${OPENBLAS_LIBS}"
+     CPPFLAGS="${CPPFLAGS} ${OPENBLAS_CFLAGS}"
+fi
+fi
+
 if test "${r_cv_prog_fc_append_underscore}" = yes; then
   dgemm=dgemm_
   sgemm=sgemm_
@@ -58853,6 +59173,102 @@ fi
 
 fi
 
+if test "${acx_lapack_ok}" = no && test -z "${LAPACK_LIBS}"; then
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for lapack" >&5
+printf %s "checking for lapack... " >&6; }
+
+if test -n "$LAPACK_CFLAGS"; then
+    pkg_cv_LAPACK_CFLAGS="$LAPACK_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"lapack\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "lapack") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_LAPACK_CFLAGS=`$PKG_CONFIG --cflags "lapack" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$LAPACK_LIBS"; then
+    pkg_cv_LAPACK_LIBS="$LAPACK_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"lapack\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "lapack") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_LAPACK_LIBS=`$PKG_CONFIG --libs "lapack" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                LAPACK_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "lapack" 2>&1`
+        else
+                LAPACK_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "lapack" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$LAPACK_PKG_ERRORS" >&5
+
+        as_fn_error $? "Package requirements (lapack) were not met:
+
+$LAPACK_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables LAPACK_CFLAGS
+and LAPACK_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in '$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in '$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables LAPACK_CFLAGS
+and LAPACK_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See 'config.log' for more details" "$LINENO" 5; }
+else
+        LAPACK_CFLAGS=$pkg_cv_LAPACK_CFLAGS
+        LAPACK_LIBS=$pkg_cv_LAPACK_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        acx_lapack_ok=yes
+     LAPACK_LIBS="${LAPACK_LIBS}"
+     CPPFLAGS="${CPPFLAGS} ${LAPACK_CFLAGS}"
+fi
+fi
+
 
 
 if test "${acx_lapack_ok}" = no; then
@@ -60125,7 +60541,82 @@ else
 printf "%s\n" "libraries $x_libraries, headers $x_includes" >&6; }
 fi
 
-if test "$no_x" = yes; then
+x_pkg_ok=no
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for x11 xext xrender xft xt" >&5
+printf %s "checking for x11 xext xrender xft xt... " >&6; }
+
+if test -n "$X11STACK_CFLAGS"; then
+    pkg_cv_X11STACK_CFLAGS="$X11STACK_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"x11 xext xrender xft xt\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "x11 xext xrender xft xt") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_X11STACK_CFLAGS=`$PKG_CONFIG --cflags "x11 xext xrender xft xt" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$X11STACK_LIBS"; then
+    pkg_cv_X11STACK_LIBS="$X11STACK_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"x11 xext xrender xft xt\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "x11 xext xrender xft xt") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_X11STACK_LIBS=`$PKG_CONFIG --libs "x11 xext xrender xft xt" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                X11STACK_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "x11 xext xrender xft xt" 2>&1`
+        else
+                X11STACK_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "x11 xext xrender xft xt" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$X11STACK_PKG_ERRORS" >&5
+
+        x_pkg_ok=no
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        x_pkg_ok=no
+else
+        X11STACK_CFLAGS=$pkg_cv_X11STACK_CFLAGS
+        X11STACK_LIBS=$pkg_cv_X11STACK_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        x_pkg_ok=yes
+   X_CFLAGS="${X11STACK_CFLAGS}"
+   X_LIBS="${X11STACK_LIBS}"
+fi
+if test "${x_pkg_ok}" = no; then
+  if test "$no_x" = yes; then
   # Not all programs may use this symbol, but it does not hurt to define it.
 
 printf "%s\n" "#define X_DISPLAY_MISSING 1" >>confdefs.h
@@ -60780,6 +61271,7 @@ fi
 
 fi
 			# standard X11 search macro
+fi
 use_X11="no"
 if test -z "${no_x}"; then
   ## now we look for Xt and its header: it seems Intrinsic.h is key.
@@ -62027,6 +62519,82 @@ printf "%s\n" "$r_cv_bsd_networking" >&6; }
 
 
 ## XDR headers and library routines.
+r_xdr_pkg=no
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libtirpc" >&5
+printf %s "checking for libtirpc... " >&6; }
+
+if test -n "$TIRPCPKG_CFLAGS"; then
+    pkg_cv_TIRPCPKG_CFLAGS="$TIRPCPKG_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libtirpc\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libtirpc") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_TIRPCPKG_CFLAGS=`$PKG_CONFIG --cflags "libtirpc" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$TIRPCPKG_LIBS"; then
+    pkg_cv_TIRPCPKG_LIBS="$TIRPCPKG_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libtirpc\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libtirpc") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_TIRPCPKG_LIBS=`$PKG_CONFIG --libs "libtirpc" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                TIRPCPKG_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libtirpc" 2>&1`
+        else
+                TIRPCPKG_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libtirpc" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$TIRPCPKG_PKG_ERRORS" >&5
+
+        r_xdr_pkg=no
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        r_xdr_pkg=no
+else
+        TIRPCPKG_CFLAGS=$pkg_cv_TIRPCPKG_CFLAGS
+        TIRPCPKG_LIBS=$pkg_cv_TIRPCPKG_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        r_xdr_pkg=yes
+   TIRPC_CPPFLAGS="${TIRPCPKG_CFLAGS}"
+   TIRPC_LIBS="${TIRPCPKG_LIBS}"
+   CPPFLAGS="${CPPFLAGS} ${TIRPC_CPPFLAGS}"
+   LIBS="${TIRPC_LIBS} ${LIBS}"
+fi
 ac_fn_c_check_header_compile "$LINENO" "rpc/types.h" "ac_cv_header_rpc_types_h" "$ac_includes_default"
 if test "x$ac_cv_header_rpc_types_h" = xyes
 then :
@@ -62084,6 +62652,8 @@ if test "${r_xdr}" = yes ; then
   ## Use libtirpc instead, which has been a possible source since ca 2007
   r_save_CPPFLAGS="${CPPFLAGS}"
   CPPFLAGS="${CPPFLAGS} ${TIRPC_CPPFLAGS}"
+  r_save_LIBS="${LIBS}"
+  LIBS="${TIRPC_LIBS} ${LIBS}"
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for XDR library" >&5
 printf %s "checking for XDR library... " >&6; }
 if test ${r_cv_search_xdr+y}
@@ -62166,6 +62736,7 @@ else case e in #(
 esac
 fi
 
+  LIBS="${r_save_LIBS}"
   CPPFLAGS="${r_save_CPPFLAGS}"
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for XDR support" >&5
@@ -64311,6 +64882,222 @@ printf "%s\n" "#define HAVE_TIFF 1" >>confdefs.h
 
         BITMAP_LIBS="${TIF_LIBS} ${BITMAP_LIBS}"
         BITMAP_CPPFLAGS="${BITMAP_CPPFLAGS} ${TIF_CPPFLAGS}"
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libwebp" >&5
+printf %s "checking for libwebp... " >&6; }
+
+if test -n "$TIFFWEBP_CFLAGS"; then
+    pkg_cv_TIFFWEBP_CFLAGS="$TIFFWEBP_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libwebp\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libwebp") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_TIFFWEBP_CFLAGS=`$PKG_CONFIG --cflags "libwebp" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$TIFFWEBP_LIBS"; then
+    pkg_cv_TIFFWEBP_LIBS="$TIFFWEBP_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libwebp\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libwebp") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_TIFFWEBP_LIBS=`$PKG_CONFIG --libs "libwebp" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                TIFFWEBP_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libwebp" 2>&1`
+        else
+                TIFFWEBP_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libwebp" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$TIFFWEBP_PKG_ERRORS" >&5
+
+        :
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        :
+else
+        TIFFWEBP_CFLAGS=$pkg_cv_TIFFWEBP_CFLAGS
+        TIFFWEBP_LIBS=$pkg_cv_TIFFWEBP_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        BITMAP_LIBS="${TIFFWEBP_LIBS} ${BITMAP_LIBS}"
+           BITMAP_CPPFLAGS="${BITMAP_CPPFLAGS} ${TIFFWEBP_CFLAGS}"
+fi
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libjbig" >&5
+printf %s "checking for libjbig... " >&6; }
+
+if test -n "$TIFFJBIG_CFLAGS"; then
+    pkg_cv_TIFFJBIG_CFLAGS="$TIFFJBIG_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libjbig\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libjbig") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_TIFFJBIG_CFLAGS=`$PKG_CONFIG --cflags "libjbig" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$TIFFJBIG_LIBS"; then
+    pkg_cv_TIFFJBIG_LIBS="$TIFFJBIG_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libjbig\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libjbig") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_TIFFJBIG_LIBS=`$PKG_CONFIG --libs "libjbig" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                TIFFJBIG_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libjbig" 2>&1`
+        else
+                TIFFJBIG_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libjbig" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$TIFFJBIG_PKG_ERRORS" >&5
+
+        :
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        :
+else
+        TIFFJBIG_CFLAGS=$pkg_cv_TIFFJBIG_CFLAGS
+        TIFFJBIG_LIBS=$pkg_cv_TIFFJBIG_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        BITMAP_LIBS="${TIFFJBIG_LIBS} ${BITMAP_LIBS}"
+           BITMAP_CPPFLAGS="${BITMAP_CPPFLAGS} ${TIFFJBIG_CFLAGS}"
+fi
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libzstd" >&5
+printf %s "checking for libzstd... " >&6; }
+
+if test -n "$TIFFZSTD_CFLAGS"; then
+    pkg_cv_TIFFZSTD_CFLAGS="$TIFFZSTD_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libzstd\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libzstd") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_TIFFZSTD_CFLAGS=`$PKG_CONFIG --cflags "libzstd" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$TIFFZSTD_LIBS"; then
+    pkg_cv_TIFFZSTD_LIBS="$TIFFZSTD_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libzstd\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libzstd") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_TIFFZSTD_LIBS=`$PKG_CONFIG --libs "libzstd" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                TIFFZSTD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libzstd" 2>&1`
+        else
+                TIFFZSTD_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libzstd" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$TIFFZSTD_PKG_ERRORS" >&5
+
+        :
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        :
+else
+        TIFFZSTD_CFLAGS=$pkg_cv_TIFFZSTD_CFLAGS
+        TIFFZSTD_LIBS=$pkg_cv_TIFFZSTD_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        BITMAP_LIBS="${TIFFZSTD_LIBS} ${BITMAP_LIBS}"
+           BITMAP_CPPFLAGS="${BITMAP_CPPFLAGS} ${TIFFZSTD_CFLAGS}"
+fi
       fi
     fi
   fi
