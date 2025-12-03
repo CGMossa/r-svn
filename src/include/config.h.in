@@ -448,9 +448,6 @@
 /* Define to 1 if you have libdeflate headers and library. */
 #undef HAVE_LIBDEFLATE
 
-/* Define to 1 if you have the <libdeflate.h> header file. */
-#undef HAVE_LIBDEFLATE_H
-
 /* Define to 1 if you have the 'dl' library (-ldl). */
 #undef HAVE_LIBDL
 
@@ -847,9 +844,6 @@
 /* Define if your system has tre. */
 #undef HAVE_TRE
 
-/* Define to 1 if you have the <tre/tre.h> header file. */
-#undef HAVE_TRE_TRE_H
-
 /* Define to 1 if you have the 'tsearch' function. */
 #undef HAVE_TSEARCH
 
@@ -994,9 +988,6 @@
 
 /* Define if zstd has ZSTD_decompressBound */
 #undef HAVE_ZSTD_DECOMPRESSBOUND
-
-/* Define to 1 if you have the <zstd.h> header file. */
-#undef HAVE_ZSTD_H
 
 /* Define to 1 if you have the '__cospi' function. */
 #undef HAVE___COSPI
