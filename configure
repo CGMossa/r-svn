@@ -29277,22 +29277,8 @@ fi
 
 r_cc_rules_frag=Makefrag.cc
 
-cat << \EOF > ${r_cc_rules_frag}
-.c.o:
-	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
-EOF
-if test -n "${r_cv_prog_cc_m}"; then
-  cat << EOF >> ${r_cc_rules_frag}
-.c.d:
-	@echo "making \$@ from \$<"
-	@${r_cv_prog_cc_m} \$(ALL_CPPFLAGS) $< > \$@
-EOF
-else
-  cat << \EOF >> ${r_cc_rules_frag}
-.c.d:
-	@echo > $@
-EOF
-fi
+
+ac_config_commands="$ac_config_commands r_cc_rules_frag"
 
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${CC} supports -c -o FILE.lo" >&5
@@ -29327,19 +29313,8 @@ printf "%s\n" "$r_cv_prog_cc_c_o_lo" >&6; }
 
 r_cc_lo_rules_frag=Makefrag.cc_lo
 
-if test "${r_cv_prog_cc_c_o_lo}" = yes; then
-  cat << \EOF > ${r_cc_lo_rules_frag}
-.c.lo:
-	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS_LO) -c $< -o $@
-EOF
-else
-  cat << \EOF > ${r_cc_lo_rules_frag}
-.c.lo:
-	@-test -d .libs || mkdir .libs
-	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS_LO) -c $< -o .libs/$*.o
-	mv .libs/$*.o $*.lo
-EOF
-fi
+
+ac_config_commands="$ac_config_commands r_cc_lo_rules_frag"
 
 
 
@@ -29851,7 +29826,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:29854: \"$ac_link\") >&5
+(eval echo $as_me:29829: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -29929,7 +29904,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:29932: \"$ac_link\") >&5
+(eval echo $as_me:29907: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -30984,29 +30959,8 @@ printf "%s\n" "$r_cv_prog_cxx_m" >&6; }
 
 r_cxx_rules_frag=Makefrag.cxx
 
-cat << \EOF > ${r_cxx_rules_frag}
-.cc.o:
-	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c $< -o $@
-.cpp.o:
-	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c $< -o $@
-EOF
-if test "${r_cv_prog_cxx_m}" = yes; then
-  cat << \EOF >> ${r_cxx_rules_frag}
-.cc.d:
-	@echo "making $@ from $<"
-	@$(CXX) -M $(ALL_CPPFLAGS) $< > $@
-.cpp.d:
-	@echo "making $@ from $<"
-	@$(CXX) -M $(ALL_CPPFLAGS) $< > $@
-EOF
-else
-  cat << \EOF >> ${r_cxx_rules_frag}
-.cc.d:
-	@echo > $@
-.cpp.d:
-	@echo > $@
-EOF
-fi
+
+ac_config_commands="$ac_config_commands r_cxx_rules_frag"
 
 
 
@@ -31046,22 +31000,8 @@ fi
 
 r_objc_rules_frag=Makefrag.m
 
-cat << \EOF > ${r_objc_rules_frag}
-.m.o:
-	$(OBJC) $(ALL_CPPFLAGS) $(ALL_OBJCFLAGS) -c $< -o $@
-EOF
-if test -n "${r_cv_prog_objc_m}"; then
-  cat << EOF >> ${r_objc_rules_frag}
-.m.d:
-	@echo "making \$@ from \$<"
-	@${r_cv_prog_objc_m} \$(ALL_CPPFLAGS) $< > \$@
-EOF
-else
-  cat << \EOF >> ${r_cc_rules_frag}
-.m.d:
-	@echo > $@
-EOF
-fi
+
+ac_config_commands="$ac_config_commands r_objc_rules_frag"
 
 
 
@@ -66546,6 +66486,10 @@ fi
 
 
 
+r_cv_prog_cc_m="${r_cv_prog_cc_m}"
+r_cv_prog_cc_c_o_lo="${r_cv_prog_cc_c_o_lo}"
+r_cv_prog_cxx_m="${r_cv_prog_cxx_m}"
+r_cv_prog_objc_m="${r_cv_prog_objc_m}"
 
 _ACEOF
 
@@ -66556,6 +66500,10 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
+    "r_cc_rules_frag") CONFIG_COMMANDS="$CONFIG_COMMANDS r_cc_rules_frag" ;;
+    "r_cc_lo_rules_frag") CONFIG_COMMANDS="$CONFIG_COMMANDS r_cc_lo_rules_frag" ;;
+    "r_cxx_rules_frag") CONFIG_COMMANDS="$CONFIG_COMMANDS r_cxx_rules_frag" ;;
+    "r_objc_rules_frag") CONFIG_COMMANDS="$CONFIG_COMMANDS r_objc_rules_frag" ;;
     "src/include/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/config.h" ;;
     "Makeconf") CONFIG_FILES="$CONFIG_FILES Makeconf" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
@@ -68113,6 +68061,82 @@ compiler_lib_search_path=$lt_compiler_lib_search_path_FC
 # ### END LIBTOOL TAG CONFIG: FC
 _LT_EOF
 
+ ;;
+    "r_cc_rules_frag":C)
+cat << 'EOF' > ${r_cc_rules_frag}
+.c.o:
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
+EOF
+if test -n "${r_cv_prog_cc_m}"; then
+  cat << EOF >> ${r_cc_rules_frag}
+.c.d:
+	@echo "making \$@ from \$<"
+	@${r_cv_prog_cc_m} \$(ALL_CPPFLAGS) $< > \$@
+EOF
+else
+  cat << 'EOF' >> ${r_cc_rules_frag}
+.c.d:
+	@echo > $@
+EOF
+fi
+ ;;
+    "r_cc_lo_rules_frag":C)
+if test "${r_cv_prog_cc_c_o_lo}" = yes; then
+  cat << 'EOF' > ${r_cc_lo_rules_frag}
+.c.lo:
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS_LO) -c $< -o $@
+EOF
+else
+  cat << 'EOF' > ${r_cc_lo_rules_frag}
+.c.lo:
+	@-test -d .libs || mkdir .libs
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS_LO) -c $< -o .libs/$*.o
+	mv .libs/$*.o $*.lo
+EOF
+fi
+ ;;
+    "r_cxx_rules_frag":C)
+cat << 'EOF' > ${r_cxx_rules_frag}
+.cc.o:
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c $< -o $@
+.cpp.o:
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c $< -o $@
+EOF
+if test "${r_cv_prog_cxx_m}" = yes; then
+  cat << 'EOF' >> ${r_cxx_rules_frag}
+.cc.d:
+	@echo "making $@ from $<"
+	@$(CXX) -M $(ALL_CPPFLAGS) $< > $@
+.cpp.d:
+	@echo "making $@ from $<"
+	@$(CXX) -M $(ALL_CPPFLAGS) $< > $@
+EOF
+else
+  cat << 'EOF' >> ${r_cxx_rules_frag}
+.cc.d:
+	@echo > $@
+.cpp.d:
+	@echo > $@
+EOF
+fi
+ ;;
+    "r_objc_rules_frag":C)
+cat << 'EOF' > ${r_objc_rules_frag}
+.m.o:
+	$(OBJC) $(ALL_CPPFLAGS) $(ALL_OBJCFLAGS) -c $< -o $@
+EOF
+if test -n "${r_cv_prog_objc_m}"; then
+  cat << EOF >> ${r_objc_rules_frag}
+.m.d:
+	@echo "making \$@ from \$<"
+	@${r_cv_prog_objc_m} \$(ALL_CPPFLAGS) $< > \$@
+EOF
+else
+  cat << 'EOF' >> ${r_objc_rules_frag}
+.m.d:
+	@echo > $@
+EOF
+fi
  ;;
     "stamp-h":C) test -f src/include/stamp-h || echo timestamp > src/include/stamp-h ;;
 

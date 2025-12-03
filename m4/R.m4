@@ -387,7 +387,9 @@ rm -Rf conftest* TMP])
 AC_DEFUN([R_PROG_CC_MAKEFRAG],
 [r_cc_rules_frag=Makefrag.cc
 AC_REQUIRE([R_PROG_CC_M])
-cat << \EOF > ${r_cc_rules_frag}
+AC_SUBST_FILE(r_cc_rules_frag)
+AC_CONFIG_COMMANDS([r_cc_rules_frag],[
+cat << 'EOF' > ${r_cc_rules_frag}
 .c.o:
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $[@]
 EOF
@@ -398,12 +400,12 @@ if test -n "${r_cv_prog_cc_m}"; then
 	@${r_cv_prog_cc_m} \$(ALL_CPPFLAGS) $< > \$[@]
 EOF
 else
-  cat << \EOF >> ${r_cc_rules_frag}
+  cat << 'EOF' >> ${r_cc_rules_frag}
 .c.d:
 	@echo > $[@]
 EOF
 fi
-AC_SUBST_FILE(r_cc_rules_frag)
+], [r_cv_prog_cc_m="${r_cv_prog_cc_m}"])
 ])# R_PROG_CC_MAKEFRAG
 
 ## R_PROG_CC_LO_MAKEFRAG
@@ -416,20 +418,22 @@ AC_SUBST_FILE(r_cc_rules_frag)
 AC_DEFUN([R_PROG_CC_LO_MAKEFRAG],
 [r_cc_lo_rules_frag=Makefrag.cc_lo
 AC_REQUIRE([R_PROG_CC_C_O_LO])
+AC_SUBST_FILE(r_cc_lo_rules_frag)
+AC_CONFIG_COMMANDS([r_cc_lo_rules_frag],[
 if test "${r_cv_prog_cc_c_o_lo}" = yes; then
-  cat << \EOF > ${r_cc_lo_rules_frag}
+  cat << 'EOF' > ${r_cc_lo_rules_frag}
 .c.lo:
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS_LO) -c $< -o $[@]
 EOF
 else
-  cat << \EOF > ${r_cc_lo_rules_frag}
+  cat << 'EOF' > ${r_cc_lo_rules_frag}
 .c.lo:
 	@-test -d .libs || mkdir .libs
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS_LO) -c $< -o .libs/$[*].o
 	mv .libs/$[*].o $[*].lo
 EOF
 fi
-AC_SUBST_FILE(r_cc_lo_rules_frag)
+], [r_cv_prog_cc_c_o_lo="${r_cv_prog_cc_c_o_lo}"])
 ])# R_PROG_CC_LO_MAKEFRAG
 
 
@@ -542,14 +546,16 @@ fi])
 AC_DEFUN([R_PROG_CXX_MAKEFRAG],
 [r_cxx_rules_frag=Makefrag.cxx
 AC_REQUIRE([R_PROG_CXX_M])
-cat << \EOF > ${r_cxx_rules_frag}
+AC_SUBST_FILE(r_cxx_rules_frag)
+AC_CONFIG_COMMANDS([r_cxx_rules_frag],[
+cat << 'EOF' > ${r_cxx_rules_frag}
 .cc.o:
 	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c $< -o $[@]
 .cpp.o:
 	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c $< -o $[@]
 EOF
 if test "${r_cv_prog_cxx_m}" = yes; then
-  cat << \EOF >> ${r_cxx_rules_frag}
+  cat << 'EOF' >> ${r_cxx_rules_frag}
 .cc.d:
 	@echo "making $[@] from $<"
 	@$(CXX) -M $(ALL_CPPFLAGS) $< > $[@]
@@ -558,14 +564,14 @@ if test "${r_cv_prog_cxx_m}" = yes; then
 	@$(CXX) -M $(ALL_CPPFLAGS) $< > $[@]
 EOF
 else
-  cat << \EOF >> ${r_cxx_rules_frag}
+  cat << 'EOF' >> ${r_cxx_rules_frag}
 .cc.d:
 	@echo > $[@]
 .cpp.d:
 	@echo > $[@]
 EOF
 fi
-AC_SUBST_FILE(r_cxx_rules_frag)
+], [r_cv_prog_cxx_m="${r_cv_prog_cxx_m}"])
 ])# R_PROG_CXX_MAKEFRAG
 
 ## R_PROG_CXX_FLAG
@@ -1188,7 +1194,9 @@ fi
 AC_DEFUN([R_PROG_OBJC_MAKEFRAG],
 [r_objc_rules_frag=Makefrag.m
 AC_REQUIRE([R_PROG_OBJC_M])
-cat << \EOF > ${r_objc_rules_frag}
+AC_SUBST_FILE(r_objc_rules_frag)
+AC_CONFIG_COMMANDS([r_objc_rules_frag],[
+cat << 'EOF' > ${r_objc_rules_frag}
 .m.o:
 	$(OBJC) $(ALL_CPPFLAGS) $(ALL_OBJCFLAGS) -c $< -o $[@]
 EOF
@@ -1199,12 +1207,12 @@ if test -n "${r_cv_prog_objc_m}"; then
 	@${r_cv_prog_objc_m} \$(ALL_CPPFLAGS) $< > \$[@]
 EOF
 else
-  cat << \EOF >> ${r_cc_rules_frag}
+  cat << 'EOF' >> ${r_objc_rules_frag}
 .m.d:
 	@echo > $[@]
 EOF
 fi
-AC_SUBST_FILE(r_objc_rules_frag)
+], [r_cv_prog_objc_m="${r_cv_prog_objc_m}"])
 ])# R_PROG_OBJC_MAKEFRAG
 
 ## R_PROG_OBJC_FLAG(FLAG, [ACTION-IF-TRUE])
