@@ -2,8 +2,9 @@
 #
 # ${R_HOME}/tools/link-recommended
 
-## This is like rsync-recommended but without the rsync.  Before running
-## it you are assumed to have already fetched the packages by (say) FTP.
+## This is like rsync-recommended but without fetching from CRAN.  Before
+## running it you are assumed to have already placed the tarballs in this
+## directory.
 
 TOOLS_DIR=`echo ${0} | sed 's%/[^/][^/]*$%%'`
 (cd "${TOOLS_DIR}"/..

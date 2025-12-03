@@ -28884,7 +28884,7 @@ done
 
   fi
   READLINE_LIBS="${LIBS}"
-  LIBS="${r_save_LIBS}"
+  LIBS="${READLINE_LIBS} ${r_save_LIBS}"
 fi
 
 
@@ -32885,7 +32885,7 @@ done
 
   fi
   READLINE_LIBS="${LIBS}"
-  LIBS="${r_save_LIBS}"
+  LIBS="${READLINE_LIBS} ${r_save_LIBS}"
 fi
 
 
@@ -73992,7 +73992,7 @@ fi
 cat << 'EOF' > Makefrag.rs
 .rs.o:
 	@if test "x$(RUSTC)" = "x:"; then \
-	  echo "rustc is not available but a Rust source was encountered: $<" 1>&2; \
+	  $(ECHO) "rustc is not available but a Rust source was encountered: $<" 1>&2; \
 	  exit 1; \
 	fi
 	$(RUSTC) $(ALL_RUSTFLAGS) --emit=obj -o  $<
@@ -74000,10 +74000,10 @@ EOF
 cat << 'EOF' >> Makefrag.rs
 .rs.d:
 	@if test "x$(RUSTC)" = "x:"; then \
-	  echo "rustc is not available but a Rust source was encountered: $<" 1>&2; \
+	  $(ECHO) "rustc is not available but a Rust source was encountered: $<" 1>&2; \
 	  exit 1; \
 	fi
-	@echo "making  from $<"
+	@$(ECHO) "making  from $<"
 	@$(RUSTC) $(ALL_RUSTFLAGS) --emit=dep-info -o  $<
 EOF
  ;;

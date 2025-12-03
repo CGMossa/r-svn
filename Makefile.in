@@ -13,7 +13,6 @@ GIT = `if [ -d "$(top_builddir)/.git" ]; then echo "git"; fi`
 
 distdir = $(PACKAGE)-$(VERSION)
 INSTFILES = COPYING
-NON_SVN_INSTFILES = SVN-REVISION
 DISTFILES = $(INSTFILES) \
 	ChangeLog INSTALL README VERSION VERSION-NICK \
 	Makeconf.in Makefile.in Makefile.fw \
@@ -56,7 +55,7 @@ LIBTOOL_DEPS = @LIBTOOL_DEPS@
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
 
-R: Makefile svnonly
+R: Makefile
 	@if test "$(BUILDDIR_IS_SRCDIR)" = no ; then \
 	  for f in $(INSTFILES); do \
 	    $(INSTALL_DATA) $(srcdir)/$${f} $(top_builddir); \
@@ -91,30 +90,14 @@ javaconf: R
 	@$(MAKE) stamp-java
 
 
-install install-strip: installdirs svnonly
+install install-strip: installdirs
 	@for d in $(SUBDIRS); do \
 	  (cd $${d} && $(MAKE) $@) || exit 1; \
 	done
 	@for f in $(INSTFILES); do \
 	  $(INSTALL_DATA) $(srcdir)/$${f} "$(DESTDIR)$(rhome)"; \
 	done
-	@for f in $(NON_SVN_INSTFILES); do \
-	  $(INSTALL_DATA) $${f} "$(DESTDIR)$(rhome)"; \
-	done
 @WANT_R_FRAMEWORK_TRUE@		$(MAKE) -f $(srcdir)/Makefile.fw top_srcdir=$(top_srcdir) $@
-
-svnonly:
-	@if test -f "$(srcdir)/doc/FAQ" && test "$(BUILDDIR_IS_SRCDIR)" = no ; then \
-	  for f in $(NON_SVN_INSTFILES); do \
-	    $(INSTALL_DATA) $(srcdir)/$${f} $(top_builddir); \
-	  done; \
-	else \
-	  : ; \
-	fi
-
-# Ensure builds outside svn/git still have a revision stamp.
-SVN-REVISION:
-	@echo "Revision: 0" > $@
 
 @WANT_R_STATIC_FALSE@libR_la = libR$(R_DYLIB_EXT)
 @WANT_R_STATIC_TRUE@libR_la = libR.a
@@ -131,7 +114,7 @@ installdirs:
 uninstall:
 	@(for d in $(SUBDIRS); do rsd="$${d} $${rsd}"; done; \
 	  for d in $${rsd}; do (cd $${d} && $(MAKE) $@); done)
-	@for f in $(INSTFILES) $(NON_SVN_INSTFILES); do \
+	@for f in $(INSTFILES); do \
 	  rm -f "$(DESTDIR)$(rhome)/$${f}"; \
 	done
 	@rm -Rf "$(DESTDIR)$(Rexecbindir)" "$(DESTDIR)$(rhome)/lib"
@@ -152,10 +135,9 @@ distclean: clean
 	@rm -f po/Makefile
 	-@rm -Rf bin include lib library modules gnome
 	@if test -f non-tarball ; then \
-	  rm -f $(NON_SVN_INSTFILES) non-tarball doc/FAQ doc/RESOURCES doc/html/resources.html doc/html/NEWS.html; \
+	  rm -f non-tarball doc/FAQ doc/RESOURCES doc/html/resources.html doc/html/NEWS.html; \
 	fi
 	@if test "$(BUILDDIR_IS_SRCDIR)" = no ; then \
-	  rm -f $(NON_SVN_INSTFILES); \
 	  rm -Rf $(SUBDIRS) $(SUBDIRS_WITH_NO_BUILD); \
 	fi
 	-@rm -Rf libconftest.dSYM
@@ -194,9 +176,6 @@ distdir: $(DISTFILES) docs vignettes
 	  test -f $(distdir)/$${f} \
 	    || ln $(srcdir)/$${f} $(distdir)/$${f} 2>/dev/null \
 	    || cp -p $(srcdir)/$${f} $(distdir)/$${f}; \
-	done
-	@for f in $(NON_SVN_INSTFILES) ; do \
-	  cp -p $${f} $(distdir)/$${f}; \
 	done
 	@for d in $(SUBDIRS); do \
 	  test -d $(distdir)/$${d} \
@@ -251,7 +230,7 @@ distcheck-unix: dist
 distcheck-win:
 distuninstallcheck:
 	@test -n '$(distuninstallcheck_dir)' || { \
-	  echo 'ERROR: trying to run $@ with an empty' \
+	  $(ECHO) 'ERROR: trying to run $@ with an empty' \
 	       '$$(distuninstallcheck_dir)' >&2; \
 	  exit 1; \
 	}; \
@@ -274,11 +253,11 @@ checkdistcomplete:
 	@distname=`$(srcdir)/tools/GETDISTNAME`; \
 	dirname=`$(ECHO) $${distname} | sed -e s/_.*//`; \
 	if test -d $${dirname}; then \
-	  echo "Please remove directory $${dirname} first"; \
+	  $(ECHO) "Please remove directory $${dirname} first"; \
 	  exit 1; \
 	fi; \
 	rm -Rf $${dirname}; \
-	echo "Checking $${distname}.tar.gz"; \
+	$(ECHO) "Checking $${distname}.tar.gz"; \
 	$(R_GZIPCMD) -d -c $${distname}.tar.gz | $(TAR) -x -f -; \
 	LANGUAGE=C diff -r $${dirname} $(srcdir) | grep "^Only in $(srcdir)" | grep -v "^Only in.*[.]svn"; \
 	rm -Rf $${dirname}

@@ -339,7 +339,7 @@ source is
 @c packages, whereas these are included in the tarballs of released
 @c versions.  To install the appropriate sources for the recommended
 @c packages, run @command{./tools/rsync-recommended} from the top-level of
-@c the R sources that you pulled by rsync.
+@c the R sources to download the matching tarballs over HTTPS.
 @c @c </NOTE>
 
 @c The sources of the development version are also available via anonymous
