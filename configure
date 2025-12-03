@@ -1098,6 +1098,7 @@ r_cxx_rules_frag
 r_objc_rules_frag'
 ac_user_opts='
 enable_option_checking
+enable_site_config
 enable_R_profiling
 enable_memory_profiling
 enable_R_framework
@@ -1891,6 +1892,8 @@ Optional Features:
   --disable-option-checking  ignore unrecognized --enable/--with options
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --disable-site-config   do not source config.site or ~/.R/config files
+                          [enabled]
   --enable-R-profiling    attempt to compile support for Rprof() [yes]
   --enable-memory-profiling
                           attempt to compile support for Rprofmem(),
@@ -4685,20 +4688,34 @@ fi
 ### ** Defaults.
 
 ## NB: autoconf loads such files too
-cfile="${srcdir}/config.site"
-if test -r "${cfile}"; then
-  echo "loading site script '${cfile}'"
-  . "${cfile}"
+# Check whether --enable-site-config was given.
+if test ${enable_site_config+y}
+then :
+  enableval=$enable_site_config; enable_site_config="${enableval}"
+else case e in #(
+  e) enable_site_config=yes ;;
+esac
 fi
-cfile="${HOME}/.R/config"
-if test -r "${cfile}"; then
-  echo "loading user script '${cfile}'"
-  . "${cfile}"
-fi
-cfile="./config.site"
-if test -r "${cfile}"; then
-  echo "loading build-specific script '${cfile}'"
-  . "${cfile}"
+
+
+if test "x${enable_site_config}" = xyes; then
+  cfile="${srcdir}/config.site"
+  if test -r "${cfile}"; then
+    echo "loading site script '${cfile}'"
+    . "${cfile}"
+  fi
+  cfile="${HOME}/.R/config"
+  if test -r "${cfile}"; then
+    echo "loading user script '${cfile}'"
+    . "${cfile}"
+  fi
+  cfile="./config.site"
+  if test -r "${cfile}"; then
+    echo "loading build-specific script '${cfile}'"
+    . "${cfile}"
+  fi
+else
+  echo "site/user config scripts disabled"
 fi
 
 ## We need to establish suitable defaults for a 64-bit OS
@@ -29846,7 +29863,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:29849: \"$ac_link\") >&5
+(eval echo $as_me:29866: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -29924,7 +29941,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:29927: \"$ac_link\") >&5
+(eval echo $as_me:29944: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS

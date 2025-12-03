@@ -129,20 +129,30 @@ fi
 ### ** Defaults.
 
 ## NB: autoconf loads such files too
-cfile="${srcdir}/config.site"
-if test -r "${cfile}"; then
-  echo "loading site script '${cfile}'"
-  . "${cfile}"
-fi
-cfile="${HOME}/.R/config"
-if test -r "${cfile}"; then
-  echo "loading user script '${cfile}'"
-  . "${cfile}"
-fi
-cfile="./config.site"
-if test -r "${cfile}"; then
-  echo "loading build-specific script '${cfile}'"
-  . "${cfile}"
+AC_ARG_ENABLE([site-config],
+[AS_HELP_STRING([--disable-site-config],
+                [do not source config.site or ~/.R/config files @<:@enabled@:>@])],
+[enable_site_config="${enableval}"],
+[enable_site_config=yes])
+
+if test "x${enable_site_config}" = xyes; then
+  cfile="${srcdir}/config.site"
+  if test -r "${cfile}"; then
+    echo "loading site script '${cfile}'"
+    . "${cfile}"
+  fi
+  cfile="${HOME}/.R/config"
+  if test -r "${cfile}"; then
+    echo "loading user script '${cfile}'"
+    . "${cfile}"
+  fi
+  cfile="./config.site"
+  if test -r "${cfile}"; then
+    echo "loading build-specific script '${cfile}'"
+    . "${cfile}"
+  fi
+else
+  echo "site/user config scripts disabled"
 fi
 
 ## We need to establish suitable defaults for a 64-bit OS
