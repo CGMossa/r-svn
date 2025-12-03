@@ -34,6 +34,9 @@ AC_INIT([R],[R_VERSION],[https://bugs.r-project.org],[R],[https://www.r-project.
 AC_CONFIG_SRCDIR([src/include/Defn.h])
 AC_CONFIG_AUX_DIR([tools])
 AC_CONFIG_MACRO_DIR([m4])
+m4_include([m4/gettext.m4])
+m4_include([m4/gettext-lib.m4])
+m4_include([m4/codeset.m4])
 
 ### * Information on the package.
 
@@ -76,24 +79,6 @@ AC_DEFINE_UNQUOTED(R_VENDOR, "${host_vendor}",
 [Define this to be the name of the vendor of your system.])
 AC_DEFINE_UNQUOTED(R_OS, "${host_os}",
 [Define this to be the name of the OS of your system.])
-
-## exclude some unsupported OSes
-case "${host_os}" in
-   ## Darwin 1.3.1 was macOS 10.0, 1.4.1 was 10.1, 5 is 10.2 etc
-   ## with 19 being 10.15 (Catalina) and 20 being 11 (Big Sur)
-   ## We no longer support < 10.6 (Snow Leopard, Darwin 10)
-   ## https://en.wikipedia.org/wiki/Darwin_OS
-   darwin1.*)
-     AC_MSG_ERROR([The earliest supported macOS is 10.6.]
-     ;; 
-  darwin[[56789]]*)
-     AC_MSG_ERROR([The earliest supported macOS is 10.6.]
-     ;; 
-  aix[[123]]*|aix4.[[01]]*)
-    ## These need a form of linking we no longer support
-    AC_MSG_ERROR([AIX prior to 4.2 is not supported])
-    ;;
-esac
 
 R_PLATFORM="${host}"
 AC_SUBST(R_PLATFORM)
@@ -427,11 +412,6 @@ AC_ARG_WITH([lapack],
 [R_ARG_USE(lapack)],
 [use_lapack=unset])
 
-AC_ARG_WITH([2025blas],
-[AS_HELP_STRING([--with-2025blas],[compile 2025 BLAS additions into Rlapack @<:@no@:>@])],
-[R_ARG_USE(2025blas)],
-[use_2025blas=no])
-
 ## Readline.
 AC_ARG_WITH([readline],
 [AS_HELP_STRING([--with-readline],[use readline library @<:@yes@:>@])],
@@ -515,10 +495,6 @@ AC_ARG_WITH([valgrind-instrumentation],
 [valgrind_level=${withval}],
 [valgrind_level=0])
 
-AC_ARG_WITH([system-valgrind-headers],
-[AS_HELP_STRING([--with-system-valgrind-headers],[defunct])],
-[AC_MSG_WARN([--with-system-valgrind-headers is defunct])])
-
 AC_ARG_WITH([internal-tzcode],
 [AS_HELP_STRING([--with-internal-tzcode],[use internal time-zone code @<:@no, yes on macOS@:>@])],
 [use_internal_tzcode=${withval}],
@@ -538,11 +514,6 @@ AC_ARG_WITH([internal-wcwidth],
 [AS_HELP_STRING([--with-internal-wcwidth],[use internal wcwidth @<:@yes@:>@])],
 [use_internal_wcwidth=${withval}],
 [use_internal_wcwidth=yes])
-
-AC_ARG_WITH([internal-tzcode],
-[AS_HELP_STRING([--with-internal-tzcode],[use internal time-zone code @<:@no, yes on macOS@:>@])],
-[use_internal_tzcode=${withval}],
-[use_internal_tzcode=default])
 
 ## <FIXME>
 ## Completely disable using libtool for building shlibs until libtool
@@ -746,9 +717,11 @@ fi
 AC_PATH_PROG(REALPATH, realpath, false)
 
 
-## Search for cairographics needs pkg-config, 
-## helps find jpeg, libpng and libtiff.
-AC_PATH_PROGS(PKG_CONFIG, [ pkg-config pkgconf ], [])
+## pkg-config is mandatory for modern dependency resolution.
+AC_CHECK_PROGS([PKG_CONFIG], [pkg-config pkgconf], [no])
+AS_IF([test "x${PKG_CONFIG}" = "xno"],
+      [AC_MSG_ERROR([pkg-config (or pkgconf) is required to configure R])])
+PKG_PROG_PKG_CONFIG
 AC_ARG_VAR([PKG_CONFIG], [path to pkg-config (or pkgconf) utility])
 AC_ARG_VAR([PKG_CONFIG_PATH], [directories to add to pkg-config's search path])
 AC_ARG_VAR([PKG_CONFIG_LIBDIR], [path overriding pkg-config's default search path])
@@ -2425,13 +2398,6 @@ if test "${acx_blas_ok}" != "yes"; then
   esac
 fi
 
-if test "${use_2025blas}" = yes; then
-   if test "${acx_lapack_ok}" = "yes"; then
-     AC_MSG_ERROR([--with-2025blas cannot be used with --with-lapack])
-  fi
-fi
-AM_CONDITIONAL(BUILD_2025BLAS, [test "${use_2025blas}" = yes])
-
 AM_CONDITIONAL(BLAS_SHLIB, [test "x${use_blas_shlib}" = xyes])
 
 case "${host_os}" in
@@ -2453,84 +2419,6 @@ AC_SUBST(LIBR1)
 ## This version is used to build a shared BLAS lib
 BLAS_LIBS0=${BLAS_LIBS}
 
-## external BLAS + shared BLAS lib = we need to pass symbols through
-## this may require some magic
-if test "${acx_blas_ok}" = yes -a "${use_blas_shlib}" = yes; then
-  case "${host_os}" in
-    darwin*)
-    ## test whether we can see symbols through the proxy BLAS library
-    ## this test could be modified to not be Darwin-specific,
-    ## however the fix is darwin-specific
-    if test "${r_cv_prog_f77_append_underscore}" = yes; then
-      dgemm=dgemm_
-      xerbla=xerbla_
-    else
-      dgemm=dgemm
-      xerbla=xerbla
-    fi
-    AC_MSG_CHECKING([whether external BLAS is visible through libRblas])
-    AC_CACHE_VAL([r_cv_blas0_passthrough],[
-[cat > conftestl.c <<EOF
-  void ${dgemm}();
-  void dummy() { ${dgemm}(); }
-EOF]
-echo "${CC} ${CFLAGS} conftestl.c ${SHLIB_LDFLAGS} -o libconftest${DYLIB_EXT} ${LIBS} ${BLAS_LIBS}" >&AS_MESSAGE_LOG_FD
-${CC} ${CFLAGS} conftestl.c ${SHLIB_LDFLAGS} -o libconftest${DYLIB_EXT} ${LIBS} ${BLAS_LIBS} 1>&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD
-[cat > conftest.c <<EOF
-void ${dgemm}();
-void ${xerbla}(char *srname, int *info){};
-int main(int argc, char **argv) { if (argc<0) ${dgemm}(); return 0; }
-EOF]
-if ${CC} ${CFLAGS} -c conftest.c 1>&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD; then
-  if ${CC} ${LDFLAGS} -o conftest${ac_exeext} \
-       conftest.${ac_objext} -L. -lconftest \
-       1>&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD;
-  then
-    ## redirect error messages to config.log
-    output=`./conftest${ac_exeext} 2>&AS_MESSAGE_LOG_FD`
-    if test ${?} = 0; then
-	r_cv_blas0_passthrough=yes
-    fi
-  fi
-fi
-])
-if test -n "${r_cv_blas0_passthrough}"; then
-r_cv_blas0_passthrough=yes
-AC_MSG_RESULT([yes])
-else
-AC_MSG_RESULT([no])
-AC_MSG_CHECKING([can it be fixed by using -sub_umbrella])
-ac_test_BLAS_LIBS=`echo "${BLAS_LIBS}"|sed -e s/-framework/-sub_umbrella/`
-rm -f libconftest.dylib
-echo "${CC} ${CFLAGS} conftestl.c ${SHLIB_LDFLAGS} -o libconftest${DYLIB_EXT} ${LIBS} ${BLAS_LIBS} ${ac_test_BLAS_LIBS}" >&AS_MESSAGE_LOG_FD
-${CC} ${CFLAGS} conftestl.c ${SHLIB_LDFLAGS} -o libconftest${DYLIB_EXT} ${LIBS} ${BLAS_LIBS} ${ac_test_BLAS_LIBS} 1>&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD
-if ${CC} ${CFLAGS} -c conftest.c 1>&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD; then
-  if ${CC} ${LDFLAGS} -o conftest${ac_exeext} \
-       conftest.${ac_objext} -L. -lconftest \
-       1>&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD;
-  then
-    ## redirect error messages to config.log
-    output=`./conftest${ac_exeext} 2>&AS_MESSAGE_LOG_FD`
-    if test ${?} = 0; then
-        r_cv_blas0_passthrough=yes
-    fi
-  fi
-fi
-if test -n "${r_cv_blas0_passthrough}"; then
-r_cv_blas0_passthrough=yes
-AC_MSG_RESULT([yes])
-BLAS_LIBS0="${BLAS_LIBS} ${ac_test_BLAS_LIBS}"
-else
-AC_MSG_RESULT([no])
-AC_MSG_ERROR([Cannot build Rblas shared library such that it makes external BLAS visible.
-An alternative is to use internal BLAS instead and replace
-libRblas.dylib with the external BLAS library after R is built.])
-fi
-fi
-    rm -f conftest.c conftest.o conftestl.c libconftest.dylib
-    ;;
-  esac
-fi
 AC_SUBST(BLAS_LIBS0)
 
 if test "${use_blas_shlib}" = yes; then
@@ -2661,12 +2549,8 @@ R_TRE
 R_LIBCURL
 
 
-## Bitmap headers and libraries.
-if test -n "${PKG_CONFIG}"; then
+## Bitmap headers and libraries (pkg-config required).
 R_BITMAPS2
-else
-R_BITMAPS
-fi
 
 ## POSIX times.
 R_SYS_POSIX_LEAPSECONDS
@@ -2710,32 +2594,6 @@ if test "x${use_internal_tzcode}" = xyes; then
 fi
 AM_CONDITIONAL(BUILD_TZONE, [test "x${use_internal_tzcode}" = xyes])
 
-
-## KERN_USRSTACK support (BSD, Darwin, ...)
-R_KERN_USRSTACK
-
-## check for visible __libc_stack_end on Linux
-case "${host_os}" in
-  linux*)
-    AC_CACHE_CHECK([for visible __lib_stack_end], 
-    [r_cv_libc_stack_end],
-    [AC_RUN_IFELSE([AC_LANG_SOURCE([[
-#include "confdefs.h"
-#include <stdlib.h>
-/* This might get optimized out if not used */
-extern void * __libc_stack_end;
-
-int main () {
-    if(!__libc_stack_end) exit(1);
-    exit(0);
-}
-  ]])], [r_cv_libc_stack_end=yes], [r_cv_libc_stack_end=no], 
-    [r_cv_libc_stack_end=no])])
-
-  if test "${r_cv_libc_stack_end}" = yes; then
-    AC_DEFINE(HAVE_LIBC_STACK_END, 1, [Define if __libc_stack_end is visible.])
-  fi
-esac
 
 ### * Miscellaneous.
 
