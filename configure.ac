@@ -981,6 +981,11 @@ AC_CHECK_LIB(dl, dlopen)
 
 ## Readline.
 if test "${use_readline}" = yes; then
+  PKG_CHECK_MODULES([READLINE],[readline],[
+    CPPFLAGS="${CPPFLAGS} ${READLINE_CFLAGS}"
+    LIBS="${READLINE_LIBS} ${LIBS}"
+    use_readline=yes
+  ],[
   dnl in libedit both headers exist as links to editline/readline.h
   AC_CHECK_HEADERS(readline/history.h readline/readline.h)
   r_save_LIBS="${LIBS}"
@@ -1271,6 +1276,7 @@ if test "${SAFE_FFLAGS+set}" != set; then
   else
     SAFE_FFLAGS="${FFLAGS}"
   fi
+  ])
 fi
 
 ### type for Fortran 'hidden' character lengths, if any
