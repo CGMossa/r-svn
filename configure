@@ -1075,6 +1075,10 @@ build
 MAJ_MIN_VERSION
 VERSION
 PACKAGE
+abs_top_srcdir
+abs_top_builddir
+top_srcdir
+top_builddir
 target_alias
 host_alias
 build_alias
@@ -4360,6 +4364,14 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+
+top_builddir='${ac_top_builddir}'
+
+top_srcdir='${ac_top_srcdir}'
+
+abs_top_builddir='${ac_abs_top_builddir}'
+
+abs_top_srcdir='${ac_abs_top_srcdir}'
 
 ## created from gettext 0.16.1 by
 ## cat gettext.m4 glibc2.m4 glibc21.m4 iconv.m4 intdiv0.m4 intl.m4
@@ -30796,7 +30808,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:30799: \"$ac_link\") >&5
+(eval echo $as_me:30811: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -30874,7 +30886,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:30877: \"$ac_link\") >&5
+(eval echo $as_me:30889: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -34834,7 +34846,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:34837: \"$ac_link\") >&5
+(eval echo $as_me:34849: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -34920,7 +34932,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:34923: \"$ac_link\") >&5
+(eval echo $as_me:34935: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -73784,18 +73796,11 @@ cat << 'EOF' > Makefrag.cc
 .c.o:
 	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
 EOF
-if test -n "${r_cv_prog_cc_m}"; then
-  cat << EOF >> Makefrag.cc
+cat << 'EOF' >> Makefrag.cc
 .c.d:
-	@echo "making \$@ from \$<"
-	@${r_cv_prog_cc_m} \$(ALL_CPPFLAGS) $< > \$@
+	@echo "making $@ from $<"
+	@$(CC) -MM $(ALL_CPPFLAGS) $< > $@
 EOF
-else
-  cat << 'EOF' >> Makefrag.cc
-.c.d:
-	@echo > $@
-EOF
-fi
  ;;
     "r_cc_lo_rules_frag":C)
 if test "${r_cv_prog_cc_c_o_lo}" = yes; then

@@ -22,8 +22,8 @@ TOOLS_DIR=`echo ${0} | sed 's%/[^/][^/]*$%%'`
     m=01
     d=01
     y1=6
-    svn_rev=unknown
-    svn_rev16=unknown
+    svn_rev=0
+    svn_rev16=0
   fi
   echo "/* Rversion.h.  Generated automatically. */"
   echo "#ifndef R_VERSION_H"
@@ -57,4 +57,3 @@ TOOLS_DIR=`echo ${0} | sed 's%/[^/][^/]*$%%'`
   echo '#endif'
   echo
   echo "#endif /* not R_VERSION_H */")
-

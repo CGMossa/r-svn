@@ -347,18 +347,9 @@ vignettes:
 
 RVER-PAT = $(shell version=`cut -d' ' -f1 ../../VERSION | sed -n 1p`; if test "`cut -f2 -d' ' ../../VERSION`" = "Patched"; then version=`echo $${version} | sed 's/\.[0-9]*$$//'`; echo "$${version}-patched"; else echo "$${version}"; fi)
 
-CRANREC = cran.r-project.org::CRAN/src/contrib/$(RVER-PAT)/Recommended
-
-## Use -c here to avoid re-downloading the same versions of files
-## A recent rsync seems to need -p
+## Fetch the Recommended sources that match this checkout.
 rsync-recommended:
-	@(cd ../library; \
-	  rsync --timeout=60 -rcvpC --delete \
-	    --exclude=Makefile.in --exclude=Makefile.win --exclude=.cvsignore \
-	    --include=*.tar.gz --exclude=*.tgz --exclude=*.ts \
-	    --exclude=".svn" $(CRANREC) . )
-	@$(RM) ../library/Recommended/*.tgz
-	@(cd ../library/Recommended; for i in ${R_PKGS_RECOMMENDED}; do cp -p $${i}*.tar.gz $${i}.tgz ; done)
+	@(cd $(R_HOME) && ./tools/rsync-recommended)
 
 link-recommended:
 	@$(RM) ../library/Recommended/*.tgz

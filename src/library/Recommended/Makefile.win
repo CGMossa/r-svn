@@ -12,8 +12,8 @@ include ../../gnuwin32/MkRules
 ## foo.tgz is a copy of foo_x.y-z.tar.gz.
 ## unfortunately package foo can be uninstalled and leave foo.ts
 
-## For developers: A shell script, tools/rsync-recommended, updates
-## packages from the CRAN master directory. 
+## For developers: tools/rsync-recommended downloads the matching
+## recommended packages from CRAN and refreshes the links here. 
 
 OBJECTS = $(R_PKGS_RECOMMENDED:=.ts)
 
