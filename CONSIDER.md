@@ -39,6 +39,17 @@ The following macros from `m4/libtool.m4` are deprecated (defined via `AU_DEFUN`
 
 **Action**: Audit `configure.ac` for use of deprecated macros and update to modern equivalents.
 
+The deprecated macro AC_FOREACH is an alias of m4_foreach_w.
+
+Macro: AS_SHELL_SANITIZE; This macro is deprecated, since AS_INIT already invokes it.
+
+Look up the 18.4 Obsolete Macros in [autoconf manual](background/Autoconf.html) and handle those please.
+
+AC_TRY_LINK is deprecated.
+
+Introduce the use of: Macro: AS_INIT
+Initialize the M4sh environment. This macro calls m4_init, then outputs the #! /bin/sh line, a notice about where the output was generated from, and code to sanitize the environment for the rest of the script. Among other initializations, this sets SHELL to the shell chosen to run the script (see CONFIG_SHELL), and LC_ALL to ensure the C locale. Finally, it changes the current diversion to BODY. AS_INIT is called automatically by AC_INIT and AT_INIT, so shell code in configure, config.status, and testsuite all benefit from a sanitized shell environment.
+
 ---
 
 ## m4 Macro Audit Results

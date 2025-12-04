@@ -36,7 +36,12 @@ configure-min:
         html_flag="--disable-html-docs"
     fi
 
+    # Use config.cache for faster subsequent runs
+    cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
+
     "$srcdir"/configure \
+        --config-cache \
+        --cache-file="$cache_file" \
         --prefix="$tmpdir/install" \
         --disable-site-config \
         --enable-fast-config \
@@ -67,7 +72,12 @@ configure-full:
         html_flag="--disable-html-docs"
     fi
 
+    # Use config.cache for faster subsequent runs
+    cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
+
     "$srcdir"/configure \
+        --config-cache \
+        --cache-file="$cache_file" \
         --prefix="$tmpdir/install" \
         --disable-site-config \
         --enable-fast-config \
@@ -103,7 +113,12 @@ configure-sandbox:
         html_flag="--disable-html-docs"
     fi
 
+    # Use config.cache for faster subsequent runs
+    cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
+
     ../src/configure \
+        --config-cache \
+        --cache-file="$cache_file" \
         --prefix="$tmpdir/install" \
         --disable-site-config \
         --enable-fast-config \
@@ -150,7 +165,12 @@ build-r-min:
         html_flag="--disable-html-docs"
     fi
 
+    # Use config.cache for faster subsequent runs
+    cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
+
     ../src/configure \
+        --config-cache \
+        --cache-file="$cache_file" \
         --prefix="$tmpdir/install" \
         --disable-site-config \
         --enable-fast-config \
@@ -208,7 +228,12 @@ sandbox-repl:
         html_flag="--disable-html-docs"
     fi
 
+    # Use config.cache for faster subsequent runs
+    cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
+
     ../src/configure \
+        --config-cache \
+        --cache-file="$cache_file" \
         --prefix="$tmpdir/install" \
         --disable-site-config \
         --with-aqua=no \
@@ -223,6 +248,53 @@ sandbox-repl:
     # Build R binary only (no docs to avoid PDF/texi2any requirements)
     make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" R
     # Ensure include headers are generated before install
+    make -C src/include R
+    make install
+
+    echo "Launching R from $tmpdir/install/bin/R"
+    exec "$tmpdir/install/bin/R" --vanilla
+
+# Rebuild the most recent sandbox (NO configure, just make)
+sandbox-quick:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    latest=$(ls -td /tmp/r-conf-build-*/build 2>/dev/null | head -1 | xargs dirname)
+    if [ -z "$latest" ]; then
+        echo "No existing sandbox found. Run 'just sandbox-repl' first."
+        exit 1
+    fi
+    echo "Rebuilding: $latest"
+    just sandbox-rebuild "$latest"
+
+# Rebuild an existing sandbox (NO configure, just make). Pass the build dir as argument.
+# Usage: just sandbox-rebuild /tmp/r-conf-build-XXXXXX
+sandbox-rebuild dir:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    srcroot="{{justfile_directory()}}"
+    tmpdir="{{dir}}"
+
+    if [ ! -d "$tmpdir/build" ] || [ ! -f "$tmpdir/build/Makefile" ]; then
+        echo "Error: $tmpdir doesn't look like a configured build directory"
+        echo "Run 'just sandbox-repl' first to create one, then use this to rebuild"
+        exit 1
+    fi
+
+    # Sync source changes
+    rsync -a --delete \
+        --exclude='.git' \
+        --exclude='autom4te.cache' \
+        --exclude='src/include/Rversion.h' \
+        --exclude='src/include/Rconfig.h' \
+        --exclude='src/include/Rmath.h' \
+        --exclude='src/include/config.h' \
+        "$srcroot"/ "$tmpdir/src/"
+
+    cd "$tmpdir/build"
+
+    # Rebuild (no configure!)
+    make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" R
     make -C src/include R
     make install
 
@@ -247,7 +319,12 @@ configure-fast:
         html_flag="--disable-html-docs"
     fi
 
+    # Use config.cache for faster subsequent runs
+    cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
+
     "$srcdir"/configure \
+        --config-cache \
+        --cache-file="$cache_file" \
         --prefix="$tmpdir/install" \
         --disable-site-config \
         --with-aqua=no \
@@ -370,7 +447,12 @@ configure-asan:
     export CFLAGS="-g -O0 -fno-omit-frame-pointer -fsanitize=address"
     export LDFLAGS="-fsanitize=address ${LDFLAGS:-}"
 
+    # Use config.cache for faster subsequent runs
+    cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
+
     "$srcdir"/configure \
+        --config-cache \
+        --cache-file="$cache_file" \
         --prefix="$tmpdir/install" \
         --disable-site-config \
         --enable-fast-config \
@@ -402,7 +484,12 @@ configure-debug:
     export CXXFLAGS="-g -O0 -UNDEBUG"
     export FFLAGS="-g -O0"
 
+    # Use config.cache for faster subsequent runs
+    cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
+
     "$srcdir"/configure \
+        --config-cache \
+        --cache-file="$cache_file" \
         --prefix="$tmpdir/install" \
         --disable-site-config \
         --enable-fast-config \
@@ -420,6 +507,17 @@ configure-debug:
 # List all build directories
 list-builds:
     @ls -ltdh /tmp/r-conf-build-* 2>/dev/null | head -10 || echo "No builds found"
+
+# Clear the config.cache file to force fresh configure checks
+clear-cache:
+    #!/usr/bin/env bash
+    cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
+    if [ -f "$cache_file" ]; then
+        rm -v "$cache_file"
+        echo "Cache cleared. Next configure will run all checks."
+    else
+        echo "No cache file found at: $cache_file"
+    fi
 
 # Clean old build directories (keep latest 3)
 clean-builds:

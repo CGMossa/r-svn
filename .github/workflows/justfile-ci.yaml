@@ -29,6 +29,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Cache Homebrew packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew
+            /opt/homebrew/Cellar
+          key: ${{ runner.os }}-${{ matrix.os }}-brew-${{ hashFiles('.github/workflows/justfile-ci.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.os }}-brew-
+
       - name: Install just
         run: brew install just
 
@@ -115,6 +125,27 @@ jobs:
       - name: Test Rust SHLIB
         run: just test-rust-shlib
 
+      - name: Collect logs on failure
+        if: failure()
+        run: |
+          mkdir -p /tmp/logs
+          for d in /tmp/r-conf-build-*; do
+            if [ -d "$d" ]; then
+              name=$(basename "$d")
+              cp "$d/config.log" "/tmp/logs/${name}-config.log" 2>/dev/null || true
+              cp "$d/config.status" "/tmp/logs/${name}-config.status" 2>/dev/null || true
+            fi
+          done
+          ls -la /tmp/logs/ || true
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.os }}
+          path: /tmp/logs/
+          retention-days: 7
+
       - name: Clean up build directories
         if: always()
         run: just clean-all-builds || true
@@ -136,6 +167,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Cache apt packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/cache/apt/archives
+          key: ${{ runner.os }}-${{ matrix.os }}-apt-${{ hashFiles('.github/workflows/justfile-ci.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.os }}-apt-
 
       - name: Install just
         run: |
@@ -239,6 +279,27 @@ jobs:
       - name: Test Rust SHLIB
         run: just test-rust-shlib
 
+      - name: Collect logs on failure
+        if: failure()
+        run: |
+          mkdir -p /tmp/logs
+          for d in /tmp/r-conf-build-*; do
+            if [ -d "$d" ]; then
+              name=$(basename "$d")
+              cp "$d/config.log" "/tmp/logs/${name}-config.log" 2>/dev/null || true
+              cp "$d/config.status" "/tmp/logs/${name}-config.status" 2>/dev/null || true
+            fi
+          done
+          ls -la /tmp/logs/ || true
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.os }}
+          path: /tmp/logs/
+          retention-days: 7
+
       - name: Clean up build directories
         if: always()
         run: just clean-all-builds || true
@@ -256,6 +317,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Cache apt packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/cache/apt/archives
+          key: ${{ runner.os }}-ubuntu-24.04-arm-apt-${{ hashFiles('.github/workflows/justfile-ci.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-ubuntu-24.04-arm-apt-
 
       - name: Install just
         run: |
@@ -314,6 +384,27 @@ jobs:
 
       - name: Test r-version
         run: just r-version
+
+      - name: Collect logs on failure
+        if: failure()
+        run: |
+          mkdir -p /tmp/logs
+          for d in /tmp/r-conf-build-*; do
+            if [ -d "$d" ]; then
+              name=$(basename "$d")
+              cp "$d/config.log" "/tmp/logs/${name}-config.log" 2>/dev/null || true
+              cp "$d/config.status" "/tmp/logs/${name}-config.status" 2>/dev/null || true
+            fi
+          done
+          ls -la /tmp/logs/ || true
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-ubuntu-24.04-arm
+          path: /tmp/logs/
+          retention-days: 7
 
       - name: Clean up
         if: always()

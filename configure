@@ -10793,42 +10793,9 @@ CC=${CC_save}
 CFLAGS=${CFLAGS_save}
 
 ## Libtool.
-## (Run this after selecting the Fortan compiler as AC_PROG_LIBTOOL
+## (Run this after selecting the Fortran compiler as LT_INIT
 ## checks for a Fortran 77 compiler and sets F77 accordingly.)
 : ${lt_cv_sys_max_cmd_len=65536}
-# Check whether --enable-static was given.
-if test ${enable_static+y}
-then :
-  enableval=$enable_static; p=${PACKAGE-default}
-    case $enableval in
-    yes) enable_static=yes ;;
-    no) enable_static=no ;;
-    *)
-     enable_static=no
-      # Look at the argument we got.  We use all the common list separators.
-      lt_save_ifs=$IFS; IFS=$IFS$PATH_SEPARATOR,
-      for pkg in $enableval; do
-	IFS=$lt_save_ifs
-	if test "X$pkg" = "X$p"; then
-	  enable_static=yes
-	fi
-      done
-      IFS=$lt_save_ifs
-      ;;
-    esac
-else case e in #(
-  e) enable_static=no ;;
-esac
-fi
-
-
-
-
-
-
-
-
-
 
 case `pwd` in
   *\ * | *\	*)
@@ -14659,6 +14626,37 @@ func_stripname_cnf ()
 
 
 # Set options
+# Check whether --enable-static was given.
+if test ${enable_static+y}
+then :
+  enableval=$enable_static; p=${PACKAGE-default}
+    case $enableval in
+    yes) enable_static=yes ;;
+    no) enable_static=no ;;
+    *)
+     enable_static=no
+      # Look at the argument we got.  We use all the common list separators.
+      lt_save_ifs=$IFS; IFS=$IFS$PATH_SEPARATOR,
+      for pkg in $enableval; do
+	IFS=$lt_save_ifs
+	if test "X$pkg" = "X$p"; then
+	  enable_static=yes
+	fi
+      done
+      IFS=$lt_save_ifs
+      ;;
+    esac
+else case e in #(
+  e) enable_static=no ;;
+esac
+fi
+
+
+
+
+
+
+
 
 
 
@@ -30609,7 +30607,6 @@ printf "%s\n" "$ac_cv_prog_c_openmp" >&6; }
 
 ### *** Fortran compiler.
 
-
 if test -z "${FLIBS}"; then
 r_save_LIBS="${LIBS}"
 LIBS=
@@ -31039,7 +31036,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:31042: \"$ac_link\") >&5
+(eval echo $as_me:31039: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -31117,7 +31114,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:31120: \"$ac_link\") >&5
+(eval echo $as_me:31117: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -35132,7 +35129,6 @@ printf "%s\n" "$ac_cv_prog_c_openmp" >&6; }
 
 ### *** Fortran compiler.
 
-
 if test -z "${FLIBS}"; then
 r_save_LIBS="${LIBS}"
 LIBS=
@@ -35578,7 +35574,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:35581: \"$ac_link\") >&5
+(eval echo $as_me:35577: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -35664,7 +35660,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:35667: \"$ac_link\") >&5
+(eval echo $as_me:35663: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -73012,9 +73008,9 @@ cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
 sed_quote_subst='$sed_quote_subst'
 double_quote_subst='$double_quote_subst'
 delay_variable_subst='$delay_variable_subst'
-enable_static='`$ECHO "$enable_static" | $SED "$delay_single_quote_subst"`'
 macro_version='`$ECHO "$macro_version" | $SED "$delay_single_quote_subst"`'
 macro_revision='`$ECHO "$macro_revision" | $SED "$delay_single_quote_subst"`'
+enable_static='`$ECHO "$enable_static" | $SED "$delay_single_quote_subst"`'
 enable_shared='`$ECHO "$enable_shared" | $SED "$delay_single_quote_subst"`'
 pic_mode='`$ECHO "$pic_mode" | $SED "$delay_single_quote_subst"`'
 enable_fast_install='`$ECHO "$enable_fast_install" | $SED "$delay_single_quote_subst"`'
@@ -74233,12 +74229,12 @@ available_tags='CXX FC '
 
 # ### BEGIN LIBTOOL CONFIG
 
-# Whether or not to build static libraries.
-build_old_libs=$enable_static
-
 # Which release of libtool.m4 was used?
 macro_version=$macro_version
 macro_revision=$macro_revision
+
+# Whether or not to build static libraries.
+build_old_libs=$enable_static
 
 # Whether or not to build shared libraries.
 build_libtool_libs=$enable_shared

@@ -983,11 +983,10 @@ CC=${CC_save}
 CFLAGS=${CFLAGS_save}
 
 ## Libtool.
-## (Run this after selecting the Fortan compiler as AC_PROG_LIBTOOL
+## (Run this after selecting the Fortran compiler as LT_INIT
 ## checks for a Fortran 77 compiler and sets F77 accordingly.)
 : ${lt_cv_sys_max_cmd_len=65536}
-AC_DISABLE_STATIC
-LT_INIT
+LT_INIT([disable-static])
 AC_SUBST(LIBTOOL_DEPS)
 
 ### * Checks for libraries.

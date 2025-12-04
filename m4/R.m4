@@ -642,7 +642,8 @@ fi
 ## Run AC_FC_LIBRARY_LDFLAGS rename to FLIBS, and fix some known problems with FLIBS.
 ## Only do this if the user has not already set FLIBS.
 AC_DEFUN([R_PROG_FC_FLIBS],
-[AC_BEFORE([$0], [AC_FC_LIBRARY_LDFLAGS])
+[dnl Note: LT_INIT may call AC_FC_LIBRARY_LDFLAGS before us, which is fine
+dnl since we check if FLIBS is already set.
 if test -z "${FLIBS}"; then
 dnl
 dnl Historical comment
@@ -788,7 +789,9 @@ fi
 ## function names, we do nothing about the latter in F77_*
 ## (but do in R_dlsym).
 AC_DEFUN([R_PROG_FC_APPEND_UNDERSCORE],
-[AC_REQUIRE([AC_FC_WRAPPERS])
+[dnl Note: AC_FC_WRAPPERS requires AC_FC_LIBRARY_LDFLAGS internally.
+dnl LT_INIT may have already called it, which is fine.
+AC_REQUIRE([AC_FC_WRAPPERS])
 dnl DANGER!  We really need the results of _AC_FC_NAME_MANGLING as
 dnl stored in the cache var ac_cv_fc_mangling which is not documented
 dnl and hence may change ...
