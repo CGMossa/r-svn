@@ -53,7 +53,7 @@ static R_INLINE int R_NaN_is_R_NA_inline(double x)
 #define SET_ARGUSED(x,v) SETLEVELS(x,v)
 
 /* interval at which to check interrupts */
-#define NINTERRUPT 1000000
+#define NINTERRUPT 10000000
 
 typedef size_t hlen;
 

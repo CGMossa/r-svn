@@ -28,7 +28,7 @@
 #include "stats.h" // for rcont2
 
 /* interval at which to check interrupts */
-#define NINTERRUPT 1000000
+#define NINTERRUPT 10000000
 
 typedef double (*ran1) (double);
 typedef double (*ran2) (double, double);
