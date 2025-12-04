@@ -6,7 +6,11 @@ This document tracks potential improvements and items for future investigation.
 
 - Extend pkg-config-first to BLAS/LAPACK (e.g., openblas, blas, lapack .pc files) before ACX_BLAS/legacy search.
 - Add pkg-config hints for jpeg2000/webp2 or other optional bitmap codecs if we keep those features.
-- Optionally silence libtool/clang probe logs in config.log if they bother users.
+- ~~Optionally silence libtool/clang probe logs in config.log if they bother users.~~
+  **Analysis**: Libtool's `_LT_LINKER_SHLIBS` and `_LT_SYS_DYNAMIC_LINKER` macros don't use `AC_CACHE_*` by design. They probe for each language (C, C++, Fortran) fresh every time (~70 uncacheable checks). Practical workarounds:
+  - Use `QUIET=1` to suppress configure output
+  - Use `just sandbox-quick` for rebuilds (skips configure entirely)
+  - Accept ~7s configure time with cache (vs ~40s without)
 - ICU could use `icu-uc`/`icu-i18n` pkg-config instead of custom link tests; also consider `icucore` shim on macOS.
 - Tcl/Tk can be resolved via pkg-config on Homebrew (`tcl`, `tk`), falling back to tclConfig.sh/tkConfig.sh only when needed.
 - Capture Homebrew pkg-config availability snapshots for the above to guide which fallbacks remain necessary.
@@ -37,18 +41,24 @@ The following macros from `m4/libtool.m4` are deprecated (defined via `AU_DEFUN`
 | `AC_ENABLE_FAST_INSTALL` | `LT_INIT` options |
 | `AC_DISABLE_FAST_INSTALL` | `LT_INIT` options |
 
-**Action**: Audit `configure.ac` for use of deprecated macros and update to modern equivalents.
+**Status**: ✅ Audited. Results:
 
-The deprecated macro AC_FOREACH is an alias of m4_foreach_w.
+- `configure.ac`: Clean - uses `LT_INIT([disable-static])` (not deprecated `AC_DISABLE_STATIC`)
+- `m4/R.m4`: Fixed `AC_TRY_LINK_FUNC` → `AC_LINK_IFELSE([AC_LANG_CALL(...)])` (2 occurrences)
+- `m4/libtool.m4`: Contains deprecated macros (`AC_LANG_SAVE`, `AS_SHELL_SANITIZE`) but this is the standard libtool distribution file - **do not modify**
 
-Macro: AS_SHELL_SANITIZE; This macro is deprecated, since AS_INIT already invokes it.
+### Other Deprecated Macros (Not Used)
 
-Look up the 18.4 Obsolete Macros in [autoconf manual](background/Autoconf.html) and handle those please.
+| Macro | Status |
+|-------|--------|
+| `AC_FOREACH` | Not used (alias of `m4_foreach_w`) |
+| `AS_SHELL_SANITIZE` | Only in libtool.m4 (standard file) |
+| `AC_TRY_LINK` | Not used; fixed `AC_TRY_LINK_FUNC` |
+| `AC_TRY_COMPILE` | Not used |
+| `AC_TRY_RUN` | Not used |
+| `AC_TRY_CPP` | Not used |
 
-AC_TRY_LINK is deprecated.
-
-Introduce the use of: Macro: AS_INIT
-Initialize the M4sh environment. This macro calls m4_init, then outputs the #! /bin/sh line, a notice about where the output was generated from, and code to sanitize the environment for the rest of the script. Among other initializations, this sets SHELL to the shell chosen to run the script (see CONFIG_SHELL), and LC_ALL to ensure the C locale. Finally, it changes the current diversion to BODY. AS_INIT is called automatically by AC_INIT and AT_INIT, so shell code in configure, config.status, and testsuite all benefit from a sanitized shell environment.
+**Note**: `AS_INIT` is automatically called by `AC_INIT`, so no explicit invocation needed.
 
 ---
 
@@ -87,9 +97,9 @@ Initialize the M4sh environment. This macro calls m4_init, then outputs the #! /
 configure.ac: warning: AC_REQUIRE: 'AC_FC_LIBRARY_LDFLAGS' was expanded before it was required
 ```
 
-**Root cause**: `R_PROG_FC_APPEND_UNDERSCORE` uses `AC_FC_WRAPPERS` which requires `AC_FC_LIBRARY_LDFLAGS`, but the dependency order isn't explicit.
+**Root cause**: `LT_INIT` internally calls `AC_FC_LIBRARY_LDFLAGS` before `R_PROG_FC_APPEND_UNDERSCORE` (which uses `AC_FC_WRAPPERS`) runs. This is an ordering issue inside autoconf/libtool internals.
 
-**Fix**: Add `AC_REQUIRE([AC_FC_LIBRARY_LDFLAGS])` at the start of `R_PROG_FC_APPEND_UNDERSCORE` in `m4/R.m4`.
+**Status**: ⚠️ Cannot fix without patching autoconf. The warning is harmless - `AC_FC_LIBRARY_LDFLAGS` has already been expanded by the time it's "required", so the check succeeds. This is a cosmetic warning only.
 
 ---
 

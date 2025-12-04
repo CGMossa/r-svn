@@ -2,6 +2,11 @@
 
 set positional-arguments := true
 
+# Environment variables:
+#   QUIET=1          - Suppress configure output (just show summary)
+#   HTML_DOCS=yes    - Enable HTML documentation (default: no for sandbox builds)
+#   R_CONFIG_CACHE   - Path to config cache file (default: ~/.r-config-cache)
+
 # Platform-specific defaults (set via environment or detected)
 # On macOS with Homebrew, set HOMEBREW_PREFIX; on Linux, leave empty for system paths
 
@@ -192,6 +197,8 @@ build-r-min:
     echo "R binary:          $tmpdir/install/bin/R"
 
 # Build in an isolated temp dir and drop into the REPL.
+# Use QUIET=1 to suppress configure output.
+# TIP: Use 'just sandbox-quick' for rebuilds without re-running configure.
 sandbox-repl:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -201,6 +208,7 @@ sandbox-repl:
     echo "Using sandbox: $tmpdir"
 
     # Exclude generated headers that would interfere with out-of-tree builds
+    echo "Copying sources..."
     rsync -a --delete \
         --exclude='.git' \
         --exclude='autom4te.cache' \
@@ -231,21 +239,41 @@ sandbox-repl:
     # Use config.cache for faster subsequent runs
     cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
 
-    ../src/configure \
-        --config-cache \
-        --cache-file="$cache_file" \
-        --prefix="$tmpdir/install" \
-        --disable-site-config \
-        --with-aqua=no \
-        --disable-R-framework \
-        --enable-fast-config \
-        --without-x \
-        --without-cairo \
-        --without-tcltk \
-        --without-recommended-packages \
-        $html_flag
+    if [ "${QUIET:-}" = "1" ]; then
+        echo "Configuring (quiet mode, see $tmpdir/configure.log)..."
+        ../src/configure \
+            --config-cache \
+            --cache-file="$cache_file" \
+            --prefix="$tmpdir/install" \
+            --disable-site-config \
+            --with-aqua=no \
+            --disable-R-framework \
+            --enable-fast-config \
+            --without-x \
+            --without-cairo \
+            --without-tcltk \
+            --without-recommended-packages \
+            $html_flag > "$tmpdir/configure.log" 2>&1
+        echo "Configure done."
+    else
+        echo "Configuring... (use QUIET=1 to suppress)"
+        ../src/configure \
+            --config-cache \
+            --cache-file="$cache_file" \
+            --prefix="$tmpdir/install" \
+            --disable-site-config \
+            --with-aqua=no \
+            --disable-R-framework \
+            --enable-fast-config \
+            --without-x \
+            --without-cairo \
+            --without-tcltk \
+            --without-recommended-packages \
+            $html_flag
+    fi
 
     # Build R binary only (no docs to avoid PDF/texi2any requirements)
+    echo "Building R..."
     make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" R
     # Ensure include headers are generated before install
     make -C src/include R
@@ -302,6 +330,7 @@ sandbox-rebuild dir:
     exec "$tmpdir/install/bin/R" --vanilla
 
 # Fast configure: skips X11/cairo/tcltk/java/NLS/recommended checks via --enable-fast-config.
+# Use QUIET=1 to suppress configure output (logs to $tmpdir/configure.log)
 configure-fast:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -322,20 +351,36 @@ configure-fast:
     # Use config.cache for faster subsequent runs
     cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
 
-    "$srcdir"/configure \
-        --config-cache \
-        --cache-file="$cache_file" \
-        --prefix="$tmpdir/install" \
-        --disable-site-config \
-        --with-aqua=no \
-        --enable-fast-config \
-        --without-x \
-        --without-cairo \
-        --without-tcltk \
-        --without-recommended-packages \
-        $html_flag
-
-    ls -a "$tmpdir"
+    if [ "${QUIET:-}" = "1" ]; then
+        echo "Configuring (quiet mode, logs to $tmpdir/configure.log)..."
+        "$srcdir"/configure \
+            --config-cache \
+            --cache-file="$cache_file" \
+            --prefix="$tmpdir/install" \
+            --disable-site-config \
+            --with-aqua=no \
+            --enable-fast-config \
+            --without-x \
+            --without-cairo \
+            --without-tcltk \
+            --without-recommended-packages \
+            $html_flag > "$tmpdir/configure.log" 2>&1
+        echo "Configure done. Build dir: $tmpdir"
+    else
+        "$srcdir"/configure \
+            --config-cache \
+            --cache-file="$cache_file" \
+            --prefix="$tmpdir/install" \
+            --disable-site-config \
+            --with-aqua=no \
+            --enable-fast-config \
+            --without-x \
+            --without-cairo \
+            --without-tcltk \
+            --without-recommended-packages \
+            $html_flag
+        ls -a "$tmpdir"
+    fi
 
 # Quick rebuild - reuse existing build directory
 rebuild *ARGS:

@@ -2807,7 +2807,7 @@ if test "${acx_blas_ok}" = no; then
      AC_MSG_CHECKING([for ${dgemm} in -lsunperf])
      r_save_LIBS="${LIBS}"
      LIBS="-xlic_lib=sunperf -lsunmath ${LIBS}"
-     AC_TRY_LINK_FUNC([${dgemm}], [R_sunperf=yes], [R_sunperf=no])
+     AC_LINK_IFELSE([AC_LANG_CALL([], [${dgemm}])], [R_sunperf=yes], [R_sunperf=no])
      if test "${R_sunperf}" = yes; then
         BLAS_LIBS="-xlic_lib=sunperf -lsunmath"
 	acx_blas_ok=yes
@@ -3198,7 +3198,7 @@ if test "${acx_lapack_ok}" = no; then
   if test "x${LAPACK_LIBS}" != x; then
     r_save_LIBS="${LIBS}"; LIBS="${LAPACK_LIBS} ${LIBS}"
     AC_MSG_CHECKING([for ${lapack} in ${LAPACK_LIBS}])
-    AC_TRY_LINK_FUNC(${lapack}, [acx_lapack_ok=yes], [LAPACK_LIBS=""])
+    AC_LINK_IFELSE([AC_LANG_CALL([], [${lapack}])], [acx_lapack_ok=yes], [LAPACK_LIBS=""])
     AC_MSG_RESULT([${acx_lapack_ok}])
     LIBS="${r_save_LIBS}"
   fi
