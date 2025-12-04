@@ -133,13 +133,19 @@ AC_SUBST(R_OS)
 
 # Fast path: trim optional subsystems to avoid long checks.
 if test "x${enable_fast_config}" = "xyes"; then
-  AC_MSG_NOTICE([fast-config: skipping optional subsystems (X11, Cairo, Tcl/Tk, Java, NLS, recommended pkgs)])
+  AC_MSG_NOTICE([fast-config: skipping optional subsystems (X11, Cairo, Tcl/Tk, Aqua, Java, NLS, recommended pkgs)])
+  # Set both with_* (for AC_ARG_WITH defaults) and want_* (for internal macro checks)
   with_x=no
   with_cairo=no
+  want_cairo=no
   with_tcltk=no
+  want_tcltk=no
   with_tcl_config=no
   with_tk_config=no
+  with_aqua=no
+  want_aqua=no
   WANT_JAVA=no
+  want_java=no
   USE_NLS=no
   use_readline=yes
   USE_RECOMMENDED_PACKAGES=no
@@ -749,40 +755,62 @@ AC_SUBST(MAKE)
 R_PROG_PAGER
 ## Tar -- we prefer a GNU version
 AC_PATH_PROGS(TAR, [${TAR} gtar gnutar tar bsdtar], "")
-## TeXMF stuff
-R_PROG_TEXMF
+## TeXMF stuff, browser, pdf viewer - skip in fast-config mode
+if test "x${enable_fast_config}" != "xyes"; then
+  R_PROG_TEXMF
+  ## Browser
+  R_PROG_BROWSER
+  ## PDF viewer
+  R_PROG_PDFVIEWER
+else
+  AC_MSG_NOTICE([fast-config: skipping TeX/browser/PDF viewer checks])
+  ## Set defaults for skipped checks
+  PDFLATEX=
+  PDFTEX=
+  TEX=
+  MAKEINDEX=
+  TEXI2ANY=
+  TEXI2DVI=
+  R_BROWSER=
+  R_PDFVIEWER=
+fi
 ## Unzip & zip & gzip & bip2
 AC_PATH_PROGS(R_UNZIPCMD, [${UNZIP} unzip], "")
 AC_PATH_PROGS(R_ZIPCMD, [${ZIP} zip], "")
 AC_PATH_PROGS(R_GZIPCMD, [${GZIP} gzip], true)
 AC_PATH_PROGS(R_BZIPCMD, [${BZIP} bzip2], "")
-## Browser
-R_PROG_BROWSER
-## PDF viewer
-R_PROG_PDFVIEWER
 ## Noweb (notangle), aclocal, autoconf, autoheader - maintainer mode only
-
-R_MISSING_PROG(ACLOCAL, aclocal,
-  R_MNT_WARN([[aclocal is missing - aclocal.m4 cannot be updated!]])
-)
-R_MISSING_PROG(AUTOCONF, autoconf,
-  R_MNT_WARN([[autoconf is missing - configure cannot be updated!]])
-)
-R_MISSING_PROG(AUTOHEADER, autoheader,
-  R_MNT_WARN([[autoheader is missing - header file templates like config.h.in cannot be updated!]])
-)
-AC_PROG_YACC
-if test "${YACC}" = yacc ; then
-  ## yacc is the default value even when yacc is not found
-  AC_CHECK_PROG(JUSTYACC, yacc, yes)
-  if test "x${JUSTYACC}" != xyes ; then
-    R_MNT_WARN([[yacc is missing - parsers cannot be updated!]])
+## Skip in fast-config mode
+if test "x${enable_fast_config}" != "xyes"; then
+  R_MISSING_PROG(ACLOCAL, aclocal,
+    R_MNT_WARN([[aclocal is missing - aclocal.m4 cannot be updated!]])
+  )
+  R_MISSING_PROG(AUTOCONF, autoconf,
+    R_MNT_WARN([[autoconf is missing - configure cannot be updated!]])
+  )
+  R_MISSING_PROG(AUTOHEADER, autoheader,
+    R_MNT_WARN([[autoheader is missing - header file templates like config.h.in cannot be updated!]])
+  )
+  AC_PROG_YACC
+  if test "${YACC}" = yacc ; then
+    ## yacc is the default value even when yacc is not found
+    AC_CHECK_PROG(JUSTYACC, yacc, yes)
+    if test "x${JUSTYACC}" != xyes ; then
+      R_MNT_WARN([[yacc is missing - parsers cannot be updated!]])
+    fi
   fi
-fi
-AC_PATH_PROG(NOTANGLE, notangle, false)
-if test "${NOTANGLE}" = false ; then
-  R_MNT_WARN([[notangle is missing - byte-code compiler source cannot be updated!]])
-  NOTANGLE=notangle    
+  AC_PATH_PROG(NOTANGLE, notangle, false)
+  if test "${NOTANGLE}" = false ; then
+    R_MNT_WARN([[notangle is missing - byte-code compiler source cannot be updated!]])
+    NOTANGLE=notangle
+  fi
+else
+  ## Set defaults for skipped maintainer tools
+  ACLOCAL=aclocal
+  AUTOCONF=autoconf
+  AUTOHEADER=autoheader
+  YACC="bison -y"
+  NOTANGLE=notangle
 fi
 ## javareconf needs this
 AC_PATH_PROG(REALPATH, realpath, false)

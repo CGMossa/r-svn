@@ -1,0 +1,320 @@
+name: Justfile CI
+
+on:
+  push:
+    branches: [main, reconfigure_claude]
+  pull_request:
+
+concurrency:
+  group: justfile-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  # ==========================================================================
+  # macOS builds
+  # ==========================================================================
+  macos:
+    name: macOS (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, macos-15]
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install just
+        run: brew install just
+
+      - name: Install build dependencies
+        run: |
+          # Core build tools
+          brew install autoconf automake pkg-config
+
+          # Required libraries
+          brew install readline pcre2 xz bzip2 zlib libdeflate
+
+          # Fortran compiler
+          brew install gcc
+
+          # Optional but commonly needed
+          brew install curl
+
+          # Set up environment for Homebrew libraries
+          echo "CPPFLAGS=-I$(brew --prefix)/include -I$(brew --prefix xz)/include -I$(brew --prefix readline)/include -I$(brew --prefix bzip2)/include" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$(brew --prefix)/lib -L$(brew --prefix xz)/lib -L$(brew --prefix readline)/lib -L$(brew --prefix bzip2)/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=$(brew --prefix readline)/lib/pkgconfig:$(brew --prefix)/lib/pkgconfig" >> $GITHUB_ENV
+
+      - name: Show tool versions
+        run: |
+          echo "=== just ==="
+          just --version
+          echo "=== autoconf ==="
+          autoconf --version | head -1
+          echo "=== gcc/gfortran ==="
+          gfortran --version | head -1
+          echo "=== pkg-config ==="
+          pkg-config --version
+          echo "=== rustc ==="
+          rustc --version || echo "rustc not installed"
+
+      # -----------------------------------------------------------------------
+      # Minimal recipes first
+      # -----------------------------------------------------------------------
+      - name: Test configure-help
+        run: just configure-help | head -50
+
+      - name: Test list-builds (should be empty)
+        run: just list-builds
+
+      - name: Test rust-link-info
+        run: just rust-link-info
+
+      # -----------------------------------------------------------------------
+      # Configure-only recipes
+      # -----------------------------------------------------------------------
+      - name: Test configure-fast
+        run: just configure-fast
+
+      - name: Test show-config
+        run: just show-config
+
+      - name: Test compare-makeconf
+        run: just compare-makeconf || true
+
+      - name: Clean old builds
+        run: just clean-builds
+
+      - name: Test configure-min
+        run: just configure-min
+
+      # -----------------------------------------------------------------------
+      # Build recipes
+      # -----------------------------------------------------------------------
+      - name: Test build-r-min
+        run: just build-r-min
+
+      - name: Test r-version
+        run: just r-version
+
+      - name: Test run-expr
+        run: just run-expr "R.version.string"
+
+      # -----------------------------------------------------------------------
+      # Rust tests (if rustc available)
+      # -----------------------------------------------------------------------
+      - name: Test Rust compilation
+        run: just test-rust
+
+      - name: Test Rust SHLIB
+        run: just test-rust-shlib
+
+      - name: Clean up build directories
+        if: always()
+        run: just clean-all-builds || true
+
+  # ==========================================================================
+  # Linux builds
+  # ==========================================================================
+  linux:
+    name: Linux (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+    env:
+      DEBIAN_FRONTEND: noninteractive
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install just
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+          just --version
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            build-essential \
+            gfortran \
+            autoconf \
+            pkg-config \
+            libreadline-dev \
+            libpcre2-dev \
+            liblzma-dev \
+            libbz2-dev \
+            zlib1g-dev \
+            libcurl4-openssl-dev \
+            libdeflate-dev
+
+          # Optional: Rust (should be pre-installed on GitHub runners)
+          rustc --version || true
+
+      - name: Show tool versions
+        run: |
+          echo "=== just ==="
+          just --version
+          echo "=== autoconf ==="
+          autoconf --version | head -1
+          echo "=== gcc ==="
+          gcc --version | head -1
+          echo "=== gfortran ==="
+          gfortran --version | head -1
+          echo "=== pkg-config ==="
+          pkg-config --version
+          echo "=== rustc ==="
+          rustc --version || echo "rustc not installed"
+
+      # -----------------------------------------------------------------------
+      # Minimal recipes first
+      # -----------------------------------------------------------------------
+      - name: Test configure-help
+        run: just configure-help | head -50
+
+      - name: Test list-builds (should be empty)
+        run: just list-builds
+
+      - name: Test rust-link-info
+        run: just rust-link-info
+
+      # -----------------------------------------------------------------------
+      # Configure-only recipes
+      # -----------------------------------------------------------------------
+      - name: Test configure-fast
+        run: just configure-fast
+        env:
+          CPPFLAGS: ""
+          LDFLAGS: ""
+          PKG_CONFIG_PATH: ""
+
+      - name: Test show-config
+        run: just show-config
+
+      - name: Test compare-makeconf
+        run: just compare-makeconf || true
+
+      - name: Clean old builds
+        run: just clean-builds
+
+      - name: Test configure-min
+        run: just configure-min
+        env:
+          CPPFLAGS: ""
+          LDFLAGS: ""
+          PKG_CONFIG_PATH: ""
+
+      # -----------------------------------------------------------------------
+      # Build recipes
+      # -----------------------------------------------------------------------
+      - name: Test build-r-min
+        run: just build-r-min
+        env:
+          CPPFLAGS: ""
+          LDFLAGS: ""
+          PKG_CONFIG_PATH: ""
+
+      - name: Test r-version
+        run: just r-version
+
+      - name: Test run-expr
+        run: just run-expr "R.version.string"
+
+      # -----------------------------------------------------------------------
+      # Rust tests (if rustc available)
+      # -----------------------------------------------------------------------
+      - name: Test Rust compilation
+        run: just test-rust
+
+      - name: Test Rust SHLIB
+        run: just test-rust-shlib
+
+      - name: Clean up build directories
+        if: always()
+        run: just clean-all-builds || true
+
+  # ==========================================================================
+  # Linux ARM builds
+  # ==========================================================================
+  linux-arm:
+    name: Linux ARM (ubuntu-24.04-arm)
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    env:
+      DEBIAN_FRONTEND: noninteractive
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install just
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+          just --version
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            build-essential \
+            gfortran \
+            autoconf \
+            pkg-config \
+            libreadline-dev \
+            libpcre2-dev \
+            liblzma-dev \
+            libbz2-dev \
+            zlib1g-dev \
+            libcurl4-openssl-dev \
+            libdeflate-dev
+
+      - name: Show tool versions
+        run: |
+          echo "=== Architecture ==="
+          uname -m
+          echo "=== just ==="
+          just --version
+          echo "=== gcc ==="
+          gcc --version | head -1
+          echo "=== gfortran ==="
+          gfortran --version | head -1
+
+      # -----------------------------------------------------------------------
+      # Configure-only (faster)
+      # -----------------------------------------------------------------------
+      - name: Test configure-fast
+        run: just configure-fast
+        env:
+          CPPFLAGS: ""
+          LDFLAGS: ""
+          PKG_CONFIG_PATH: ""
+
+      - name: Test show-config
+        run: just show-config
+
+      # -----------------------------------------------------------------------
+      # Build
+      # -----------------------------------------------------------------------
+      - name: Test build-r-min
+        run: just build-r-min
+        env:
+          CPPFLAGS: ""
+          LDFLAGS: ""
+          PKG_CONFIG_PATH: ""
+
+      - name: Test r-version
+        run: just r-version
+
+      - name: Clean up
+        if: always()
+        run: just clean-all-builds || true

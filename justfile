@@ -2,6 +2,22 @@
 
 set positional-arguments := true
 
+# Platform-specific defaults (set via environment or detected)
+# On macOS with Homebrew, set HOMEBREW_PREFIX; on Linux, leave empty for system paths
+
+# Helper: set up platform-specific library paths
+# Usage: eval "$(setup_paths)"
+[private]
+setup-paths := '''
+if [ "$(uname)" = "Darwin" ]; then
+    BREW_PREFIX="${HOMEBREW_PREFIX:-$(brew --prefix 2>/dev/null || echo /opt/homebrew)}"
+    : ${CPPFLAGS:="-I${BREW_PREFIX}/include -I${BREW_PREFIX}/opt/xz/include -I${BREW_PREFIX}/opt/readline/include -I${BREW_PREFIX}/opt/bzip2/include"}
+    : ${LDFLAGS:="-L${BREW_PREFIX}/lib -L${BREW_PREFIX}/opt/xz/lib -L${BREW_PREFIX}/opt/readline/lib -L${BREW_PREFIX}/opt/bzip2/lib"}
+    : ${PKG_CONFIG_PATH:="${BREW_PREFIX}/opt/readline/lib/pkgconfig:${BREW_PREFIX}/lib/pkgconfig"}
+    export CPPFLAGS LDFLAGS PKG_CONFIG_PATH
+fi
+'''
+
 # Run configure with minimal optional deps (no X, cairo, recommended pkgs)
 configure-min:
     #!/usr/bin/env bash
@@ -12,9 +28,8 @@ configure-min:
     echo "Using temp dir: $tmpdir"
     cd "$tmpdir"
 
-    export CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"}
-    export LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"}
-    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"}
+    # Platform-specific library paths
+    {{setup-paths}}
 
     html_flag=""
     if [ "${HTML_DOCS:-yes}" = "no" ]; then
@@ -24,6 +39,7 @@ configure-min:
     "$srcdir"/configure \
         --prefix="$tmpdir/install" \
         --disable-site-config \
+        --enable-fast-config \
         --with-aqua=no \
         --disable-R-framework \
         --without-x \
@@ -43,9 +59,8 @@ configure-full:
     echo "Using temp dir: $tmpdir"
     cd "$tmpdir"
 
-    export CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"}
-    export LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"}
-    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"}
+    # Platform-specific library paths
+    {{setup-paths}}
 
     html_flag=""
     if [ "${HTML_DOCS:-yes}" = "no" ]; then
@@ -55,6 +70,7 @@ configure-full:
     "$srcdir"/configure \
         --prefix="$tmpdir/install" \
         --disable-site-config \
+        --enable-fast-config \
         --with-aqua=no \
         $html_flag
 
@@ -79,9 +95,8 @@ configure-sandbox:
     mkdir -p "$tmpdir/build"
     cd "$tmpdir/build"
 
-    export CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"}
-    export LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"}
-    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"}
+    # Platform-specific library paths
+    {{setup-paths}}
 
     html_flag=""
     if [ "${HTML_DOCS:-yes}" = "no" ]; then
@@ -91,6 +106,7 @@ configure-sandbox:
     ../src/configure \
         --prefix="$tmpdir/install" \
         --disable-site-config \
+        --enable-fast-config \
         --with-aqua=no \
         $html_flag \
         --no-create
@@ -126,9 +142,8 @@ build-r-min:
     mkdir -p "$tmpdir/build"
     cd "$tmpdir/build"
 
-    export CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"}
-    export LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"}
-    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"}
+    # Platform-specific library paths
+    {{setup-paths}}
 
     html_flag=""
     if [ "${HTML_DOCS:-no}" = "no" ]; then
@@ -138,6 +153,7 @@ build-r-min:
     ../src/configure \
         --prefix="$tmpdir/install" \
         --disable-site-config \
+        --enable-fast-config \
         --with-aqua=no \
         --disable-R-framework \
         --without-x \
@@ -184,9 +200,8 @@ sandbox-repl:
     mkdir -p "$tmpdir/build"
     cd "$tmpdir/build"
 
-    export CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"}
-    export LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"}
-    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"}
+    # Platform-specific library paths
+    {{setup-paths}}
 
     html_flag=""
     if [ "${HTML_DOCS:-no}" = "no" ]; then
@@ -205,7 +220,10 @@ sandbox-repl:
         --without-recommended-packages \
         $html_flag
 
-    make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)"
+    # Build R binary only (no docs to avoid PDF/texi2any requirements)
+    make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" R
+    # Ensure include headers are generated before install
+    make -C src/include R
     make install
 
     echo "Launching R from $tmpdir/install/bin/R"
@@ -221,9 +239,8 @@ configure-fast:
     echo "Using temp dir: $tmpdir"
     cd "$tmpdir"
 
-    export CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"}
-    export LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"}
-    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"}
+    # Platform-specific library paths
+    {{setup-paths}}
 
     html_flag=""
     if [ "${HTML_DOCS:-no}" = "no" ]; then
@@ -336,7 +353,7 @@ configure-help:
     #!/usr/bin/env bash
     "{{justfile_directory()}}"/configure --help
 
-# Build with AddressSanitizer for debugging memory issues
+# Build with AddressSanitizer for debugging memory issues (macOS only)
 configure-asan:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -346,15 +363,17 @@ configure-asan:
     echo "Using temp dir: $tmpdir (ASAN build)"
     cd "$tmpdir"
 
+    # Platform-specific library paths
+    {{setup-paths}}
+
     export CC="clang"
     export CFLAGS="-g -O0 -fno-omit-frame-pointer -fsanitize=address"
-    export LDFLAGS="-fsanitize=address -L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"
-    export CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"
-    export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig:/opt/homebrew/opt/readline/lib/pkgconfig"
+    export LDFLAGS="-fsanitize=address ${LDFLAGS:-}"
 
     "$srcdir"/configure \
         --prefix="$tmpdir/install" \
         --disable-site-config \
+        --enable-fast-config \
         --with-aqua=no \
         --disable-R-framework \
         --without-x \
@@ -376,16 +395,17 @@ configure-debug:
     echo "Using temp dir: $tmpdir (debug build)"
     cd "$tmpdir"
 
+    # Platform-specific library paths
+    {{setup-paths}}
+
     export CFLAGS="-g -O0 -UNDEBUG"
     export CXXFLAGS="-g -O0 -UNDEBUG"
     export FFLAGS="-g -O0"
-    export CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"
-    export LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"
-    export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig:/opt/homebrew/opt/readline/lib/pkgconfig"
 
     "$srcdir"/configure \
         --prefix="$tmpdir/install" \
         --disable-site-config \
+        --enable-fast-config \
         --with-aqua=no \
         --disable-R-framework \
         --without-x \
@@ -440,7 +460,7 @@ compile-commands:
         exit 1
     fi
     if ! command -v bear &>/dev/null; then
-        echo "Error: 'bear' not found. Install with: brew install bear"
+        echo "Error: 'bear' not found. Install with: brew install bear (macOS) or apt install bear (Linux)"
         exit 1
     fi
     cd "$BUILD"
@@ -491,6 +511,10 @@ compare-makeconf:
 # Show what Rust would link against
 rust-link-info:
     #!/usr/bin/env bash
+    if ! command -v rustc &>/dev/null; then
+        echo "rustc not found"
+        exit 0
+    fi
     echo "Native static libs for a minimal Rust crate:"
     rustc --crate-type=cdylib -C panic=abort --print native-static-libs - <<< 'pub fn dummy() {}' 2>&1 | grep native-static-libs || echo "(no extra libs needed)"
 
