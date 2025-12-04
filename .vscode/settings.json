@@ -1,9 +1,54 @@
 {
   "files.associations": {
     "Makefile.in": "makefile",
+    "Makefile.win": "makefile",
     "Makevars.in": "makefile",
     "Makeconf.in": "makefile",
-    "Renviron.in": "dotenv",
-    "config.h.in": "c"
+    "Makeconf": "makefile",
+    "Makefrag.*": "makefile",
+    "Renviron.in": "shellscript",
+    "config.h.in": "c",
+    "configure.ac": "m4",
+    "*.m4": "m4",
+    "*.ac": "m4",
+    "*.rs": "rust",
+    "*.R": "r",
+    "*.Rd": "rd",
+    "*.Rmd": "rmd",
+    "NAMESPACE": "r",
+    "DESCRIPTION": "yaml"
   },
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/*.o": true,
+    "**/*.lo": true,
+    "autom4te.cache": true
+  },
+  "search.exclude": {
+    "**/autom4te.cache": true,
+    "**/*.o": true,
+    "**/configure": true
+  },
+  "editor.formatOnSave": false,
+  "editor.tabSize": 8,
+  "[makefile]": {
+    "editor.insertSpaces": false,
+    "editor.tabSize": 8
+  },
+  "[c]": {
+    "editor.tabSize": 4
+  },
+  "C_Cpp.default.cStandard": "gnu23",
+  "C_Cpp.default.cppStandard": "gnu++17",
+  "C_Cpp.default.intelliSenseMode": "macos-clang-arm64",
+  "C_Cpp.errorSquiggles": "enabled",
+  "C_Cpp.enhancedColorization": "enabled",
+  "rust-analyzer.cargo.buildScripts.enable": false,
+  "rust-analyzer.checkOnSave": false,
+  "rust-analyzer.files.excludeDirs": [
+    "autom4te.cache",
+    "doc",
+    "tests"
+  ],
+  "C_Cpp_Runner.msvcBatchPath": ""
 }

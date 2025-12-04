@@ -46,8 +46,8 @@ src/extra/*/Makefile
 src/include/Makefile
 src/include/R_ext/Makefile
 src/library/Makefile
-src/library/*/Makefile
-src/library/*/src/Makefile
+src/library/**/Makefile
+src/library/**/src/Makefile
 src/main/Makefile
 src/modules/Makefile
 src/modules/*/Makefile

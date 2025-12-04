@@ -1,0 +1,79 @@
+{
+  "configurations": [
+    {
+      "name": "R Source (macOS)",
+      "includePath": [
+        "${workspaceFolder}/src/include",
+        "${workspaceFolder}/src/main",
+        "${workspaceFolder}/src/unix",
+        "${workspaceFolder}/src/nmath",
+        "${workspaceFolder}/src/appl",
+        "${workspaceFolder}/src/extra/tre",
+        "${workspaceFolder}/src/extra/xdr",
+        "${workspaceFolder}/src/extra/blas",
+        "${workspaceFolder}/src/library/*/src",
+        "/opt/homebrew/include",
+        "/opt/homebrew/opt/readline/include",
+        "/opt/homebrew/opt/xz/include",
+        "/opt/homebrew/opt/icu4c/include",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include"
+      ],
+      "defines": [
+        "HAVE_CONFIG_H",
+        "_DARWIN_C_SOURCE",
+        "R_NO_REMAP",
+        "STRICT_R_HEADERS"
+      ],
+      "macFrameworkPath": [
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+      ],
+      "compilerPath": "/usr/bin/clang",
+      "cStandard": "gnu23",
+      "cppStandard": "gnu++17",
+      "intelliSenseMode": "macos-clang-arm64",
+      "configurationProvider": "ms-vscode.makefile-tools",
+      "browse": {
+        "path": [
+          "${workspaceFolder}/src",
+          "/opt/homebrew/include"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      }
+    },
+    {
+      "name": "R Source (Linux)",
+      "includePath": [
+        "${workspaceFolder}/src/include",
+        "${workspaceFolder}/src/main",
+        "${workspaceFolder}/src/unix",
+        "${workspaceFolder}/src/nmath",
+        "${workspaceFolder}/src/appl",
+        "${workspaceFolder}/src/extra/tre",
+        "${workspaceFolder}/src/extra/xdr",
+        "${workspaceFolder}/src/extra/blas",
+        "${workspaceFolder}/src/library/*/src",
+        "/usr/include",
+        "/usr/local/include"
+      ],
+      "defines": [
+        "HAVE_CONFIG_H",
+        "R_NO_REMAP",
+        "STRICT_R_HEADERS"
+      ],
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu23",
+      "cppStandard": "gnu++17",
+      "intelliSenseMode": "linux-gcc-x64",
+      "configurationProvider": "ms-vscode.makefile-tools",
+      "browse": {
+        "path": [
+          "${workspaceFolder}/src",
+          "/usr/include",
+          "/usr/local/include"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      }
+    }
+  ],
+  "version": 4
+}
