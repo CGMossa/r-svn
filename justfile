@@ -10,6 +10,9 @@ configure-min:
 	&& CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"} \
 	   LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"} \
 	   PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"} \
+	   HTML_DOCS=${HTML_DOCS:-yes} \
+	   html_flag="" \
+	   if [ "$HTML_DOCS" = "no" ]; then html_flag="--disable-html-docs"; fi; \
 	   builddir="$tmpdir" "$srcdir"/configure \
 	      --prefix=$tmpdir/install \
 		  --disable-site-config \
@@ -28,6 +31,9 @@ configure-full:
 	&& CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"} \
 	   LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"} \
 	   PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"} \
+	   HTML_DOCS=${HTML_DOCS:-yes} \
+	   html_flag="" \
+	   if [ "$HTML_DOCS" = "no" ]; then html_flag="--disable-html-docs"; fi; \
 	   builddir="$tmpdir" "$srcdir"/configure \
 	      --with-aqua=no \
 		  --disable-site-config \
@@ -49,7 +55,8 @@ configure-sandbox:
     CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"} \
     LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"} \
     PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"} \
-    html_flag=$([ "${HTML_DOCS:-no}" = "no" ] && echo "--disable-html-docs" || true) \
+    HTML_DOCS=${HTML_DOCS:-yes} \
+    html_flag=""; if [ "$HTML_DOCS" = "no" ]; then html_flag="--disable-html-docs"; fi; \
     builddir="$tmpdir/build" ../src/configure \
         --prefix="$tmpdir/install" \
         --disable-site-config \
