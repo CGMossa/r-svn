@@ -5,6 +5,8 @@
 - Runtime Switchboard: tracks configure-time knobs that affect the running R binary; ensures defaults are sane.
 - Tooling Shepherd: keeps the Autotools stack minimal (m4 dir, autoreconf hygiene, no redundant helpers).
 - Legacy cleanup: removed SVN revision stamping/checks; dist naming falls back to UTC date + r0, doc installs skip missing legacy FAQ/resources.
+- Out-of-tree builds: `config.status` now copies `share/make/vars.mk` into the build tree; Makeconf stops reassigning `top_srcdir` so per-dir values stay valid; MKINSTALLDIRS points at the build tree script.
+- `--disable-site-config` now also suppresses the default user library path (R_LIBS_USER), keeping sandbox builds inside their prefix.
 
 ## Rust build path
 - `rustc` is auto-detected (`RUSTC`, `RUSTFLAGS`, `RUSTPICFLAGS`), and a new `Makefrag.rs` supplies `.rs -> .o/.d` rules.
@@ -26,6 +28,7 @@
 | --enable-prebuilt-html | Prebuild static HTML help | no | configure.ac:352 |
 | --enable-lto | Link-time optimisation | no | configure.ac:358 |
 | --enable-java | Java/JNI support | yes | configure.ac:409 |
+| --enable-fast-config | Skip optional subsystems (X11, Cairo, Tcl/Tk, Java, NLS, Recommended) | no | configure.ac:38 |
 | --enable-byte-compiled-packages | Byte-compile base + recommended | yes | configure.ac:570 |
 | --disable-site-config | Skip sourcing config.site / ~/.R/config | no (enabled) | configure.ac:130 |
 | --enable-long-double | Use long double type | yes | configure.ac:1138 |

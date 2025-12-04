@@ -657,6 +657,7 @@ ac_func_c_list=
 enable_year2038=no
 ac_subst_vars='LTLIBOBJS
 LIBS_PKGS
+R_LIBS_USER_LINE
 FC_VER
 REC_INSTALL_OPT
 CC_VER
@@ -1129,6 +1130,7 @@ r_rust_rules_frag
 r_objc_rules_frag'
 ac_user_opts='
 enable_option_checking
+enable_fast_config
 enable_site_config
 enable_R_profiling
 enable_memory_profiling
@@ -1946,6 +1948,8 @@ Optional Features:
   --disable-option-checking  ignore unrecognized --enable/--with options
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-fast-config    skip optional feature/library checks and assume
+                          common defaults (experimental)
   --disable-site-config   do not source config.site or ~/.R/config files
                           [enabled]
   --enable-R-profiling    attempt to compile support for Rprof() [yes]
@@ -4370,6 +4374,16 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+
+# Check whether --enable-fast-config was given.
+if test ${enable_fast_config+y}
+then :
+  enableval=$enable_fast_config; enable_fast_config="${enableval}"
+else case e in #(
+  e) enable_fast_config=no ;;
+esac
+fi
+
 top_builddir='${ac_top_builddir}'
 
 top_srcdir='${ac_top_srcdir}'
@@ -4763,6 +4777,23 @@ esac
 
 R_OS="${host_os}"
 
+
+# Fast path: trim optional subsystems to avoid long checks.
+if test "x${enable_fast_config}" = "xyes"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: fast-config: skipping optional subsystems (X11, Cairo, Tcl/Tk, Java, NLS, recommended pkgs)" >&5
+printf "%s\n" "$as_me: fast-config: skipping optional subsystems (X11, Cairo, Tcl/Tk, Java, NLS, recommended pkgs)" >&6;}
+  with_x=no
+  with_cairo=no
+  with_tcltk=no
+  with_tcl_config=no
+  with_tk_config=no
+  WANT_JAVA=no
+  USE_NLS=no
+  use_readline=yes
+  USE_RECOMMENDED_PACKAGES=no
+  want_icu=yes
+  want_pcre2=yes
+fi
 
 case "${host_os}" in
   mingw*|windows*|winnt|msys)
@@ -30813,7 +30844,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:30816: \"$ac_link\") >&5
+(eval echo $as_me:30847: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -30891,7 +30922,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:30894: \"$ac_link\") >&5
+(eval echo $as_me:30925: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -34922,7 +34953,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:34925: \"$ac_link\") >&5
+(eval echo $as_me:34956: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -35008,7 +35039,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:35011: \"$ac_link\") >&5
+(eval echo $as_me:35042: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -71062,7 +71093,17 @@ ac_config_headers="$ac_config_headers src/include/config.h"
 ac_config_files="$ac_config_files Makeconf Makefile doc/Makefile doc/html/Makefile doc/manual/Makefile etc/Makefile etc/Makeconf etc/Renviron etc/javaconf etc/ldpaths m4/Makefile po/Makefile share/Makefile src/Makefile src/appl/Makefile src/extra/Makefile src/extra/blas/Makefile src/extra/intl/Makefile src/extra/tre/Makefile src/extra/tzone/Makefile src/extra/xdr/Makefile src/include/Makefile src/include/Rmath.h0 src/include/R_ext/Makefile src/library/Recommended/Makefile src/library/Makefile src/library/base/DESCRIPTION src/library/base/Makefile src/library/compiler/DESCRIPTION src/library/compiler/Makefile src/library/datasets/DESCRIPTION src/library/datasets/Makefile src/library/graphics/DESCRIPTION src/library/graphics/Makefile src/library/graphics/src/Makefile src/library/grDevices/DESCRIPTION src/library/grDevices/Makefile src/library/grDevices/src/Makefile src/library/grDevices/src/cairo/Makefile src/library/grid/DESCRIPTION src/library/grid/Makefile src/library/grid/src/Makefile src/library/methods/DESCRIPTION src/library/methods/Makefile src/library/methods/src/Makefile src/library/parallel/DESCRIPTION src/library/parallel/Makefile src/library/parallel/src/Makefile src/library/profile/Makefile src/library/stats/DESCRIPTION src/library/stats/Makefile src/library/stats/src/Makefile src/library/stats4/DESCRIPTION src/library/stats4/Makefile src/library/splines/DESCRIPTION src/library/splines/Makefile src/library/splines/src/Makefile src/library/tcltk/DESCRIPTION src/library/tcltk/Makefile src/library/tcltk/src/Makefile src/library/tools/DESCRIPTION src/library/tools/Makefile src/library/tools/src/Makefile src/library/translations/DESCRIPTION src/library/translations/Makefile src/library/utils/DESCRIPTION src/library/utils/Makefile src/library/utils/src/Makefile src/main/Makefile src/modules/Makefile src/modules/X11/Makefile src/modules/internet/Makefile src/modules/lapack/Makefile src/nmath/Makefile src/nmath/standalone/Makefile src/scripts/Makefile src/scripts/R.sh src/scripts/Rcmd src/scripts/javareconf src/scripts/mkinstalldirs src/scripts/pager src/scripts/rtags src/unix/Makefile tests/Makefile tests/Embedding/Makefile tests/Examples/Makefile tools/Makefile"
 
 
+ac_config_commands="$ac_config_commands copy-vars-mk"
+
+
 ac_config_commands="$ac_config_commands stamp-h"
+
+
+if test "x${enable_site_config}" = xno; then
+  R_LIBS_USER_LINE="## R_LIBS_USER disabled by --disable-site-config"
+else
+  R_LIBS_USER_LINE='R_LIBS_USER=${R_LIBS_USER:-"%U"}'
+fi
 
 
 ### now reset flags
@@ -72467,6 +72508,7 @@ do
     "tests/Embedding/Makefile") CONFIG_FILES="$CONFIG_FILES tests/Embedding/Makefile" ;;
     "tests/Examples/Makefile") CONFIG_FILES="$CONFIG_FILES tests/Examples/Makefile" ;;
     "tools/Makefile") CONFIG_FILES="$CONFIG_FILES tools/Makefile" ;;
+    "copy-vars-mk") CONFIG_COMMANDS="$CONFIG_COMMANDS copy-vars-mk" ;;
     "stamp-h") CONFIG_COMMANDS="$CONFIG_COMMANDS stamp-h" ;;
 
   *) as_fn_error $? "invalid argument: '$ac_config_target'" "$LINENO" 5;;
@@ -74025,6 +74067,10 @@ else
 EOF
 fi
  ;;
+    "copy-vars-mk":C) if test ! -e share/make/vars.mk; then
+   mkdir -p share/make
+   cp "${srcdir}/share/make/vars.mk" share/make/vars.mk
+ fi ;;
     "stamp-h":C) test -f src/include/stamp-h || echo timestamp > src/include/stamp-h ;;
 
   esac

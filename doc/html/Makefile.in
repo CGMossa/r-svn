@@ -71,7 +71,9 @@ install-message:
 	@$(ECHO) "installing $(subdir) ..."
 install-sources: installdirs
 	@for f in $(INSTFILES); do \
-	  $(INSTALL_DATA) $(srcdir)/$${f} "$(DESTDIR)$(rdocdir)/html"; \
+	  if test -f "$(srcdir)/$${f}"; then \
+	    $(INSTALL_DATA) $(srcdir)/$${f} "$(DESTDIR)$(rdocdir)/html"; \
+	  fi; \
 	done
 	@for d in $(INSTDIRS); do \
 	  cp -p -R $(srcdir)/$${d} "$(DESTDIR)$(rdocdir)/html"; \

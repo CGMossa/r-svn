@@ -34,6 +34,12 @@ AC_INIT([R],[R_VERSION],[https://bugs.r-project.org],[R],[https://www.r-project.
 AC_CONFIG_SRCDIR([src/include/Defn.h])
 AC_CONFIG_AUX_DIR([tools])
 AC_CONFIG_MACRO_DIR([m4])
+
+AC_ARG_ENABLE([fast-config],
+  [AS_HELP_STRING([--enable-fast-config],
+                  [skip optional feature/library checks and assume common defaults (experimental)])],
+  [enable_fast_config="${enableval}"],
+  [enable_fast_config=no])
 AC_SUBST([top_builddir], ['${ac_top_builddir}'])
 AC_SUBST([top_srcdir],   ['${ac_top_srcdir}'])
 AC_SUBST([abs_top_builddir], ['${ac_abs_top_builddir}'])
@@ -107,6 +113,22 @@ esac
 
 R_OS="${host_os}"
 AC_SUBST(R_OS)
+
+# Fast path: trim optional subsystems to avoid long checks.
+if test "x${enable_fast_config}" = "xyes"; then
+  AC_MSG_NOTICE([fast-config: skipping optional subsystems (X11, Cairo, Tcl/Tk, Java, NLS, recommended pkgs)])
+  with_x=no
+  with_cairo=no
+  with_tcltk=no
+  with_tcl_config=no
+  with_tk_config=no
+  WANT_JAVA=no
+  USE_NLS=no
+  use_readline=yes
+  USE_RECOMMENDED_PACKAGES=no
+  want_icu=yes
+  want_pcre2=yes
+fi
 
 case "${host_os}" in
   mingw*|windows*|winnt|msys)
@@ -3075,8 +3097,21 @@ AC_CONFIG_FILES(
   tools/Makefile
 ])
 
+AC_CONFIG_COMMANDS([copy-vars-mk],
+[if test ! -e share/make/vars.mk; then
+   mkdir -p share/make
+   cp "${srcdir}/share/make/vars.mk" share/make/vars.mk
+ fi])
+
 AC_CONFIG_COMMANDS([stamp-h],
 [test -f src/include/stamp-h || echo timestamp > src/include/stamp-h])
+
+if test "x${enable_site_config}" = xno; then
+  R_LIBS_USER_LINE="## R_LIBS_USER disabled by --disable-site-config"
+else
+  R_LIBS_USER_LINE='R_LIBS_USER=${R_LIBS_USER:-"%U"}'
+fi
+AC_SUBST(R_LIBS_USER_LINE)
 
 ### now reset flags
 CPPFLAGS=${CPPFLAGS_KEEP}
