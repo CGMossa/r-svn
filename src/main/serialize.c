@@ -626,7 +626,7 @@ static void InFormat(R_inpstream_t stream)
  * should allow resizing the table at some point.
  */
 
-#define HASHSIZE 1099
+#define REFHASH_SIZE 1099  /* renamed from HASHSIZE to avoid conflict with envir.c */
 
 #define PTRHASH(obj) (((R_size_t) (obj)) >> 2)
 
@@ -640,7 +640,7 @@ static void InFormat(R_inpstream_t stream)
 
 static SEXP MakeHashTable(void)
 {
-    SEXP val = CONS(R_NilValue, allocVector(VECSXP, HASHSIZE));
+    SEXP val = CONS(R_NilValue, allocVector(VECSXP, REFHASH_SIZE));
     SET_HASH_TABLE_COUNT(val, 0);
     return val;
 }
@@ -1254,7 +1254,7 @@ static void WriteItem (SEXP s, SEXP ref_table, R_outpstream_t stream)
 
 static SEXP MakeCircleHashTable(void)
 {
-    return CONS(R_NilValue, allocVector(VECSXP, HASHSIZE));
+    return CONS(R_NilValue, allocVector(VECSXP, REFHASH_SIZE));
 }
 
 static bool AddCircleHash(SEXP item, SEXP ct)
