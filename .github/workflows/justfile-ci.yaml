@@ -56,14 +56,11 @@ jobs:
           # Fortran compiler (gcc includes gfortran)
           brew install gcc
 
-          # Ensure gfortran is in PATH (Homebrew gcc provides it as gfortran-14, etc.)
-          GFORTRAN=$(ls $(brew --prefix gcc)/bin/gfortran-* 2>/dev/null | head -1)
-          if [ -n "$GFORTRAN" ]; then
-            sudo ln -sf "$GFORTRAN" /usr/local/bin/gfortran
-          fi
-
           # Optional but commonly needed
           brew install curl
+
+          # Add gcc bin to PATH so gfortran is found
+          echo "$(brew --prefix gcc)/bin" >> $GITHUB_PATH
 
           # Set up environment for Homebrew libraries
           echo "CPPFLAGS=-I$(brew --prefix)/include -I$(brew --prefix xz)/include -I$(brew --prefix readline)/include -I$(brew --prefix bzip2)/include" >> $GITHUB_ENV
@@ -211,6 +208,10 @@ jobs:
             libdeflate-dev \
             libtirpc-dev
 
+          # libtirpc headers are in /usr/include/tirpc, need to add to CPPFLAGS
+          echo "CPPFLAGS=-I/usr/include/tirpc" >> $GITHUB_ENV
+          echo "LIBS=-ltirpc" >> $GITHUB_ENV
+
       - name: Show tool versions
         run: |
           echo "=== just ==="
@@ -349,6 +350,10 @@ jobs:
             libcurl4-openssl-dev \
             libdeflate-dev \
             libtirpc-dev
+
+          # libtirpc headers are in /usr/include/tirpc, need to add to CPPFLAGS
+          echo "CPPFLAGS=-I/usr/include/tirpc" >> $GITHUB_ENV
+          echo "LIBS=-ltirpc" >> $GITHUB_ENV
 
       - name: Show tool versions
         run: |
