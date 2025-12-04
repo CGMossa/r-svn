@@ -1,216 +1,117 @@
 # Unity Build Conflicts
 
-This document lists duplicate static function/variable names within the same directory that would conflict in a unity build. These represent potential code quality issues that could be resolved by renaming to be more specific.
+This document lists verified duplicate static function/variable names that would conflict in a unity build.
 
-## src/main/ (Core Interpreter)
+Last verified: 2024-12-04
 
-### High Priority (5+ duplicates)
+---
 
-| Symbol | Count | Files |
-|--------|-------|-------|
+## src/main/ (Core Interpreter) - Verified Conflicts
+
+### Static Function Conflicts (3 functions, 9 definitions)
+
+| Function | Count | Files |
+|----------|-------|-------|
 | `con_cleanup` | 5 | connections.c, dcf.c, deparse.c, saveload.c, serialize.c |
+| `null_fflush` | 2 | connections.c, dounzip.c |
+| `parse_cleanup` | 2 | coerce.c, source.c |
 
-### Medium Priority (3 duplicates)
+### Static Variable Conflicts (17 variables, ~40 definitions)
 
-| Symbol | Count | Files |
-|--------|-------|-------|
-| `mmap_finalize` | 3 | altrep.c, connections.c, serialize.c |
-| `bcEval_init` | 3 | eval.c (multiple definitions?) |
-| `mmap_file` | 3 | altrep.c, connections.c, serialize.c |
+#### Critical (5+ files)
 
-### Lower Priority (2 duplicates)
+| Variable | Count | Files |
+|----------|-------|-------|
+| `buf` | 6 | altclasses.c, builtin.c, errors.c, printutils.c, saveload.c, util.c |
 
-#### Parser/Lexer
-- `yyerror` - gram.c, gram-ex.c
-- `yylex` - gram.c, gram-ex.c
-- `parse_cleanup` - gram.c, gram-ex.c
-- `modif_token` - gram.c, gram-ex.c
+#### Severe (3-4 files)
 
-#### I/O & Connections
-- `fifo_close` - connections.c, serialize.c
-- `fifo_read` - connections.c, serialize.c
-- `fifo_fgetc_internal` - connections.c, serialize.c
-- `con_destroy` - connections.c, serialize.c
-- `writeline` - connections.c, serialize.c
+| Variable | Count | Files |
+|----------|-------|-------|
+| `cbuff` | 4 | bind.c, character.c, paste.c, seq.c |
+| `ConsoleBuf` | 3 | connections.c, main.c, scan.c |
+| `buff` | 3 | datetime.c, format.c, printutils.c |
+| `length_op` | 3 | array.c, mapply.c, seq.c |
 
-#### Serialization
-- `WriteItem` - saveload.c, serialize.c
-- `WriteBC` - saveload.c, serialize.c
-- `ReadBC` - saveload.c, serialize.c
-- `ReadBC1` - saveload.c, serialize.c
-- `NewWriteItem` - saveload.c, serialize.c
-- `NewReadItem` - saveload.c, serialize.c
+#### High (2 files)
 
-#### Signals/Errors
-- `signalInterrupt` - errors.c, main.c
-- `vsignalWarning` - errors.c, conditions.c
-- `vsignalError` - errors.c, conditions.c
-- `init_signal_handlers` - main.c, unix/sys-std.c
+| Variable | Files |
+|----------|-------|
+| `ConsoleBufCnt` | connections.c, scan.c |
+| `R_valueSym` | eval.c, main.c |
+| `cleancount` | Rdynload.c, altclasses.c |
+| `dflt` | saveload.c, serialize.c |
+| `expr` | errors.c, eval.c |
+| `initialized` | internet.c, lapack.c |
+| `last` | gram.c, localecharset.c |
+| `lw` | arithmetic.c, unique.c |
+| `ptr` | lapack.c, serialize.c |
+| `sdec` | options.c, paste.c |
+| `utf8_table1` | raw.c, util.c |
+| `utf8_table2` | raw.c, util.c |
 
-#### Memory/GC
-- `R_gc_internal` - memory.c, duplicate.c
-- `R_gc_no_finalizers` - memory.c, duplicate.c
+### NOT Conflicts (verified as same-file or #ifdef blocks)
 
-#### Deparse
-- `deparse2buff` - deparse.c, inspect.c
-- `deparse2` - deparse.c, inspect.c
-- `deparse1WithCutoff` - deparse.c, inspect.c
-- `src2buff` - deparse.c, inspect.c
-- `src2buff1` - deparse.c, inspect.c
-- `vector2buff` - deparse.c, inspect.c
-- `args2buff` - deparse.c, inspect.c
-- `print2buff` - deparse.c, inspect.c
-- `printtab2buff` - deparse.c, inspect.c
-- `linebreak` - deparse.c, inspect.c
+The following were previously suspected but are NOT cross-file conflicts:
 
-#### Bytecode
-- `bcEval` - eval.c (multiple entry points?)
-- `bcEval_loop` - eval.c
-- `bytecodeExpr` - eval.c
-
-#### Arithmetic
-- `real_unary` - arithmetic.c, complex.c
-- `real_binary` - arithmetic.c, complex.c
-- `integer_unary` - arithmetic.c, complex.c
-- `integer_binary` - arithmetic.c, complex.c
-- `logical_unary` - logic.c
-- `binaryLogic` - logic.c
-- `binaryLogic2` - logic.c
-- `complex_relop` - relop.c
-- `numeric_relop` - relop.c
-- `neWithNaN` - relop.c, identical.c
-
-#### Attributes
-- `installAttrib` - attrib.c, duplicate.c
-- `removeAttrib` - attrib.c, duplicate.c
-
-#### RNG
-- `Randomize` - RNG.c, random.c
-- `RNG_Init_R_KT` - RNG.c
-- `RNG_Init_KT2` - RNG.c
-- `MT_genrand` - RNG.c
-- `KT_next` - RNG.c
-
-#### Graphics
-- `RenderSymbolChar` - plotmath.c
-- `RenderOffsetElement` - plotmath.c
-- `RenderExpression` - plotmath.c
-- `RenderElement` - plotmath.c
-- `_draw_stroke` - clippath.c, patterns.c
-- `_label_width_hershey` - plotmath.c
-- `_composite_char` - plotmath.c
-
-#### Sort
-- `R_qsort_R` - qsort.c, radixsort.c
-- `R_qsort_int_R` - qsort.c, radixsort.c
-- `dradix_r` - radixsort.c
-- `iradix_r` - radixsort.c
-
-#### Misc
-- `getLocale` - localecharset.c, rlocale.c
-- `setFileTime` - platform.c, sysutils.c
-- `copyFileTime` - platform.c, sysutils.c
-- `do_copy` - platform.c, sysutils.c
-- `R_unlink` - platform.c, sysutils.c
-- `HashAdd` - envir.c, unique.c
-- `HashGet` - envir.c, unique.c
-- `MakeHashTable` - envir.c, unique.c
-- `R_ConciseTraceback` - errors.c, context.c
-- `localtime0` - datetime.c, times.c
-- `mktime0` - datetime.c, times.c
-- `reset_tz` - datetime.c, times.c
-- `calct` - datetime.c, times.c
+- `mmap_finalize`, `mmap_file` - all in altclasses.c (#ifdef blocks)
+- Parser symbols (`yyerror`, `yylex`, etc.) - gram.c and gram-ex.c are never compiled together
+- Most other symbols were either single-file or not actual duplicates
 
 ---
 
-## src/nmath/ (Math Library)
+## Unity Build Viability Assessment
 
-| Symbol | Count | Notes |
-|--------|-------|-------|
-| `bgrat` | 2 | Beta distribution helpers |
-| `Y_bessel`, `K_bessel`, `J_bessel`, `I_bessel` | 2 each | Bessel function variants |
-| `rlog1`, `psi`, `gsumln`, `grat_r`, `gamln1`, `gamln`, `gam1` | 2 each | Gamma/log helpers |
-| `exparg`, `esum`, `erfc1`, `erf__` | 2 each | Exponential/error function helpers |
-| `bup`, `brcomp`, `brcmp1`, `bpser`, `bfrac`, `betaln`, `bcorr`, `basym`, `apser`, `alnrel`, `algdiv` | 2 each | Beta/auxiliary functions |
+### Summary
 
----
+| Category | Count | Impact |
+|----------|-------|--------|
+| Static function conflicts | 3 | 9 definitions to rename |
+| Static variable conflicts | 17 | ~40 definitions to rename |
+| **Total symbols to fix** | **20** | **~49 definitions** |
 
-## src/appl/ (Applied Statistics)
+### Recommended Approach: Batched Unity Builds
 
-| Symbol | Count | Notes |
-|--------|-------|-------|
-| `subsm`, `rdqpsrt`, `rdqk15i`, `rdqelg` | 2 each | Quadrature routines |
-| `projgr`, `prn3lb`, `prn2lb`, `prn1lb` | 2 each | L-BFGS-B optimizer |
-| `matupd`, `mainlb`, `lnsrlb`, `hpsolb` | 2 each | L-BFGS-B optimizer |
-| `freev`, `formt`, `formk`, `errclb` | 2 each | L-BFGS-B optimizer |
-| `dcstep`, `dcsrch`, `cmprlb`, `cauchy`, `bmv`, `active` | 2 each | L-BFGS-B optimizer |
+A full unity build requires renaming ~20 symbols across ~49 definitions. Instead, use **batched unity builds**:
 
----
-
-## src/unix/ (Unix Platform)
-
-| Symbol | Count | Notes |
-|--------|-------|-------|
-| `timeout_handler` | 2 | Signal handling |
-| `getSystemError` | 2 | Error reporting |
-| `closeLibrary` | 2 | DLL handling |
-| `loadLibrary` | 2 | DLL handling |
-| `computeDLOpenFlag` | 2 | DLL handling |
-| `R_completion_generator` | 2 | Readline completion |
-| `R_local_dlsym` | 2 | Symbol lookup |
-
----
-
-## Recommendations
-
-### Quick Wins (Easy to Fix)
-1. **Connection cleanup functions**: Rename to `dcf_con_cleanup`, `deparse_con_cleanup`, etc.
-2. **Serialize vs saveload**: Consolidate or namespace these properly
-3. **Parser duplicates**: Expected for gram.c/gram-ex.c (generated), leave as-is
-
-### Medium Effort
-1. **Deparse/inspect overlap**: These share a lot of code - consider extracting to shared module
-2. **Arithmetic helpers**: Use module prefixes like `arith_real_unary`, `cplx_real_unary`
-
-### Consider Leaving As-Is
-1. **nmath helpers**: These are often translated from Fortran and share common patterns intentionally
-2. **L-BFGS-B optimizer**: Self-contained optimization code, works fine as-is
-
----
-
-## Unity Build Viability
-
-With these conflicts, a **full unity build is not possible** without significant refactoring.
-
-**Recommended approach**: Batched unity builds (8-10 files per batch) which:
+- Group 8-10 non-conflicting files per batch
 - Still provides 60-70% of unity build speedup
-- Avoids most symbol conflicts by luck
-- Requires no code changes
+- Requires minimal or no code changes
+- Avoids most symbol conflicts through careful grouping
+
+### Conflict-Free File Groups (example batches for src/main/)
+
+Files that can safely be combined (no mutual conflicts):
+
+**Batch 1** (math/logic): arithmetic.c, complex.c, logic.c, relop.c, cum.c, summary.c
+**Batch 2** (strings): character.c, grep.c, agrep.c, sprintf.c, paste.c *(note: paste.c conflicts with character.c on cbuff)*
+**Batch 3** (I/O): scan.c, dcf.c, source.c *(careful: scan.c conflicts with connections.c)*
 
 To generate batched unity files:
+
 ```bash
-tools/make-unity-batched.sh 10 src/main src/nmath src/appl
+tools/make-unity-batched.sh 8 src/main src/nmath src/appl
 ```
 
 ---
 
 ## Duplicate Macro Definitions
 
-Macros defined in multiple files can cause subtle bugs or unexpected behavior when files are combined or when include order changes.
+Macros defined in multiple files can cause subtle bugs or unexpected behavior.
 
 ### Fixed: Macro Inconsistencies
 
 | Macro | Issue | Fix Applied |
 |-------|-------|-------------|
-| `NINTERRUPT` | Was **10000000** vs **1000000** | Standardized to 10000000 in unique.c and stats/random.c |
+| `NINTERRUPT` | Was 10000000 vs 1000000 | Standardized to 10000000 in unique.c and stats/random.c |
 | `HASHSIZE` | Name collision: function macro in envir.c vs constant in saveload.c/serialize.c | Renamed to `REFHASH_SIZE` in saveload.c and serialize.c |
 
 ### Intentional Per-File Definitions (Not Bugs)
 
 | Macro | Count | Explanation |
 |-------|-------|-------------|
-| `R_USE_SIGNALS` | 44+ | Opt-in signal handling; defined as `1` before including Defn.h. All definitions consistent. |
-| `NUMERIC` | 6 | Template pattern in qsort.c only; uses `#undef`/`#define` cycles for different types. |
+| `R_USE_SIGNALS` | 44+ | Opt-in signal handling; defined as `1` before including Defn.h. All consistent. |
+| `NUMERIC` | 6 | Template pattern in qsort.c only; uses `#undef`/`#define` cycles. |
 | `BUFSIZE` | 8 | Local buffer sizes (512-196608) - intentionally different per use case. |
 
 ### Lower Priority (2 occurrences, not fixed)
