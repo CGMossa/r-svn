@@ -7,8 +7,9 @@ configure-min:
 	srcdir="{{justfile_directory()}}" \
 	&& tmpdir=$(mktemp -d /tmp/r-conf-build-XXXXXX) \
 	&& cd "$tmpdir" \
-	&& CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include" \
-	   LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib" \
+	&& CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"} \
+	   LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"} \
+	   PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"} \
 	   builddir="$tmpdir" "$srcdir"/configure \
 	      --prefix=$tmpdir/install \
 		  --disable-site-config \
@@ -24,8 +25,9 @@ configure-full:
 	srcdir="{{justfile_directory()}}" \
 	&& tmpdir=$(mktemp -d /tmp/r-conf-build-XXXXXX) \
 	&& cd "$tmpdir" \
-	&& CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include" \
-	   LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib" \
+	&& CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"} \
+	   LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"} \
+	   PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"} \
 	   builddir="$tmpdir" "$srcdir"/configure \
 	      --with-aqua=no \
 		  --disable-site-config \
@@ -44,8 +46,9 @@ configure-sandbox:
     mkdir -p "$tmpdir/build"
     cd "$tmpdir/build"
 
-    CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include" \
-    LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib" \
+    CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"} \
+    LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"} \
+    PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"} \
     builddir="$tmpdir/build" ../src/configure \
         --prefix="$tmpdir/install" \
         --disable-site-config \
@@ -64,8 +67,9 @@ build-r-min:
 
     cd "$tmpdir"
 
-    CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include" \
-    LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib" \
+    CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"} \
+    LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"} \
+    PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"} \
     "$srcdir"/configure \
         --prefix="$tmpdir/install" \
         --disable-site-config \
@@ -92,19 +96,52 @@ sandbox-repl:
     echo "Using sandbox: $tmpdir"
 
     rsync -a --delete --exclude='.git' --exclude='autom4te.cache' "$srcroot"/ "$tmpdir/src/"
+    if [ ! -f "$tmpdir/src/share/make/vars.mk" ]; then
+      mkdir -p "$tmpdir/src/share/make"
+      if [ -f "$srcroot/share/make/vars.mk" ]; then
+        cp "$srcroot/share/make/vars.mk" "$tmpdir/src/share/make/vars.mk"
+      else
+        echo "R_PKGS_RECOMMENDED =" > "$tmpdir/src/share/make/vars.mk"
+      fi
+    fi
     mkdir -p "$tmpdir/build"
     cd "$tmpdir/build"
 
-    CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include" \
-    LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib" \
+    CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"} \
+    LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"} \
+    PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"} \
     builddir="$tmpdir/build" ../src/configure \
         --prefix="$tmpdir/install" \
         --disable-site-config \
         --with-aqua=no \
-        --disable-R-framework
+        --disable-R-framework \
+        --enable-fast-config \
+        --without-x \
+        --without-cairo \
+        --without-tcltk \
+        --without-recommended-packages
 
     make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)"
     make install
 
     echo "Launching R from $tmpdir/install/bin/R"
     exec "$tmpdir/install/bin/R" --vanilla
+
+# Fast configure: skips X11/cairo/tcltk/java/NLS/recommended checks via --enable-fast-config.
+configure-fast:
+	srcdir="{{justfile_directory()}}" \
+	&& tmpdir=$(mktemp -d /tmp/r-conf-build-XXXXXX) \
+	&& cd "$tmpdir" \
+	&& CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"} \
+	   LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"} \
+	   PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"} \
+	   builddir="$tmpdir" "$srcdir"/configure \
+	      --prefix=$tmpdir/install \
+		  --disable-site-config \
+	      --with-aqua=no \
+		  --enable-fast-config \
+		  --without-x \
+		  --without-cairo \
+		  --without-tcltk \
+		  --without-recommended-packages \
+	&& ls -a "$tmpdir"

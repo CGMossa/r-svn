@@ -3,9 +3,8 @@ VERSION = @VERSION@
 
 abs_top_srcdir = @abs_top_srcdir@
 abs_top_builddir = @abs_top_builddir@
-top_srcdir = @top_srcdir@
 
-include $(top_srcdir)/share/make/vars.mk
+include $(top_builddir)/share/make/vars.mk
 
 AR = @AR@
 ACLOCAL = @ACLOCAL@
@@ -70,7 +69,7 @@ MAIN_LD = @MAIN_LD@@BUILD_LTO_TRUE@ $(CFLAGS) $(CPICFLAGS) @LTO_LD@
 MAIN_LDFLAGS = @MAIN_LDFLAGS@ @WANT_R_SHLIB_FALSE@ @USE_EXPORTFILES_TRUE@ -Wl,-bE:$(top_builddir)/etc/R.exp
 MAIN_LINK = $(MAIN_LD) $(MAIN_LDFLAGS) $(LIBR0) $(LDFLAGS)
 ## need this for bootstrapping
-MKINSTALLDIRS = @R_SHELL@ $(top_srcdir)/src/scripts/mkinstalldirs.in
+MKINSTALLDIRS = @R_SHELL@ $(top_builddir)/src/scripts/mkinstalldirs
 NOTANGLE = @NOTANGLE@
 R_ARCH = @R_ARCH@
 R_DYLIB_EXT = @R_DYLIB_EXT@
@@ -131,8 +130,8 @@ ALL_FFLAGS_PIE = $(R_XTRA_FFLAGS) $(FPIEFLAGS) $(SHLIB_FFLAGS) $(FFLAGS)
 .SUFFIXES:
 .SUFFIXES: .c .f .m .rs .d .o
 
--include $(abs_top_builddir)/Makefrag.cc
--include $(abs_top_builddir)/Makefrag.rs
+-include $(top_builddir)/Makefrag.cc
+-include $(top_builddir)/Makefrag.rs
 .f.o:
 	$(FC) $(ALL_FFLAGS) -c $< -o $@
 
