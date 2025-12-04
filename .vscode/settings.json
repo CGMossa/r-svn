@@ -2,6 +2,8 @@
   "files.associations": {
     "Makefile.in": "makefile",
     "Makevars.in": "makefile",
-    "Makeconf.in": "makefile"
-  }
+    "Makeconf.in": "makefile",
+    "Renviron.in": "dotenv",
+    "config.h.in": "c"
+  },
 }
