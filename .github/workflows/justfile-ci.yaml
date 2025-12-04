@@ -5,8 +5,11 @@ on:
     branches: [main, reconfigure_claude]
   pull_request:
 
+permissions:
+  contents: read
+
 concurrency:
-  group: justfile-${{ github.event.pull_request.number || github.run_id }}
+  group: justfile-${{ github.event.pull_request.number || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -35,7 +38,7 @@ jobs:
           path: |
             ~/Library/Caches/Homebrew
             /opt/homebrew/Cellar
-          key: ${{ runner.os }}-${{ matrix.os }}-brew-${{ hashFiles('.github/workflows/justfile-ci.yaml') }}
+          key: ${{ runner.os }}-${{ matrix.os }}-brew-${{ hashFiles('.github/workflows/justfile-ci.yaml', 'justfile') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.os }}-brew-
 
@@ -117,12 +120,23 @@ jobs:
         run: just run-expr "R.version.string"
 
       # -----------------------------------------------------------------------
-      # Rust tests (if rustc available)
+      # Rust tests (only if rustc available)
       # -----------------------------------------------------------------------
+      - name: Check for Rust
+        id: rustcheck
+        run: |
+          if command -v rustc >/dev/null 2>&1; then
+            echo "has_rust=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_rust=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Test Rust compilation
+        if: steps.rustcheck.outputs.has_rust == 'true'
         run: just test-rust
 
       - name: Test Rust SHLIB
+        if: steps.rustcheck.outputs.has_rust == 'true'
         run: just test-rust-shlib
 
       - name: Collect logs on failure
@@ -168,19 +182,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cache apt packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            /var/cache/apt/archives
-          key: ${{ runner.os }}-${{ matrix.os }}-apt-${{ hashFiles('.github/workflows/justfile-ci.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.os }}-apt-
-
       - name: Install just
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-          just --version
+          mkdir -p ~/.local/bin
+          curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/.local/bin
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install build dependencies
         run: |
@@ -197,9 +203,6 @@ jobs:
             zlib1g-dev \
             libcurl4-openssl-dev \
             libdeflate-dev
-
-          # Optional: Rust (should be pre-installed on GitHub runners)
-          rustc --version || true
 
       - name: Show tool versions
         run: |
@@ -271,12 +274,23 @@ jobs:
         run: just run-expr "R.version.string"
 
       # -----------------------------------------------------------------------
-      # Rust tests (if rustc available)
+      # Rust tests (only if rustc available)
       # -----------------------------------------------------------------------
+      - name: Check for Rust
+        id: rustcheck
+        run: |
+          if command -v rustc >/dev/null 2>&1; then
+            echo "has_rust=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_rust=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Test Rust compilation
+        if: steps.rustcheck.outputs.has_rust == 'true'
         run: just test-rust
 
       - name: Test Rust SHLIB
+        if: steps.rustcheck.outputs.has_rust == 'true'
         run: just test-rust-shlib
 
       - name: Collect logs on failure
@@ -318,19 +332,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cache apt packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            /var/cache/apt/archives
-          key: ${{ runner.os }}-ubuntu-24.04-arm-apt-${{ hashFiles('.github/workflows/justfile-ci.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-ubuntu-24.04-arm-apt-
-
       - name: Install just
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-          just --version
+          mkdir -p ~/.local/bin
+          curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/.local/bin
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install build dependencies
         run: |
