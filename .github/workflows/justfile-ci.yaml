@@ -53,8 +53,14 @@ jobs:
           # Required libraries
           brew install readline pcre2 xz bzip2 zlib libdeflate
 
-          # Fortran compiler
+          # Fortran compiler (gcc includes gfortran)
           brew install gcc
+
+          # Ensure gfortran is in PATH (Homebrew gcc provides it as gfortran-14, etc.)
+          GFORTRAN=$(ls $(brew --prefix gcc)/bin/gfortran-* 2>/dev/null | head -1)
+          if [ -n "$GFORTRAN" ]; then
+            sudo ln -sf "$GFORTRAN" /usr/local/bin/gfortran
+          fi
 
           # Optional but commonly needed
           brew install curl
@@ -202,7 +208,8 @@ jobs:
             libbz2-dev \
             zlib1g-dev \
             libcurl4-openssl-dev \
-            libdeflate-dev
+            libdeflate-dev \
+            libtirpc-dev
 
       - name: Show tool versions
         run: |
@@ -236,10 +243,6 @@ jobs:
       # -----------------------------------------------------------------------
       - name: Test configure-fast
         run: just configure-fast
-        env:
-          CPPFLAGS: ""
-          LDFLAGS: ""
-          PKG_CONFIG_PATH: ""
 
       - name: Test show-config
         run: just show-config
@@ -252,20 +255,12 @@ jobs:
 
       - name: Test configure-min
         run: just configure-min
-        env:
-          CPPFLAGS: ""
-          LDFLAGS: ""
-          PKG_CONFIG_PATH: ""
 
       # -----------------------------------------------------------------------
       # Build recipes
       # -----------------------------------------------------------------------
       - name: Test build-r-min
         run: just build-r-min
-        env:
-          CPPFLAGS: ""
-          LDFLAGS: ""
-          PKG_CONFIG_PATH: ""
 
       - name: Test r-version
         run: just r-version
@@ -352,7 +347,8 @@ jobs:
             libbz2-dev \
             zlib1g-dev \
             libcurl4-openssl-dev \
-            libdeflate-dev
+            libdeflate-dev \
+            libtirpc-dev
 
       - name: Show tool versions
         run: |
@@ -370,10 +366,6 @@ jobs:
       # -----------------------------------------------------------------------
       - name: Test configure-fast
         run: just configure-fast
-        env:
-          CPPFLAGS: ""
-          LDFLAGS: ""
-          PKG_CONFIG_PATH: ""
 
       - name: Test show-config
         run: just show-config
@@ -383,10 +375,6 @@ jobs:
       # -----------------------------------------------------------------------
       - name: Test build-r-min
         run: just build-r-min
-        env:
-          CPPFLAGS: ""
-          LDFLAGS: ""
-          PKG_CONFIG_PATH: ""
 
       - name: Test r-version
         run: just r-version
