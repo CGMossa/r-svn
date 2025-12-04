@@ -150,10 +150,17 @@ ALL_FFLAGS = $(R_XTRA_FFLAGS) $(MAIN_FFLAGS) $(FFLAGS)
 ALL_OBJCFLAGS = $(CPICFLAGS) $(OBJCFLAGS)
 
 ## Rust flags - compose from edition, PIC, optimization, and custom flags
+## Use C compiler as linker to ensure consistent toolchain
+## Extract just the compiler program (first word of CC, excluding flags like -std=gnu23)
+RUSTLINKERFLAGS = -C linker=$(firstword $(CC))
+## Pass LDFLAGS to Rust linker
+RUSTLINKARGS = $(if $(LDFLAGS),-C link-args=$(LDFLAGS))
+## LTO flags (enable when R is built with LTO)
+RUSTLTOFLAGS =@BUILD_LTO_TRUE@ -C lto=thin -C linker-plugin-lto
 PKG_RUSTFLAGS =
-ALL_RUSTFLAGS = $(RUST_EDITION_FLAG) $(PKG_RUSTFLAGS) $(RUSTPICFLAGS) $(RUSTOPTFLAGS) $(RUSTFLAGS)
-## For debug builds
-ALL_RUSTFLAGS_DEBUG = $(RUST_EDITION_FLAG) $(PKG_RUSTFLAGS) $(RUSTPICFLAGS) $(RUSTDEBUGFLAGS) $(RUSTFLAGS)
+ALL_RUSTFLAGS = $(RUST_EDITION_FLAG) $(PKG_RUSTFLAGS) $(RUSTPICFLAGS) $(RUSTOPTFLAGS) $(RUSTLINKERFLAGS) $(RUSTLINKARGS) $(RUSTLTOFLAGS) $(RUSTFLAGS)
+## For debug builds (full debug info, no LTO)
+ALL_RUSTFLAGS_DEBUG = $(RUST_EDITION_FLAG) $(PKG_RUSTFLAGS) $(RUSTPICFLAGS) $(RUSTDEBUGFLAGS) -C debuginfo=2 $(RUSTLINKERFLAGS) $(RUSTFLAGS)
 
 ## For use in src/{appl,main} when R is a shared library, src/modules/lapack
 ## and src/extra/blas when internal BLAS is built as a shared library

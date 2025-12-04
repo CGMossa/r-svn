@@ -223,10 +223,17 @@ ALL_FCFLAGS = @R_XTRA_FFLAGS@ $(P_FCFLAGS) $(FPICFLAGS) $(SHLIB_FFLAGS) $(FCFLAG
 ALL_LIBS = $(PKG_LIBS) $(SHLIB_LIBADD) $(SAN_LIBS) $(LIBR)@DYLIB_UNDEFINED_ALLOWED_FALSE@ $(LIBINTL)
 
 ## Rust flags - compose from edition, PIC, optimization, and custom flags
+## Use C compiler as linker to ensure consistent toolchain
+## Extract just the compiler program (first word of CC, excluding flags like -std=gnu23)
+RUSTLINKERFLAGS = -C linker=$(firstword $(CC))
+## Pass LDFLAGS to Rust linker
+RUSTLINKARGS = $(if $(LDFLAGS),-C link-args=$(LDFLAGS))
+## LTO flags (enable when R is built with LTO)
+RUSTLTOFLAGS =@BUILD_LTO_TRUE@ -C lto=thin -C linker-plugin-lto
 PKG_RUSTFLAGS =
-ALL_RUSTFLAGS = $(RUST_EDITION_FLAG) $(PKG_RUSTFLAGS) $(RUSTPICFLAGS) $(RUSTOPTFLAGS) $(RUSTFLAGS)
-## For debug builds
-ALL_RUSTFLAGS_DEBUG = $(RUST_EDITION_FLAG) $(PKG_RUSTFLAGS) $(RUSTPICFLAGS) $(RUSTDEBUGFLAGS) $(RUSTFLAGS)
+ALL_RUSTFLAGS = $(RUST_EDITION_FLAG) $(PKG_RUSTFLAGS) $(RUSTPICFLAGS) $(RUSTOPTFLAGS) $(RUSTLINKERFLAGS) $(RUSTLINKARGS) $(RUSTLTOFLAGS) $(RUSTFLAGS)
+## For debug builds (full debug info, no LTO)
+ALL_RUSTFLAGS_DEBUG = $(RUST_EDITION_FLAG) $(PKG_RUSTFLAGS) $(RUSTPICFLAGS) $(RUSTDEBUGFLAGS) -C debuginfo=2 $(RUSTLINKERFLAGS) $(RUSTFLAGS)
 
 .SUFFIXES:
 .SUFFIXES: .c .cc .cpp .d .f .f90 .f95 .m .mm .M .rs .o
@@ -234,7 +241,6 @@ ALL_RUSTFLAGS_DEBUG = $(RUST_EDITION_FLAG) $(PKG_RUSTFLAGS) $(RUSTPICFLAGS) $(RU
 -include $(abs_top_builddir)/Makefrag.cc
 -include $(abs_top_builddir)/Makefrag.cxx
 -include $(abs_top_builddir)/Makefrag.m
--include $(abs_top_builddir)/Makefrag.rs
 .mm.o:
 	$(OBJCXX) $(ALL_CPPFLAGS) $(ALL_OBJCXXFLAGS) -c $< -o $@
 .M.o:
@@ -245,3 +251,5 @@ ALL_RUSTFLAGS_DEBUG = $(RUST_EDITION_FLAG) $(PKG_RUSTFLAGS) $(RUSTPICFLAGS) $(RU
 	$(FC) $(ALL_FCFLAGS) -c @FCFLAGS_f95@ $< -o $@
 .f90.o:
 	$(FC) $(ALL_FCFLAGS) -c @FCFLAGS_f90@ $< -o $@
+.rs.o:
+	$(RUSTC) --crate-type=staticlib -C panic=abort $(ALL_RUSTFLAGS) --emit=obj -o $@ $<

@@ -2526,6 +2526,7 @@ if(FALSE) {
     with_f77 <- FALSE
     with_f9x <- FALSE
     with_objc <- FALSE
+    with_rust <- FALSE
     use_cxxstd <- NULL
     use_fc_link <- FALSE
     use_lto <- NA
@@ -2604,6 +2605,9 @@ if(FALSE) {
                     nobj <- base
                 } else if (ext == "c") {
                     with_c <- TRUE
+                    nobj <- base
+                } else if (ext == "rs") {
+                    with_rust <- TRUE
                     nobj <- base
                 } else if (ext == "o") {
                     nobj <- base
@@ -2719,6 +2723,7 @@ if(FALSE) {
                       "ALL_LIBS='$(PKG_LIBS) $(SHLIB_LIBADD) $(SAN_LIBS)'",
                       makeargs)
     if (with_objc) shlib_libadd <- c(shlib_libadd, "$(OBJC_LIBS)")
+    if (with_rust) shlib_libadd <- c(shlib_libadd, "$(RUST_NATIVE_STATIC_LIBS)")
     if (with_f77 || with_f9x) {
         if (use_fc_link)
             shlib_libadd <- c(shlib_libadd, "$(FCLIBS_XTRA)")
@@ -2817,6 +2822,16 @@ if(FALSE) {
                     if(!is.null(use_cxxstd))
                         message("using C++", use_cxxstd)
                 }
+            }
+        }
+        if (with_rust) {
+            rustc <- lines[grep("^RUSTC =", lines)]
+            rustc <- sub("RUSTC = ", "", rustc)
+            if(nzchar(rustc) && rustc != ":") {
+                rustc_ver <- try(system(paste(rustc, "--version"),
+                                 intern = TRUE), silent = TRUE)
+                if(!inherits(rustc_ver, "try-error"))
+                    message("using Rust compiler: ", sQuote(rustc_ver[1L]))
             }
         }
         if (Sys.info()["sysname"] == "Darwin" &&

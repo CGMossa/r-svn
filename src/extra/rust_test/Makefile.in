@@ -32,4 +32,13 @@ clean:
 distclean: clean
 	-rm -f Makefile
 
-.PHONY: all R clean distclean
+install install-strip uninstall:
+
+distdir: $(DISTFILES)
+	@for f in $(DISTFILES); do \
+	  test -f $(distdir)/$${f} \
+	    || ln $(srcdir)/$${f} $(distdir)/$${f} 2>/dev/null \
+	    || cp -p $(srcdir)/$${f} $(distdir)/$${f}; \
+	done
+
+.PHONY: all R clean distclean install install-strip uninstall distdir

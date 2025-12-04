@@ -292,7 +292,17 @@ test-rust:
         exit 1
     fi
     echo "Testing Rust compilation in: $BUILD"
-    cd "$BUILD/src/extra/rust_test"
+    # Handle both in-tree (configure-min) and out-of-tree (build-r-min) builds
+    if [ -d "$BUILD/src/extra/rust_test" ]; then
+        cd "$BUILD/src/extra/rust_test"
+    elif [ -d "$BUILD/build/src/extra/rust_test" ]; then
+        cd "$BUILD/build/src/extra/rust_test"
+    else
+        echo "Error: rust_test directory not found in build"
+        echo "Checked: $BUILD/src/extra/rust_test"
+        echo "Checked: $BUILD/build/src/extra/rust_test"
+        exit 1
+    fi
     make clean 2>/dev/null || true
     make
     echo
@@ -483,3 +493,63 @@ rust-link-info:
     #!/usr/bin/env bash
     echo "Native static libs for a minimal Rust crate:"
     rustc --crate-type=cdylib -C panic=abort --print native-static-libs - <<< 'pub fn dummy() {}' 2>&1 | grep native-static-libs || echo "(no extra libs needed)"
+
+# Test R CMD COMPILE and R CMD SHLIB with Rust sources
+test-rust-shlib:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
+    if [ -z "$BUILD" ] || [ ! -x "$BUILD/install/bin/R" ]; then
+        echo "No installed R found. Run build-r-min first."
+        exit 1
+    fi
+
+    R_HOME="$BUILD/install/lib/R"
+    R_CMD="$BUILD/install/bin/R"
+    srcdir="{{justfile_directory()}}"
+
+    # Create temp directory for test
+    testdir=$(mktemp -d /tmp/rust-shlib-test-XXXXXX)
+    echo "Testing R CMD COMPILE/SHLIB with Rust in: $testdir"
+    cd "$testdir"
+
+    # Copy test Rust source
+    cp "$srcdir/src/extra/rust_test/hello.rs" .
+
+    echo
+    echo "=== Testing R CMD COMPILE ==="
+    "$R_CMD" CMD COMPILE hello.rs
+    echo "Compiled objects:"
+    ls -la *.o 2>/dev/null || echo "No .o files found"
+
+    echo
+    echo "=== Testing R CMD SHLIB ==="
+    # Clean and rebuild with SHLIB
+    rm -f *.o *.so *.dylib 2>/dev/null || true
+    "$R_CMD" CMD SHLIB hello.rs
+    echo "Shared library:"
+    ls -la hello.so 2>/dev/null || ls -la hello.dylib 2>/dev/null || echo "No shared library found"
+
+    echo
+    echo "=== Checking exported symbols ==="
+    if [ -f "hello.so" ]; then
+        shlib="hello.so"
+    elif [ -f "hello.dylib" ]; then
+        shlib="hello.dylib"
+    else
+        echo "FAILED: No shared library produced"
+        exit 1
+    fi
+
+    echo "Symbols in $shlib:"
+    nm -gU "$shlib" | grep -E "rust_hello|rust_add" || { echo "Expected symbols not found!"; exit 1; }
+    echo
+    echo "SUCCESS: Rust SHLIB test passed!"
+
+    # Cleanup
+    rm -rf "$testdir"
+
+# Run all Rust-related tests
+test-all-rust: test-rust test-rust-shlib
+    @echo
+    @echo "=== All Rust tests passed! ==="
