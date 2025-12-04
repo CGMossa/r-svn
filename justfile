@@ -508,6 +508,10 @@ test-rust-shlib:
     R_CMD="$BUILD/install/bin/R"
     srcdir="{{justfile_directory()}}"
 
+    # Get platform-specific shared library extension from R
+    SHLIB_EXT=$("$R_CMD" CMD config SHLIB_EXT)
+    echo "Platform shared library extension: $SHLIB_EXT"
+
     # Create temp directory for test
     testdir=$(mktemp -d /tmp/rust-shlib-test-XXXXXX)
     echo "Testing R CMD COMPILE/SHLIB with Rust in: $testdir"
@@ -524,25 +528,27 @@ test-rust-shlib:
 
     echo
     echo "=== Testing R CMD SHLIB ==="
-    # Clean and rebuild with SHLIB
-    rm -f *.o *.so *.dylib 2>/dev/null || true
+    # Clean and rebuild with SHLIB (use platform extension)
+    rm -f *.o *"$SHLIB_EXT" 2>/dev/null || true
     "$R_CMD" CMD SHLIB hello.rs
     echo "Shared library:"
-    ls -la hello.so 2>/dev/null || ls -la hello.dylib 2>/dev/null || echo "No shared library found"
+    ls -la "hello$SHLIB_EXT" 2>/dev/null || echo "No shared library found"
 
     echo
     echo "=== Checking exported symbols ==="
-    if [ -f "hello.so" ]; then
-        shlib="hello.so"
-    elif [ -f "hello.dylib" ]; then
-        shlib="hello.dylib"
-    else
-        echo "FAILED: No shared library produced"
+    shlib="hello$SHLIB_EXT"
+    if [ ! -f "$shlib" ]; then
+        echo "FAILED: No shared library produced ($shlib)"
         exit 1
     fi
 
     echo "Symbols in $shlib:"
-    nm -gU "$shlib" | grep -E "rust_hello|rust_add" || { echo "Expected symbols not found!"; exit 1; }
+    # Use nm with appropriate flags for the platform
+    if [ "$(uname)" = "Darwin" ]; then
+        nm -gU "$shlib" | grep -E "rust_hello|rust_add" || { echo "Expected symbols not found!"; exit 1; }
+    else
+        nm -g --defined-only "$shlib" | grep -E "rust_hello|rust_add" || { echo "Expected symbols not found!"; exit 1; }
+    fi
     echo
     echo "SUCCESS: Rust SHLIB test passed!"
 

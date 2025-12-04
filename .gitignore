@@ -1,0 +1,143 @@
+# R Source Tree .gitignore
+# ========================
+
+# Autotools generated files
+/configure~
+/aclocal.m4
+/autom4te.cache/
+/config.cache
+/config.log
+/config.status
+/libtool
+
+# Top-level generated Makefiles and fragments
+/Makeconf
+/Makefile
+/Makefrag.*
+
+# Generated headers
+/src/include/config.h
+/src/include/config.h.in~
+/src/include/Rconfig.h
+/src/include/Rmath.h
+/src/include/Rmath.h0
+/src/include/Rversion.h
+/src/include/stamp-h
+
+# etc/ generated files
+/etc/Makeconf
+/etc/Makefile
+/etc/Renviron
+/etc/javaconf
+/etc/ldpaths
+/etc/repositories
+
+# Generated Makefiles throughout the tree
+doc/Makefile
+doc/html/Makefile
+doc/manual/Makefile
+m4/Makefile
+po/Makefile
+share/Makefile
+src/Makefile
+src/appl/Makefile
+src/extra/Makefile
+src/extra/*/Makefile
+src/include/Makefile
+src/include/R_ext/Makefile
+src/library/Makefile
+src/library/*/Makefile
+src/library/*/src/Makefile
+src/main/Makefile
+src/modules/Makefile
+src/modules/*/Makefile
+src/nmath/Makefile
+src/nmath/standalone/Makefile
+src/scripts/Makefile
+src/unix/Makefile
+tests/Makefile
+tests/*/Makefile
+tools/Makefile
+
+# Generated scripts
+src/scripts/R.sh
+src/scripts/Rcmd
+src/scripts/javareconf
+src/scripts/mkinstalldirs
+src/scripts/pager
+src/scripts/rtags
+
+# Generated DESCRIPTION files
+src/library/*/DESCRIPTION
+
+# Build artifacts - object files
+*.o
+*.lo
+*.a
+*.la
+
+# Build artifacts - shared libraries
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Build artifacts - Rust
+*.rlib
+*.rmeta
+*.d
+
+# Build artifacts - executables
+/src/main/R.bin
+/src/unix/Rscript
+
+# Library build artifacts
+/library/
+
+# Documentation build artifacts
+doc/NEWS
+doc/NEWS.pdf
+doc/R.1
+doc/html/*.html
+doc/manual/*.html
+doc/manual/*.pdf
+doc/manual/*.info*
+
+# Test artifacts
+tests/*.Rout
+tests/*.Rout.fail
+tests/*.Rout.save
+tests/*.pdf
+tests/Packages/
+
+# Dependencies files
+*.Tpo
+
+# Editor backups
+*~
+*.bak
+*.orig
+*.swp
+*.swo
+.*.swp
+
+# macOS
+.DS_Store
+._*
+
+# Patch files (keep for reference but can be regenerated)
+# *.patch
+
+# Temporary test files
+/librust_out.dylib
+
+# IDE - keep .vscode but ignore user-specific files
+.vscode/ipch/
+.vscode/*.log
+.vscode/.browse.c_cpp.db*
+.vscode/compile_commands.json
+
+# Build directories (from justfile)
+# These are in /tmp so not relevant, but just in case
+/build/
+/install/
