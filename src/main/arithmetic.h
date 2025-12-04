@@ -17,6 +17,9 @@
  *  https://www.R-project.org/Licenses/
  */
 
+#ifndef R_ARITHMETIC_H
+#define R_ARITHMETIC_H
+
 SEXP do_math1(SEXP, SEXP, SEXP, SEXP);
 SEXP do_math2(SEXP, SEXP, SEXP, SEXP);
 SEXP do_math3(SEXP, SEXP, SEXP, SEXP);
@@ -98,3 +101,5 @@ static R_INLINE SEXP R_allocOrReuseVector(SEXP s1, SEXP s2,
 // we document that tanpi(0.5) is NaN, but TS 18661-4:2015
 // does not require this and the Solaris and macOS versions give Inf.
 double Rtanpi(double);
+
+#endif /* R_ARITHMETIC_H */

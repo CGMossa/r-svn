@@ -21,6 +21,11 @@
  *  These routines are `registered' in registration.c.
  */
 
+#ifndef R_BASEDECL_H
+#define R_BASEDECL_H
+
 SEXP R_getTaskCallbackNames(void);
 SEXP R_removeTaskCallback(SEXP);
 SEXP R_addTaskCallback(SEXP, SEXP, SEXP, SEXP);
+
+#endif /* R_BASEDECL_H */

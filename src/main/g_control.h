@@ -3,6 +3,9 @@
    g_cntrlify.c, and g_alabel_her.c (which renders labels in Hershey
    fonts), and by the generic renderer g_alabel.c. */
 
+#ifndef R_G_CONTROL_H
+#define R_G_CONTROL_H
+
 /* the order of these must agree with the order in g_cntrlify.h */
 #define C_BEGIN_SUPERSCRIPT 0
 #define C_END_SUPERSCRIPT 1
@@ -42,3 +45,5 @@
 #define FONT_SHIFT 8
 #define FONT_SPEC (ONE_BYTE << FONT_SHIFT)
 #define GLYPH_SPEC 0x1fff
+
+#endif /* R_G_CONTROL_H */

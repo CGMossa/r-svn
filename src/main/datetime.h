@@ -18,6 +18,9 @@
  *
  */
 
+#ifndef R_DATETIME_H
+#define R_DATETIME_H
+
 /* Declarations from src/extra/tzone.  Included by
    datetime.c
    machine.c ( for sizeof(time_t) )
@@ -67,3 +70,5 @@ extern char *R_tzname[2];
 extern size_t
 R_strftime(char * const s, const size_t maxsize, const char *const format,
 	   const stm *const t);
+
+#endif /* R_DATETIME_H */

@@ -5,6 +5,9 @@
    it as part of the stuff I took from GNU plotutils to put into R
 */
 
+#ifndef R_G_EXTERN_H
+#define R_G_EXTERN_H
+
 /* This is the chief include file for GNU libplot/libplotter.  It
    supplements the include files ../include/sys-defines.h,
    ../include/plot.h and ../include/plotter.h.  plot.h is libplot-specific,
@@ -149,3 +152,5 @@ extern void R_GE_VText(double x, double y, const char * const s, cetype_t enc,
 /* PAUL MURRELL
    Removed heaps below here
 */
+
+#endif /* R_G_EXTERN_H */

@@ -1,5 +1,8 @@
 /* This header file gives the metrics for the vector fonts. */
 
+#ifndef R_G_HER_METR_H
+#define R_G_HER_METR_H
+
 /* Our choice for stroke width, in terms of virtual pixels.  This number is
    magic: just slightly greater than sqrt(2), so that adjacent strokes that
    are inclined at a 45 degree angle will overlap as they should.
@@ -149,3 +152,5 @@
    are raised/lowered by 24 units. */
 
 /************************************************************************/
+
+#endif /* R_G_HER_METR_H */
