@@ -18,7 +18,7 @@ DISTFILES = Makefile.in Makefile.win $(INSTFILES) R.aux \
 INSTFILES2 = NEWS.rds NEWS NEWS.pdf NEWS.2.rds NEWS.3.rds
 NON_SVN_INSTFILES = FAQ RESOURCES NEWS NEWS.pdf
 ## generated later.
-SUBDIRS = html manual
+SUBDIRS = @DOC_HTML_SUBDIRS@
 INSTDIRS = notes
 
 HELP2MAN = perl $(top_srcdir)/tools/help2man.pl
@@ -32,17 +32,21 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 ## FIXME:  NEWS.rds is needed by news() and hence in principle part of 'R', but
 ##  it can only be built by R_EXE which at this point does not exist (if built from scratch)
 R: Makefile svnonly
-	@for d in $(SUBDIRS); do \
-	  (cd $${d} && $(MAKE) $@) || exit 1; \
-	done
+	@if test -n "$(SUBDIRS)"; then \
+	  for d in $(SUBDIRS); do \
+	    (cd $${d} && $(MAKE) $@) || exit 1; \
+	  done; \
+	fi
 	@if test "$(BUILDDIR_IS_SRCDIR)" = no ; then \
 	  $(MAKE) DESTDIR="" rdocdir=$(top_builddir)/doc install-sources; \
 	fi
 
 ## man pages last: currently needs perl (which is *not* checked at configure time);
 ## NB: need NEWS.rds for 'news()' which is run in 'make check'
-docs: NEWS.rds NEWS html/NEWS.html NEWS.pdf NEWS.2.rds NEWS.3.rds R.1 Rscript.1
-	@(cd manual && $(MAKE) $@)
+docs: NEWS.rds NEWS @NEWS_HTML@ NEWS.pdf NEWS.2.rds NEWS.3.rds R.1 Rscript.1
+	@if test "@ENABLE_HTML_DOCS@" = yes; then \
+	  (cd manual && $(MAKE) $@); \
+	fi
 
 R.1:
 	@$(HELP2MAN) --include=$(srcdir)/R.aux --no-info --output=R.1 \
@@ -126,9 +130,11 @@ NEWS.2.pdf: NEWS.2.rds
 
 
 install: install-message installdirs install-sources install-sources2 install-man
-	@for d in $(SUBDIRS); do \
-	  (cd $${d} && $(MAKE) $@) || exit 1; \
-	done
+	@if test -n "$(SUBDIRS)"; then \
+	  for d in $(SUBDIRS); do \
+	    (cd $${d} && $(MAKE) $@) || exit 1; \
+	  done; \
+	fi
 installdirs:
 	@$(MKINSTALLDIRS) "$(DESTDIR)$(rdocdir)"
 	@$(MKINSTALLDIRS) $(DESTDIR)$(mandir)/man1
@@ -159,9 +165,11 @@ uninstall:
 	@if test -d "$(DESTDIR)$(rdocdir)" \
 	  && test "`cd \"$(DESTDIR)$(rhome)\"; $(GETWD)`" \
 	       != "`cd $(top_builddir); $(GETWD)`"; then \
-	  for d in $(SUBDIRS); do \
-	    (cd $${d} && $(MAKE) $@) || exit 1; \
-	  done; \
+	  if test -n "$(SUBDIRS)"; then \
+	    for d in $(SUBDIRS); do \
+	      (cd $${d} && $(MAKE) $@) || exit 1; \
+	    done; \
+	  fi; \
 	  for f in $(INSTFILES) $(NON_SVN_INSTFILES) $(INSTFILES2); do \
 	    rm -f "$(DESTDIR)$(rdocdir)"/$${f}; \
 	  done; \
