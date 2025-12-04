@@ -161,6 +161,21 @@ AC_ARG_ENABLE([site-config],
 [enable_site_config="${enableval}"],
 [enable_site_config=yes])
 
+AC_ARG_ENABLE([html-docs],
+[AS_HELP_STRING([--disable-html-docs],
+                [skip building/installing HTML manuals to avoid texi2any/resources requirements @<:@enabled@:>@])],
+[enable_html_docs="${enableval}"],
+[enable_html_docs=yes])
+DOC_HTML_SUBDIRS=
+NEWS_HTML=
+if test "x${enable_html_docs}" = xyes; then
+  DOC_HTML_SUBDIRS="html manual"
+  NEWS_HTML="html/NEWS.html"
+fi
+AC_SUBST(DOC_HTML_SUBDIRS)
+AC_SUBST(ENABLE_HTML_DOCS, ${enable_html_docs})
+AC_SUBST(NEWS_HTML)
+
 if test "x${enable_site_config}" = xyes; then
   cfile="${srcdir}/config.site"
   if test -r "${cfile}"; then

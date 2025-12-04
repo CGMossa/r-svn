@@ -49,10 +49,12 @@ configure-sandbox:
     CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"} \
     LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"} \
     PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"} \
+    html_flag=$([ "${HTML_DOCS:-no}" = "no" ] && echo "--disable-html-docs" || true) \
     builddir="$tmpdir/build" ../src/configure \
         --prefix="$tmpdir/install" \
         --disable-site-config \
         --with-aqua=no \
+        ${html_flag} \
         --no-create
 
     ls -a .
@@ -70,6 +72,7 @@ build-r-min:
     CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"} \
     LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"} \
     PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"} \
+    html_flag=$([ "${HTML_DOCS:-no}" = "no" ] && echo "--disable-html-docs" || true) \
     "$srcdir"/configure \
         --prefix="$tmpdir/install" \
         --disable-site-config \
@@ -77,7 +80,8 @@ build-r-min:
         --disable-R-framework \
         --without-x \
         --without-cairo \
-        --without-recommended-packages
+        --without-recommended-packages \
+        ${html_flag}
 
     make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)"
     make install
@@ -110,6 +114,7 @@ sandbox-repl:
     CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"} \
     LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"} \
     PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"} \
+    html_flag=$([ "${HTML_DOCS:-no}" = "no" ] && echo "--disable-html-docs" || true) \
     builddir="$tmpdir/build" ../src/configure \
         --prefix="$tmpdir/install" \
         --disable-site-config \
@@ -119,7 +124,8 @@ sandbox-repl:
         --without-x \
         --without-cairo \
         --without-tcltk \
-        --without-recommended-packages
+        --without-recommended-packages \
+        ${html_flag}
 
     make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)"
     make install
@@ -135,6 +141,7 @@ configure-fast:
 	&& CPPFLAGS=${CPPFLAGS:-"-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"} \
 	   LDFLAGS=${LDFLAGS:-"-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"} \
 	   PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-"/opt/homebrew/opt/readline/lib/pkgconfig"} \
+	   html_flag=$([ \"${HTML_DOCS:-no}\" = \"no\" ] && echo \"--disable-html-docs\" || true) \
 	   builddir="$tmpdir" "$srcdir"/configure \
 	      --prefix=$tmpdir/install \
 		  --disable-site-config \
@@ -144,4 +151,5 @@ configure-fast:
 		  --without-cairo \
 		  --without-tcltk \
 		  --without-recommended-packages \
+		  ${html_flag} \
 	&& ls -a "$tmpdir"

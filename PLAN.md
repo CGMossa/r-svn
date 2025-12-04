@@ -16,6 +16,7 @@
 - `--enable-fast-config` added to skip slow optional subsystems; wired into `configure-fast`/`sandbox-repl`.
 - Full end-to-end `just sandbox-repl` now succeeds, installs under a temp prefix, and drops into R; remaining warnings are texi2any/html-doc gaps and missing doc/resources.html when absent in source.
 - `--disable-site-config` now also removes the default user library path (`~/Library/...`) so sandboxed `.libPaths()` stays within the temp prefix.
+- New `--disable-html-docs` switch (and `HTML_DOCS=no` env toggle in justfile) skips building/installing HTML manuals/NEWS, silencing texi2any/resources warnings during fast sandbox builds.
 - Streamlined `tools/rsync-recommended` (mktemp, cleaner path handling) and added VS Code file associations for Makefile-like infiles.
 
 ## Next

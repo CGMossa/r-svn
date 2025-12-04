@@ -1064,6 +1064,9 @@ rsharedir
 rincludedir
 rdocdir
 LIBnn
+NEWS_HTML
+ENABLE_HTML_DOCS
+DOC_HTML_SUBDIRS
 R_CONFIG_ARGS
 R_OSTYPE
 R_OS
@@ -1132,6 +1135,7 @@ ac_user_opts='
 enable_option_checking
 enable_fast_config
 enable_site_config
+enable_html_docs
 enable_R_profiling
 enable_memory_profiling
 enable_R_framework
@@ -1952,6 +1956,8 @@ Optional Features:
                           common defaults (experimental)
   --disable-site-config   do not source config.site or ~/.R/config files
                           [enabled]
+  --disable-html-docs     skip building/installing HTML manuals to avoid
+                          texi2any/resources requirements [enabled]
   --enable-R-profiling    attempt to compile support for Rprof() [yes]
   --enable-memory-profiling
                           attempt to compile support for Rprofmem(),
@@ -4832,6 +4838,26 @@ else case e in #(
   e) enable_site_config=yes ;;
 esac
 fi
+
+
+# Check whether --enable-html-docs was given.
+if test ${enable_html_docs+y}
+then :
+  enableval=$enable_html_docs; enable_html_docs="${enableval}"
+else case e in #(
+  e) enable_html_docs=yes ;;
+esac
+fi
+
+DOC_HTML_SUBDIRS=
+NEWS_HTML=
+if test "x${enable_html_docs}" = xyes; then
+  DOC_HTML_SUBDIRS="html manual"
+  NEWS_HTML="html/NEWS.html"
+fi
+
+ENABLE_HTML_DOCS=${enable_html_docs}
+
 
 
 if test "x${enable_site_config}" = xyes; then
@@ -30844,7 +30870,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:30847: \"$ac_link\") >&5
+(eval echo $as_me:30873: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -30922,7 +30948,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:30925: \"$ac_link\") >&5
+(eval echo $as_me:30951: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -34953,7 +34979,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:34956: \"$ac_link\") >&5
+(eval echo $as_me:34982: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -35039,7 +35065,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:35042: \"$ac_link\") >&5
+(eval echo $as_me:35068: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
