@@ -1,0 +1,35 @@
+#
+# ${R_HOME}/src/extra/rust_test/Makefile
+# Test Makefile for Rust compilation support
+
+
+srcdir = .
+top_srcdir = ../../..
+
+top_builddir = ../../..
+subdir = src/extra/rust_test
+R_HOME = $(top_builddir)
+
+include $(top_builddir)/Makeconf
+
+SOURCES_RS = hello.rs
+OBJECTS = $(SOURCES_RS:.rs=.o)
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+DISTFILES = Makefile.in $(SOURCES_RS)
+
+all: R
+
+Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
+	@cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+
+R: $(OBJECTS)
+	@echo "Rust test objects built: $(OBJECTS)"
+
+clean:
+	-rm -f $(OBJECTS)
+
+distclean: clean
+	-rm -f Makefile
+
+.PHONY: all R clean distclean

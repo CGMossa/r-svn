@@ -242,3 +242,244 @@ configure-fast:
         $html_flag
 
     ls -a "$tmpdir"
+
+# Quick rebuild - reuse existing build directory
+rebuild *ARGS:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
+    if [ -z "$BUILD" ]; then
+        echo "No existing build dir found. Run configure-min first."
+        exit 1
+    fi
+    echo "Rebuilding in: $BUILD"
+    cd "$BUILD"
+    make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" R {{ARGS}}
+
+# Clean rebuild of a specific component (e.g., main, nmath, extra/blas)
+rebuild-component component:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
+    if [ -z "$BUILD" ]; then
+        echo "No existing build dir found. Run configure-min first."
+        exit 1
+    fi
+    echo "Rebuilding component: {{component}} in $BUILD"
+    cd "$BUILD/src/{{component}}"
+    make clean && make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)"
+
+# Run R tests from latest build
+test-r *ARGS:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
+    if [ -z "$BUILD" ]; then
+        echo "No existing build dir found. Run build-r-min first."
+        exit 1
+    fi
+    echo "Running tests in: $BUILD"
+    cd "$BUILD"
+    make check-devel {{ARGS}}
+
+# Run just the Rust tests
+test-rust:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
+    if [ -z "$BUILD" ]; then
+        echo "No existing build dir found. Run configure-min first."
+        exit 1
+    fi
+    echo "Testing Rust compilation in: $BUILD"
+    cd "$BUILD/src/extra/rust_test"
+    make clean 2>/dev/null || true
+    make
+    echo
+    echo "Rust objects:"
+    ls -la *.o *.d 2>/dev/null || echo "None found"
+
+# Show configure summary from last build
+show-config:
+    #!/usr/bin/env bash
+    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
+    if [ -n "$BUILD" ]; then
+        echo "Build dir: $BUILD"
+        echo
+        echo "=== Configure Summary ==="
+        grep -A 100 "R is now configured" "$BUILD/config.log" 2>/dev/null | head -30 || \
+            tail -50 "$BUILD/config.log" | head -30
+    else
+        echo "No build found"
+    fi
+
+# Regenerate autotools files
+regen-autotools:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd "{{justfile_directory()}}"
+    autoconf
+    echo "configure regenerated from configure.ac"
+
+# Show all configure options
+configure-help:
+    #!/usr/bin/env bash
+    "{{justfile_directory()}}"/configure --help
+
+# Build with AddressSanitizer for debugging memory issues
+configure-asan:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    srcdir="{{justfile_directory()}}"
+    tmpdir=$(mktemp -d /tmp/r-conf-build-XXXXXX)
+    echo "Using temp dir: $tmpdir (ASAN build)"
+    cd "$tmpdir"
+
+    export CC="clang"
+    export CFLAGS="-g -O0 -fno-omit-frame-pointer -fsanitize=address"
+    export LDFLAGS="-fsanitize=address -L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"
+    export CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"
+    export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig:/opt/homebrew/opt/readline/lib/pkgconfig"
+
+    "$srcdir"/configure \
+        --prefix="$tmpdir/install" \
+        --disable-site-config \
+        --with-aqua=no \
+        --disable-R-framework \
+        --without-x \
+        --without-cairo \
+        --without-recommended-packages \
+        --disable-html-docs
+
+    echo
+    echo "ASAN build configured in: $tmpdir"
+    echo "Run 'just rebuild' to build with AddressSanitizer"
+
+# Build with debug symbols and no optimization
+configure-debug:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    srcdir="{{justfile_directory()}}"
+    tmpdir=$(mktemp -d /tmp/r-conf-build-XXXXXX)
+    echo "Using temp dir: $tmpdir (debug build)"
+    cd "$tmpdir"
+
+    export CFLAGS="-g -O0 -UNDEBUG"
+    export CXXFLAGS="-g -O0 -UNDEBUG"
+    export FFLAGS="-g -O0"
+    export CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/xz/include -I/opt/homebrew/opt/readline/include"
+    export LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/xz/lib -L/opt/homebrew/opt/readline/lib"
+    export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig:/opt/homebrew/opt/readline/lib/pkgconfig"
+
+    "$srcdir"/configure \
+        --prefix="$tmpdir/install" \
+        --disable-site-config \
+        --with-aqua=no \
+        --disable-R-framework \
+        --without-x \
+        --without-cairo \
+        --without-recommended-packages \
+        --disable-html-docs \
+        --enable-strict-barrier
+
+    echo
+    echo "Debug build configured in: $tmpdir"
+
+# List all build directories
+list-builds:
+    @ls -ltdh /tmp/r-conf-build-* 2>/dev/null | head -10 || echo "No builds found"
+
+# Clean old build directories (keep latest 3)
+clean-builds:
+    #!/usr/bin/env bash
+    builds=$(ls -td /tmp/r-conf-build-* 2>/dev/null || true)
+    count=0
+    for b in $builds; do
+        count=$((count + 1))
+        if [ $count -gt 3 ]; then
+            echo "Removing: $b"
+            rm -rf "$b"
+        fi
+    done
+    if [ $count -le 3 ]; then
+        echo "Only $count build(s) found, nothing to clean"
+    fi
+
+# Clean ALL build directories
+clean-all-builds:
+    #!/usr/bin/env bash
+    builds=$(ls -td /tmp/r-conf-build-* 2>/dev/null || true)
+    if [ -z "$builds" ]; then
+        echo "No builds to clean"
+        exit 0
+    fi
+    for b in $builds; do
+        echo "Removing: $b"
+        rm -rf "$b"
+    done
+
+# Export compile_commands.json for IDE integration (requires bear)
+compile-commands:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
+    if [ -z "$BUILD" ]; then
+        echo "No existing build dir found. Run configure-min first."
+        exit 1
+    fi
+    if ! command -v bear &>/dev/null; then
+        echo "Error: 'bear' not found. Install with: brew install bear"
+        exit 1
+    fi
+    cd "$BUILD"
+    bear -- make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" R
+    echo "compile_commands.json generated in: $BUILD"
+
+# Quick R expression test
+run-expr expr:
+    #!/usr/bin/env bash
+    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
+    if [ -z "$BUILD" ] || [ ! -x "$BUILD/install/bin/R" ]; then
+        echo "No installed R found. Run build-r-min first."
+        exit 1
+    fi
+    "$BUILD/install/bin/R" --vanilla -e "{{expr}}"
+
+# Run R with specific arguments
+run-r *ARGS:
+    #!/usr/bin/env bash
+    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
+    if [ -z "$BUILD" ] || [ ! -x "$BUILD/install/bin/R" ]; then
+        echo "No installed R found. Run build-r-min first."
+        exit 1
+    fi
+    exec "$BUILD/install/bin/R" {{ARGS}}
+
+# Show R version info from latest build
+r-version:
+    #!/usr/bin/env bash
+    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
+    if [ -z "$BUILD" ] || [ ! -x "$BUILD/install/bin/R" ]; then
+        echo "No installed R found. Run build-r-min first."
+        exit 1
+    fi
+    "$BUILD/install/bin/R" --version
+
+# Compare Makeconf files (top-level vs etc for packages)
+compare-makeconf:
+    #!/usr/bin/env bash
+    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
+    if [ -z "$BUILD" ]; then
+        echo "No existing build dir found. Run configure-min first."
+        exit 1
+    fi
+    echo "Comparing $BUILD/Makeconf vs $BUILD/etc/Makeconf"
+    diff -u "$BUILD/Makeconf" "$BUILD/etc/Makeconf" || true
+
+# Show what Rust would link against
+rust-link-info:
+    #!/usr/bin/env bash
+    echo "Native static libs for a minimal Rust crate:"
+    rustc --crate-type=cdylib -C panic=abort --print native-static-libs - <<< 'pub fn dummy() {}' 2>&1 | grep native-static-libs || echo "(no extra libs needed)"

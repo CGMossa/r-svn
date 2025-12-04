@@ -28,3 +28,4 @@ compilers:
 	@$(ECHO) "CC = $(CC)"
 	@$(ECHO) "CXX = $(CXX)"
 	@$(ECHO) "FC = $(FC)"
+	@$(ECHO) "RUSTC = $(RUSTC)"

@@ -452,7 +452,7 @@ cat << 'EOF' > Makefrag.rs
 	  $(ECHO) "rustc is not available but a Rust source was encountered: $<" 1>&2; \
 	  exit 1; \
 	fi
-	$(RUSTC) $(ALL_RUSTFLAGS) --emit=obj -o $@ $<
+	$(RUSTC) --crate-type=cdylib -C panic=abort $(ALL_RUSTFLAGS) --emit=dep-info,obj --print native-static-libs -o $[@] $<
 EOF
 cat << 'EOF' >> Makefrag.rs
 .rs.d:
@@ -460,8 +460,8 @@ cat << 'EOF' >> Makefrag.rs
 	  $(ECHO) "rustc is not available but a Rust source was encountered: $<" 1>&2; \
 	  exit 1; \
 	fi
-	@$(ECHO) "making $@ from $<"
-	@$(RUSTC) $(ALL_RUSTFLAGS) --emit=dep-info -o $@ $<
+	@$(ECHO) "making $[@] from $<"
+	@$(RUSTC) --crate-type=cdylib -C panic=abort $(ALL_RUSTFLAGS) --emit=dep-info --print native-static-libs -o $[@] $<
 EOF
 ])])
 ])# R_PROG_RUST_MAKEFRAG

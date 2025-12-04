@@ -889,10 +889,38 @@ FPIEFLAGS
 FOUNDATION_LIBS
 FOUNDATION_CPPFLAGS
 r_objc_rules_frag
+RUST_EDITION_FLAG
+RUST_NATIVE_STATIC_LIBS
+r_rust_rules_frag
+BUILD_RUST_TEST_FALSE
+BUILD_RUST_TEST_TRUE
+BUILD_RUST_FALSE
+BUILD_RUST_TRUE
+HAVE_RUST
+RUSTDEBUGFLAGS
+RUSTOPTFLAGS
 RUSTPICFLAGS
+RUST_TARGET
+HAVE_CARGO
+CARGO
+RUST_DEFAULT_EDITION
+RUST2024STD
+RUST2024
+HAVE_RUST2024
+RUST2021STD
+RUST2021
+HAVE_RUST2021
+RUST2018STD
+RUST2018
+HAVE_RUST2018
+RUST2015STD
+RUST2015
+HAVE_RUST2015
+RUST_VERSION_MINOR
+RUST_VERSION_MAJOR
+RUST_VERSION
 RUSTFLAGS
 RUSTC
-r_rust_rules_frag
 r_cxx_rules_frag
 OPENMP_FCFLAGS
 COMPILE_FORTRAN_DOUBLE_COMPLEX_FALSE
@@ -1134,6 +1162,7 @@ r_objc_rules_frag'
 ac_user_opts='
 enable_option_checking
 enable_fast_config
+enable_debug
 enable_site_config
 enable_html_docs
 enable_R_profiling
@@ -1183,6 +1212,7 @@ with_sysroot
 enable_libtool_lock
 enable_long_double
 enable_openmp
+enable_rust
 with_x
 with_libdeflate_compression
 enable_largefile
@@ -1252,6 +1282,8 @@ OBJCFLAGS
 LT_SYS_LIBRARY_PATH
 READLINE_CFLAGS
 READLINE_LIBS
+RUSTC
+RUSTFLAGS
 CXX11
 CXX11STD
 CXX11FLAGS
@@ -1954,6 +1986,8 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-fast-config    skip optional feature/library checks and assume
                           common defaults (experimental)
+  --enable-debug          build with debugging symbols and no optimization (-g
+                          -O0)
   --disable-site-config   do not source config.site or ~/.R/config files
                           [enabled]
   --disable-html-docs     skip building/installing HTML manuals to avoid
@@ -1991,6 +2025,7 @@ Optional Features:
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-long-double    use long double type [yes]
   --disable-openmp        do not use OpenMP
+  --disable-rust          disable Rust compiler support
   --disable-largefile     omit support for large files
   --disable-nls           do not use Native Language Support
 
@@ -2131,6 +2166,8 @@ Some influential environment variables:
               C compiler flags for READLINE, overriding pkg-config
   READLINE_LIBS
               linker flags for READLINE, overriding pkg-config
+  RUSTC       Rust compiler command
+  RUSTFLAGS   Rust compiler flags
   CXX11       C++11 compiler command
   CXX11STD    special flag for compiling and for linking C++11 code, e.g.
               -std=c++11
@@ -4390,6 +4427,26 @@ else case e in #(
 esac
 fi
 
+
+# Check whether --enable-debug was given.
+if test ${enable_debug+y}
+then :
+  enableval=$enable_debug; enable_debug="${enableval}"
+else case e in #(
+  e) enable_debug=no ;;
+esac
+fi
+
+
+if test "x${enable_debug}" = "xyes"; then
+  : ${CFLAGS="-g -O0 -UNDEBUG"}
+  : ${CXXFLAGS="-g -O0 -UNDEBUG"}
+  : ${FFLAGS="-g -O0"}
+  : ${FCFLAGS="-g -O0"}
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Debug mode enabled: using -g -O0 flags" >&5
+printf "%s\n" "$as_me: Debug mode enabled: using -g -O0 flags" >&6;}
+fi
+
 top_builddir='${ac_top_builddir}'
 
 top_srcdir='${ac_top_srcdir}'
@@ -4641,6 +4698,85 @@ abs_top_srcdir='${ac_abs_top_srcdir}'
 
 
 
+
+# ===========================================================================
+#  m4/rust.m4 - Rust compiler detection and edition support for R
+# ===========================================================================
+#
+# SYNOPSIS
+#
+#   AX_RUST_COMPILE_EDITION(EDITION, [ext|noext], [mandatory|optional])
+#   R_PROG_RUST
+#   R_PROG_RUST_FLAG(FLAG, [ACTION-IF-TRUE])
+#   R_PROG_RUST_MAKEFRAG
+#   R_RUST_NATIVE_STATIC_LIBS
+#
+# DESCRIPTION
+#
+#   Macros for detecting Rust compiler support and edition features.
+#   Modeled after cxx.m4 for C++ compiler detection.
+#
+#   Rust editions: 2015, 2018, 2021, 2024
+#
+# LICENSE
+#
+#   Copyright (c) 2024 R Core Team
+#   Copying and distribution permitted under the same terms as R.
+
+# rust.m4 serial 1
+
+## AX_RUST_COMPILE_EDITION(EDITION, [mandatory|optional])
+## --------------------------------------------------------
+## Check for Rust edition support in the compiler.
+## EDITION may be '2015', '2018', '2021', or '2024'.
+##
+## The second argument, if specified 'mandatory' or if left unspecified,
+## indicates that support for the specified Rust edition is required.
+## If specified 'optional', then configuration proceeds regardless.
+##
+
+
+
+## Test bodies for each Rust edition
+## These test edition-specific features
+
+
+
+
+
+
+
+
+
+
+## R_PROG_RUST
+## -----------
+## Detect Rust compiler and set up variables
+# R_PROG_RUST
+
+
+## R_PROG_RUST_FLAG(FLAG, [ACTION-IF-TRUE])
+## -----------------------------------------
+## Check whether the Rust compiler accepts FLAG
+# R_PROG_RUST_FLAG
+
+
+## R_RUST_NATIVE_STATIC_LIBS
+## -------------------------
+## Detect the native static libraries needed when linking Rust code
+# R_RUST_NATIVE_STATIC_LIBS
+
+
+## R_PROG_RUST_MAKEFRAG
+## --------------------
+## Generate a Make fragment with suffix rules for the Rust compiler.
+# R_PROG_RUST_MAKEFRAG
+
+
+## R_PROG_RUST_SHLIB_MAKEFRAG
+## --------------------------
+## Generate Make fragment for Rust shared libraries (cdylib)
+# R_PROG_RUST_SHLIB_MAKEFRAG
 
 
 ### * Information on the package.
@@ -30874,7 +31010,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:30877: \"$ac_link\") >&5
+(eval echo $as_me:31013: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -30952,7 +31088,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:30955: \"$ac_link\") >&5
+(eval echo $as_me:31091: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -31645,15 +31781,22 @@ ac_config_commands="$ac_config_commands r_cxx_rules_frag"
 
 ### *** Rust compiler
 
-r_rust_rules_frag=Makefrag.rs
-r_rust_rules_frag=Makefrag.rs
 
 
 
-ac_config_commands="$ac_config_commands r_rust_rules_frag"
+
+# Check whether --enable-rust was given.
+if test ${enable_rust+y}
+then :
+  enableval=$enable_rust; want_rust=$enableval
+else case e in #(
+  e) want_rust=yes ;;
+esac
+fi
 
 
-# Extract the first word of "rustc", so it can be a program name with args.
+if test "x${want_rust}" = "xyes"; then
+  # Extract the first word of "rustc", so it can be a program name with args.
 set dummy rustc; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
@@ -31699,11 +31842,361 @@ printf "%s\n" "no" >&6; }
 fi
 
 
-if test -z "${RUSTC}"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: rustc not found: Rust sources will not be built" >&5
+  if test -z "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: rustc not found: Rust sources will not be built" >&5
 printf "%s\n" "$as_me: WARNING: rustc not found: Rust sources will not be built" >&2;}
-  RUSTC=:
+    RUSTC=:
+    HAVE_RUST=0
+  else
+    HAVE_RUST=1
+
+    # Check and report rustc version
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking rustc version" >&5
+printf %s "checking rustc version... " >&6; }
+    RUST_VERSION=`${RUSTC} --version 2>/dev/null | cut -d' ' -f2`
+    if test -n "${RUST_VERSION}"; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_VERSION}" >&5
+printf "%s\n" "${RUST_VERSION}" >&6; }
+
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
+printf "%s\n" "unknown" >&6; }
+      RUST_VERSION=unknown
+    fi
+
+    # Extract major.minor for comparison
+    RUST_VERSION_MAJOR=`echo ${RUST_VERSION} | cut -d. -f1`
+    RUST_VERSION_MINOR=`echo ${RUST_VERSION} | cut -d. -f2`
+
+
+
+    # Check for each edition (optional) - skip if fast-config enabled
+    if test "x${enable_fast_config}" = "xyes"; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: fast-config: assuming Rust 2021 edition support" >&5
+printf "%s\n" "$as_me: fast-config: assuming Rust 2021 edition support" >&6;}
+      RUST2015=yes
+      RUST2015STD="--edition=2015"
+      HAVE_RUST2015=1
+      RUST2018=yes
+      RUST2018STD="--edition=2018"
+      HAVE_RUST2018=1
+      RUST2021=yes
+      RUST2021STD="--edition=2021"
+      HAVE_RUST2021=1
+      RUST2024=no
+      RUST2024STD=""
+      HAVE_RUST2024=0
+      RUST_DEFAULT_EDITION=2021
+    else
+          ax_rust_compile_edition_2015_required=false
+  ac_success=no
+
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2015 edition" >&5
+printf %s "checking whether ${RUSTC} supports Rust 2015 edition... " >&6; }
+
+        cat > conftest.rs << '_ACEOF'
+
+// Rust 2015 edition test
+fn main() {
+    let x: i32 = 42;
+    println!("{}", x);
+}
+
+_ACEOF
+
+        if ${RUSTC} --edition=2015 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+      ac_success=yes
+      RUST2015=yes
+      RUST2015STD="--edition=2015"
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+      RUST2015=no
+      RUST2015STD=""
+    fi
+    rm -f conftest.rs conftest.rmeta
+  fi
+
+  if test x$ax_rust_compile_edition_2015_required = xtrue; then
+    if test x$ac_success = xno; then
+      as_fn_error $? "*** A Rust compiler with support for edition 2015 is required." "$LINENO" 5
+    fi
+  fi
+
+  if test x$ac_success = xno; then
+    HAVE_RUST2015=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2015 support was found" >&5
+printf "%s\n" "$as_me: No Rust compiler with edition 2015 support was found" >&6;}
+  else
+    HAVE_RUST2015=1
+  fi
+
+
+
+
+          ax_rust_compile_edition_2018_required=false
+  ac_success=no
+
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2018 edition" >&5
+printf %s "checking whether ${RUSTC} supports Rust 2018 edition... " >&6; }
+
+        cat > conftest.rs << '_ACEOF'
+
+// Rust 2018 edition test - uses 2018-specific module system
+// In 2018, 'dyn Trait' is required instead of bare 'Trait'
+fn takes_trait_object(_: &dyn std::fmt::Debug) {}
+
+fn main() {
+    let x = 42;
+    takes_trait_object(&x);
+}
+
+_ACEOF
+
+        if ${RUSTC} --edition=2018 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+      ac_success=yes
+      RUST2018=yes
+      RUST2018STD="--edition=2018"
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+      RUST2018=no
+      RUST2018STD=""
+    fi
+    rm -f conftest.rs conftest.rmeta
+  fi
+
+  if test x$ax_rust_compile_edition_2018_required = xtrue; then
+    if test x$ac_success = xno; then
+      as_fn_error $? "*** A Rust compiler with support for edition 2018 is required." "$LINENO" 5
+    fi
+  fi
+
+  if test x$ac_success = xno; then
+    HAVE_RUST2018=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2018 support was found" >&5
+printf "%s\n" "$as_me: No Rust compiler with edition 2018 support was found" >&6;}
+  else
+    HAVE_RUST2018=1
+  fi
+
+
+
+
+          ax_rust_compile_edition_2021_required=false
+  ac_success=no
+
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2021 edition" >&5
+printf %s "checking whether ${RUSTC} supports Rust 2021 edition... " >&6; }
+
+        cat > conftest.rs << '_ACEOF'
+
+// Rust 2021 edition test - uses 2021-specific features
+fn main() {
+    // IntoIterator for arrays is stable in 2021
+    let arr = [1, 2, 3];
+    for x in arr {
+        let _ = x;
+    }
+
+    // Disjoint capture in closures (2021 feature)
+    let s = (String::from("hello"), String::from("world"));
+    let c = || {
+        let _ = &s.0;  // Only captures s.0, not all of s
+    };
+    c();
+    let _ = s.1;  // s.1 is still accessible
+}
+
+_ACEOF
+
+        if ${RUSTC} --edition=2021 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+      ac_success=yes
+      RUST2021=yes
+      RUST2021STD="--edition=2021"
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+      RUST2021=no
+      RUST2021STD=""
+    fi
+    rm -f conftest.rs conftest.rmeta
+  fi
+
+  if test x$ax_rust_compile_edition_2021_required = xtrue; then
+    if test x$ac_success = xno; then
+      as_fn_error $? "*** A Rust compiler with support for edition 2021 is required." "$LINENO" 5
+    fi
+  fi
+
+  if test x$ac_success = xno; then
+    HAVE_RUST2021=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2021 support was found" >&5
+printf "%s\n" "$as_me: No Rust compiler with edition 2021 support was found" >&6;}
+  else
+    HAVE_RUST2021=1
+  fi
+
+
+
+
+          ax_rust_compile_edition_2024_required=false
+  ac_success=no
+
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2024 edition" >&5
+printf %s "checking whether ${RUSTC} supports Rust 2024 edition... " >&6; }
+
+        cat > conftest.rs << '_ACEOF'
+
+// Rust 2024 edition test
+// 2024 makes unsafe_op_in_unsafe_fn a hard error
+#![deny(unsafe_op_in_unsafe_fn)]
+
+unsafe fn unsafe_inner() {}
+
+unsafe fn unsafe_outer() {
+    // In 2024, must explicitly use unsafe block
+    unsafe { unsafe_inner(); }
+}
+
+fn main() {
+    unsafe { unsafe_outer(); }
+}
+
+_ACEOF
+
+        if ${RUSTC} --edition=2024 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+      ac_success=yes
+      RUST2024=yes
+      RUST2024STD="--edition=2024"
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+      RUST2024=no
+      RUST2024STD=""
+    fi
+    rm -f conftest.rs conftest.rmeta
+  fi
+
+  if test x$ax_rust_compile_edition_2024_required = xtrue; then
+    if test x$ac_success = xno; then
+      as_fn_error $? "*** A Rust compiler with support for edition 2024 is required." "$LINENO" 5
+    fi
+  fi
+
+  if test x$ac_success = xno; then
+    HAVE_RUST2024=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2024 support was found" >&5
+printf "%s\n" "$as_me: No Rust compiler with edition 2024 support was found" >&6;}
+  else
+    HAVE_RUST2024=1
+  fi
+
+
+
+
+
+      # Set default edition based on what's available
+      if test "x${RUST2021}" = "xyes"; then
+        RUST_DEFAULT_EDITION=2021
+      elif test "x${RUST2018}" = "xyes"; then
+        RUST_DEFAULT_EDITION=2018
+      else
+        RUST_DEFAULT_EDITION=2015
+      fi
+    fi
+
+
+    # Check for cargo (optional but useful)
+    # Extract the first word of "cargo", so it can be a program name with args.
+set dummy cargo; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_CARGO+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) case $CARGO in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_CARGO="$CARGO" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_CARGO="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac ;;
+esac
 fi
+CARGO=$ac_cv_path_CARGO
+if test -n "$CARGO"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $CARGO" >&5
+printf "%s\n" "$CARGO" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+    if test -z "${CARGO}"; then
+      CARGO=:
+      HAVE_CARGO=0
+    else
+      HAVE_CARGO=1
+    fi
+
+
+
+    # Get target triple
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking rustc target triple" >&5
+printf %s "checking rustc target triple... " >&6; }
+    RUST_TARGET=`${RUSTC} --version --verbose 2>/dev/null | grep "^host:" | cut -d' ' -f2`
+    if test -n "${RUST_TARGET}"; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_TARGET}" >&5
+printf "%s\n" "${RUST_TARGET}" >&6; }
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
+printf "%s\n" "unknown" >&6; }
+      RUST_TARGET=unknown
+    fi
+
+  fi
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Rust support disabled by user" >&5
+printf "%s\n" "$as_me: Rust support disabled by user" >&6;}
+  RUSTC=:
+  HAVE_RUST=0
+fi
+
+# Set up flags
 if test -z "${RUSTFLAGS}"; then
   RUSTFLAGS=""
 fi
@@ -31711,7 +32204,80 @@ if test -z "${RUSTPICFLAGS}"; then
   RUSTPICFLAGS="-C relocation-model=pic"
 fi
 
+# Optimization flags
+if test -z "${RUSTOPTFLAGS}"; then
+  RUSTOPTFLAGS="-C opt-level=2"
+fi
 
+# Debug flags
+if test -z "${RUSTDEBUGFLAGS}"; then
+  RUSTDEBUGFLAGS="-g -C opt-level=0"
+fi
+
+
+
+
+
+
+
+ if test "x${RUSTC}" != "x:"; then
+  BUILD_RUST_TRUE=
+  BUILD_RUST_FALSE='#'
+else
+  BUILD_RUST_TRUE='#'
+  BUILD_RUST_FALSE=
+fi
+
+ if test "x${RUSTC}" != "x:"; then
+  BUILD_RUST_TEST_TRUE=
+  BUILD_RUST_TEST_FALSE='#'
+else
+  BUILD_RUST_TEST_TRUE='#'
+  BUILD_RUST_TEST_FALSE=
+fi
+
+
+
+r_rust_rules_frag=Makefrag.rs
+r_rust_rules_frag=Makefrag.rs
+
+
+
+ac_config_commands="$ac_config_commands r_rust_rules_frag"
+
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Rust native static libs" >&5
+printf %s "checking for Rust native static libs... " >&6; }
+if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+  cat > conftest.rs << 'EOF'
+#[no_mangle]
+pub extern "C" fn rust_dummy() -> i32 { 0 }
+EOF
+  RUST_NATIVE_STATIC_LIBS=`${RUSTC} --crate-type=staticlib --print native-static-libs conftest.rs 2>&1 | grep "native-static-libs:" | sed 's/.*native-static-libs: //'`
+  rm -f conftest.rs libconftest.a
+  if test -n "${RUST_NATIVE_STATIC_LIBS}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_NATIVE_STATIC_LIBS}" >&5
+printf "%s\n" "${RUST_NATIVE_STATIC_LIBS}" >&6; }
+  else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: none detected" >&5
+printf "%s\n" "none detected" >&6; }
+    RUST_NATIVE_STATIC_LIBS=""
+  fi
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: rustc not available" >&5
+printf "%s\n" "rustc not available" >&6; }
+  RUST_NATIVE_STATIC_LIBS=""
+fi
+
+
+
+if test "x${RUST_DEFAULT_EDITION}" != "x"; then
+  RUST_EDITION_FLAG="--edition=${RUST_DEFAULT_EDITION}"
+else
+  RUST_EDITION_FLAG=""
+fi
 
 
 ## OpenMP selection has to come after dialect is chosen.
@@ -34983,7 +35549,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:34986: \"$ac_link\") >&5
+(eval echo $as_me:35552: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -35069,7 +35635,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:35072: \"$ac_link\") >&5
+(eval echo $as_me:35638: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -35760,13 +36326,22 @@ r_cxx_rules_frag=Makefrag.cxx
 
 ### *** Rust compiler
 
-r_rust_rules_frag=Makefrag.rs
-r_rust_rules_frag=Makefrag.rs
 
 
 
 
-# Extract the first word of "rustc", so it can be a program name with args.
+# Check whether --enable-rust was given.
+if test ${enable_rust+y}
+then :
+  enableval=$enable_rust; want_rust=$enableval
+else case e in #(
+  e) want_rust=yes ;;
+esac
+fi
+
+
+if test "x${want_rust}" = "xyes"; then
+  # Extract the first word of "rustc", so it can be a program name with args.
 set dummy rustc; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
@@ -35812,11 +36387,361 @@ printf "%s\n" "no" >&6; }
 fi
 
 
-if test -z "${RUSTC}"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: rustc not found: Rust sources will not be built" >&5
+  if test -z "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: rustc not found: Rust sources will not be built" >&5
 printf "%s\n" "$as_me: WARNING: rustc not found: Rust sources will not be built" >&2;}
-  RUSTC=:
+    RUSTC=:
+    HAVE_RUST=0
+  else
+    HAVE_RUST=1
+
+    # Check and report rustc version
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking rustc version" >&5
+printf %s "checking rustc version... " >&6; }
+    RUST_VERSION=`${RUSTC} --version 2>/dev/null | cut -d' ' -f2`
+    if test -n "${RUST_VERSION}"; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_VERSION}" >&5
+printf "%s\n" "${RUST_VERSION}" >&6; }
+
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
+printf "%s\n" "unknown" >&6; }
+      RUST_VERSION=unknown
+    fi
+
+    # Extract major.minor for comparison
+    RUST_VERSION_MAJOR=`echo ${RUST_VERSION} | cut -d. -f1`
+    RUST_VERSION_MINOR=`echo ${RUST_VERSION} | cut -d. -f2`
+
+
+
+    # Check for each edition (optional) - skip if fast-config enabled
+    if test "x${enable_fast_config}" = "xyes"; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: fast-config: assuming Rust 2021 edition support" >&5
+printf "%s\n" "$as_me: fast-config: assuming Rust 2021 edition support" >&6;}
+      RUST2015=yes
+      RUST2015STD="--edition=2015"
+      HAVE_RUST2015=1
+      RUST2018=yes
+      RUST2018STD="--edition=2018"
+      HAVE_RUST2018=1
+      RUST2021=yes
+      RUST2021STD="--edition=2021"
+      HAVE_RUST2021=1
+      RUST2024=no
+      RUST2024STD=""
+      HAVE_RUST2024=0
+      RUST_DEFAULT_EDITION=2021
+    else
+          ax_rust_compile_edition_2015_required=false
+  ac_success=no
+
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2015 edition" >&5
+printf %s "checking whether ${RUSTC} supports Rust 2015 edition... " >&6; }
+
+        cat > conftest.rs << '_ACEOF'
+
+// Rust 2015 edition test
+fn main() {
+    let x: i32 = 42;
+    println!("{}", x);
+}
+
+_ACEOF
+
+        if ${RUSTC} --edition=2015 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+      ac_success=yes
+      RUST2015=yes
+      RUST2015STD="--edition=2015"
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+      RUST2015=no
+      RUST2015STD=""
+    fi
+    rm -f conftest.rs conftest.rmeta
+  fi
+
+  if test x$ax_rust_compile_edition_2015_required = xtrue; then
+    if test x$ac_success = xno; then
+      as_fn_error $? "*** A Rust compiler with support for edition 2015 is required." "$LINENO" 5
+    fi
+  fi
+
+  if test x$ac_success = xno; then
+    HAVE_RUST2015=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2015 support was found" >&5
+printf "%s\n" "$as_me: No Rust compiler with edition 2015 support was found" >&6;}
+  else
+    HAVE_RUST2015=1
+  fi
+
+
+
+
+          ax_rust_compile_edition_2018_required=false
+  ac_success=no
+
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2018 edition" >&5
+printf %s "checking whether ${RUSTC} supports Rust 2018 edition... " >&6; }
+
+        cat > conftest.rs << '_ACEOF'
+
+// Rust 2018 edition test - uses 2018-specific module system
+// In 2018, 'dyn Trait' is required instead of bare 'Trait'
+fn takes_trait_object(_: &dyn std::fmt::Debug) {}
+
+fn main() {
+    let x = 42;
+    takes_trait_object(&x);
+}
+
+_ACEOF
+
+        if ${RUSTC} --edition=2018 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+      ac_success=yes
+      RUST2018=yes
+      RUST2018STD="--edition=2018"
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+      RUST2018=no
+      RUST2018STD=""
+    fi
+    rm -f conftest.rs conftest.rmeta
+  fi
+
+  if test x$ax_rust_compile_edition_2018_required = xtrue; then
+    if test x$ac_success = xno; then
+      as_fn_error $? "*** A Rust compiler with support for edition 2018 is required." "$LINENO" 5
+    fi
+  fi
+
+  if test x$ac_success = xno; then
+    HAVE_RUST2018=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2018 support was found" >&5
+printf "%s\n" "$as_me: No Rust compiler with edition 2018 support was found" >&6;}
+  else
+    HAVE_RUST2018=1
+  fi
+
+
+
+
+          ax_rust_compile_edition_2021_required=false
+  ac_success=no
+
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2021 edition" >&5
+printf %s "checking whether ${RUSTC} supports Rust 2021 edition... " >&6; }
+
+        cat > conftest.rs << '_ACEOF'
+
+// Rust 2021 edition test - uses 2021-specific features
+fn main() {
+    // IntoIterator for arrays is stable in 2021
+    let arr = [1, 2, 3];
+    for x in arr {
+        let _ = x;
+    }
+
+    // Disjoint capture in closures (2021 feature)
+    let s = (String::from("hello"), String::from("world"));
+    let c = || {
+        let _ = &s.0;  // Only captures s.0, not all of s
+    };
+    c();
+    let _ = s.1;  // s.1 is still accessible
+}
+
+_ACEOF
+
+        if ${RUSTC} --edition=2021 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+      ac_success=yes
+      RUST2021=yes
+      RUST2021STD="--edition=2021"
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+      RUST2021=no
+      RUST2021STD=""
+    fi
+    rm -f conftest.rs conftest.rmeta
+  fi
+
+  if test x$ax_rust_compile_edition_2021_required = xtrue; then
+    if test x$ac_success = xno; then
+      as_fn_error $? "*** A Rust compiler with support for edition 2021 is required." "$LINENO" 5
+    fi
+  fi
+
+  if test x$ac_success = xno; then
+    HAVE_RUST2021=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2021 support was found" >&5
+printf "%s\n" "$as_me: No Rust compiler with edition 2021 support was found" >&6;}
+  else
+    HAVE_RUST2021=1
+  fi
+
+
+
+
+          ax_rust_compile_edition_2024_required=false
+  ac_success=no
+
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2024 edition" >&5
+printf %s "checking whether ${RUSTC} supports Rust 2024 edition... " >&6; }
+
+        cat > conftest.rs << '_ACEOF'
+
+// Rust 2024 edition test
+// 2024 makes unsafe_op_in_unsafe_fn a hard error
+#![deny(unsafe_op_in_unsafe_fn)]
+
+unsafe fn unsafe_inner() {}
+
+unsafe fn unsafe_outer() {
+    // In 2024, must explicitly use unsafe block
+    unsafe { unsafe_inner(); }
+}
+
+fn main() {
+    unsafe { unsafe_outer(); }
+}
+
+_ACEOF
+
+        if ${RUSTC} --edition=2024 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+      ac_success=yes
+      RUST2024=yes
+      RUST2024STD="--edition=2024"
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+      RUST2024=no
+      RUST2024STD=""
+    fi
+    rm -f conftest.rs conftest.rmeta
+  fi
+
+  if test x$ax_rust_compile_edition_2024_required = xtrue; then
+    if test x$ac_success = xno; then
+      as_fn_error $? "*** A Rust compiler with support for edition 2024 is required." "$LINENO" 5
+    fi
+  fi
+
+  if test x$ac_success = xno; then
+    HAVE_RUST2024=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2024 support was found" >&5
+printf "%s\n" "$as_me: No Rust compiler with edition 2024 support was found" >&6;}
+  else
+    HAVE_RUST2024=1
+  fi
+
+
+
+
+
+      # Set default edition based on what's available
+      if test "x${RUST2021}" = "xyes"; then
+        RUST_DEFAULT_EDITION=2021
+      elif test "x${RUST2018}" = "xyes"; then
+        RUST_DEFAULT_EDITION=2018
+      else
+        RUST_DEFAULT_EDITION=2015
+      fi
+    fi
+
+
+    # Check for cargo (optional but useful)
+    # Extract the first word of "cargo", so it can be a program name with args.
+set dummy cargo; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_CARGO+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) case $CARGO in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_CARGO="$CARGO" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_CARGO="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac ;;
+esac
 fi
+CARGO=$ac_cv_path_CARGO
+if test -n "$CARGO"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $CARGO" >&5
+printf "%s\n" "$CARGO" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+    if test -z "${CARGO}"; then
+      CARGO=:
+      HAVE_CARGO=0
+    else
+      HAVE_CARGO=1
+    fi
+
+
+
+    # Get target triple
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking rustc target triple" >&5
+printf %s "checking rustc target triple... " >&6; }
+    RUST_TARGET=`${RUSTC} --version --verbose 2>/dev/null | grep "^host:" | cut -d' ' -f2`
+    if test -n "${RUST_TARGET}"; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_TARGET}" >&5
+printf "%s\n" "${RUST_TARGET}" >&6; }
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
+printf "%s\n" "unknown" >&6; }
+      RUST_TARGET=unknown
+    fi
+
+  fi
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Rust support disabled by user" >&5
+printf "%s\n" "$as_me: Rust support disabled by user" >&6;}
+  RUSTC=:
+  HAVE_RUST=0
+fi
+
+# Set up flags
 if test -z "${RUSTFLAGS}"; then
   RUSTFLAGS=""
 fi
@@ -35824,7 +36749,78 @@ if test -z "${RUSTPICFLAGS}"; then
   RUSTPICFLAGS="-C relocation-model=pic"
 fi
 
+# Optimization flags
+if test -z "${RUSTOPTFLAGS}"; then
+  RUSTOPTFLAGS="-C opt-level=2"
+fi
 
+# Debug flags
+if test -z "${RUSTDEBUGFLAGS}"; then
+  RUSTDEBUGFLAGS="-g -C opt-level=0"
+fi
+
+
+
+
+
+
+
+ if test "x${RUSTC}" != "x:"; then
+  BUILD_RUST_TRUE=
+  BUILD_RUST_FALSE='#'
+else
+  BUILD_RUST_TRUE='#'
+  BUILD_RUST_FALSE=
+fi
+
+ if test "x${RUSTC}" != "x:"; then
+  BUILD_RUST_TEST_TRUE=
+  BUILD_RUST_TEST_FALSE='#'
+else
+  BUILD_RUST_TEST_TRUE='#'
+  BUILD_RUST_TEST_FALSE=
+fi
+
+
+
+r_rust_rules_frag=Makefrag.rs
+r_rust_rules_frag=Makefrag.rs
+
+
+
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Rust native static libs" >&5
+printf %s "checking for Rust native static libs... " >&6; }
+if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+  cat > conftest.rs << 'EOF'
+#[no_mangle]
+pub extern "C" fn rust_dummy() -> i32 { 0 }
+EOF
+  RUST_NATIVE_STATIC_LIBS=`${RUSTC} --crate-type=staticlib --print native-static-libs conftest.rs 2>&1 | grep "native-static-libs:" | sed 's/.*native-static-libs: //'`
+  rm -f conftest.rs libconftest.a
+  if test -n "${RUST_NATIVE_STATIC_LIBS}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_NATIVE_STATIC_LIBS}" >&5
+printf "%s\n" "${RUST_NATIVE_STATIC_LIBS}" >&6; }
+  else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: none detected" >&5
+printf "%s\n" "none detected" >&6; }
+    RUST_NATIVE_STATIC_LIBS=""
+  fi
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: rustc not available" >&5
+printf "%s\n" "rustc not available" >&6; }
+  RUST_NATIVE_STATIC_LIBS=""
+fi
+
+
+
+if test "x${RUST_DEFAULT_EDITION}" != "x"; then
+  RUST_EDITION_FLAG="--edition=${RUST_DEFAULT_EDITION}"
+else
+  RUST_EDITION_FLAG=""
+fi
 
 
 ## OpenMP selection has to come after dialect is chosen.
@@ -71120,7 +72116,7 @@ printf "%s\n" "#define FC_VER \"${FC_VER}\"" >>confdefs.h
 
 ac_config_headers="$ac_config_headers src/include/config.h"
 
-ac_config_files="$ac_config_files Makeconf Makefile doc/Makefile doc/html/Makefile doc/manual/Makefile etc/Makefile etc/Makeconf etc/Renviron etc/javaconf etc/ldpaths m4/Makefile po/Makefile share/Makefile src/Makefile src/appl/Makefile src/extra/Makefile src/extra/blas/Makefile src/extra/intl/Makefile src/extra/tre/Makefile src/extra/tzone/Makefile src/extra/xdr/Makefile src/include/Makefile src/include/Rmath.h0 src/include/R_ext/Makefile src/library/Recommended/Makefile src/library/Makefile src/library/base/DESCRIPTION src/library/base/Makefile src/library/compiler/DESCRIPTION src/library/compiler/Makefile src/library/datasets/DESCRIPTION src/library/datasets/Makefile src/library/graphics/DESCRIPTION src/library/graphics/Makefile src/library/graphics/src/Makefile src/library/grDevices/DESCRIPTION src/library/grDevices/Makefile src/library/grDevices/src/Makefile src/library/grDevices/src/cairo/Makefile src/library/grid/DESCRIPTION src/library/grid/Makefile src/library/grid/src/Makefile src/library/methods/DESCRIPTION src/library/methods/Makefile src/library/methods/src/Makefile src/library/parallel/DESCRIPTION src/library/parallel/Makefile src/library/parallel/src/Makefile src/library/profile/Makefile src/library/stats/DESCRIPTION src/library/stats/Makefile src/library/stats/src/Makefile src/library/stats4/DESCRIPTION src/library/stats4/Makefile src/library/splines/DESCRIPTION src/library/splines/Makefile src/library/splines/src/Makefile src/library/tcltk/DESCRIPTION src/library/tcltk/Makefile src/library/tcltk/src/Makefile src/library/tools/DESCRIPTION src/library/tools/Makefile src/library/tools/src/Makefile src/library/translations/DESCRIPTION src/library/translations/Makefile src/library/utils/DESCRIPTION src/library/utils/Makefile src/library/utils/src/Makefile src/main/Makefile src/modules/Makefile src/modules/X11/Makefile src/modules/internet/Makefile src/modules/lapack/Makefile src/nmath/Makefile src/nmath/standalone/Makefile src/scripts/Makefile src/scripts/R.sh src/scripts/Rcmd src/scripts/javareconf src/scripts/mkinstalldirs src/scripts/pager src/scripts/rtags src/unix/Makefile tests/Makefile tests/Embedding/Makefile tests/Examples/Makefile tools/Makefile"
+ac_config_files="$ac_config_files Makeconf Makefile doc/Makefile doc/html/Makefile doc/manual/Makefile etc/Makefile etc/Makeconf etc/Renviron etc/javaconf etc/ldpaths m4/Makefile po/Makefile share/Makefile src/Makefile src/appl/Makefile src/extra/Makefile src/extra/blas/Makefile src/extra/intl/Makefile src/extra/tre/Makefile src/extra/tzone/Makefile src/extra/rust_test/Makefile src/extra/xdr/Makefile src/include/Makefile src/include/Rmath.h0 src/include/R_ext/Makefile src/library/Recommended/Makefile src/library/Makefile src/library/base/DESCRIPTION src/library/base/Makefile src/library/compiler/DESCRIPTION src/library/compiler/Makefile src/library/datasets/DESCRIPTION src/library/datasets/Makefile src/library/graphics/DESCRIPTION src/library/graphics/Makefile src/library/graphics/src/Makefile src/library/grDevices/DESCRIPTION src/library/grDevices/Makefile src/library/grDevices/src/Makefile src/library/grDevices/src/cairo/Makefile src/library/grid/DESCRIPTION src/library/grid/Makefile src/library/grid/src/Makefile src/library/methods/DESCRIPTION src/library/methods/Makefile src/library/methods/src/Makefile src/library/parallel/DESCRIPTION src/library/parallel/Makefile src/library/parallel/src/Makefile src/library/profile/Makefile src/library/stats/DESCRIPTION src/library/stats/Makefile src/library/stats/src/Makefile src/library/stats4/DESCRIPTION src/library/stats4/Makefile src/library/splines/DESCRIPTION src/library/splines/Makefile src/library/splines/src/Makefile src/library/tcltk/DESCRIPTION src/library/tcltk/Makefile src/library/tcltk/src/Makefile src/library/tools/DESCRIPTION src/library/tools/Makefile src/library/tools/src/Makefile src/library/translations/DESCRIPTION src/library/translations/Makefile src/library/utils/DESCRIPTION src/library/utils/Makefile src/library/utils/src/Makefile src/main/Makefile src/modules/Makefile src/modules/X11/Makefile src/modules/internet/Makefile src/modules/lapack/Makefile src/nmath/Makefile src/nmath/standalone/Makefile src/scripts/Makefile src/scripts/R.sh src/scripts/Rcmd src/scripts/javareconf src/scripts/mkinstalldirs src/scripts/pager src/scripts/rtags src/unix/Makefile tests/Makefile tests/Embedding/Makefile tests/Examples/Makefile tools/Makefile"
 
 
 ac_config_commands="$ac_config_commands copy-vars-mk"
@@ -71303,8 +72299,24 @@ if test -z "${COMPILE_FORTRAN_DOUBLE_COMPLEX_TRUE}" && test -z "${COMPILE_FORTRA
   as_fn_error $? "conditional \"COMPILE_FORTRAN_DOUBLE_COMPLEX\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${BUILD_RUST_TRUE}" && test -z "${BUILD_RUST_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_RUST\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${BUILD_RUST_TEST_TRUE}" && test -z "${BUILD_RUST_TEST_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_RUST_TEST\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${COMPILE_FORTRAN_DOUBLE_COMPLEX_TRUE}" && test -z "${COMPILE_FORTRAN_DOUBLE_COMPLEX_FALSE}"; then
   as_fn_error $? "conditional \"COMPILE_FORTRAN_DOUBLE_COMPLEX\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${BUILD_RUST_TRUE}" && test -z "${BUILD_RUST_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_RUST\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${BUILD_RUST_TEST_TRUE}" && test -z "${BUILD_RUST_TEST_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_RUST_TEST\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${DYLIB_UNDEFINED_ALLOWED_TRUE}" && test -z "${DYLIB_UNDEFINED_ALLOWED_FALSE}"; then
@@ -72471,6 +73483,7 @@ do
     "src/extra/intl/Makefile") CONFIG_FILES="$CONFIG_FILES src/extra/intl/Makefile" ;;
     "src/extra/tre/Makefile") CONFIG_FILES="$CONFIG_FILES src/extra/tre/Makefile" ;;
     "src/extra/tzone/Makefile") CONFIG_FILES="$CONFIG_FILES src/extra/tzone/Makefile" ;;
+    "src/extra/rust_test/Makefile") CONFIG_FILES="$CONFIG_FILES src/extra/rust_test/Makefile" ;;
     "src/extra/xdr/Makefile") CONFIG_FILES="$CONFIG_FILES src/extra/xdr/Makefile" ;;
     "src/include/Makefile") CONFIG_FILES="$CONFIG_FILES src/include/Makefile" ;;
     "src/include/Rmath.h0") CONFIG_FILES="$CONFIG_FILES src/include/Rmath.h0" ;;
@@ -74062,21 +75075,32 @@ fi
  ;;
     "r_rust_rules_frag":C)
 cat << 'EOF' > Makefrag.rs
+# Rust compilation rules
+# Crate types: staticlib (for linking into C), cdylib (for dynamic loading)
+# Note: ALL_RUSTFLAGS already includes RUST_EDITION_FLAG
+
 .rs.o:
 	@if test "x$(RUSTC)" = "x:"; then \
 	  $(ECHO) "rustc is not available but a Rust source was encountered: $<" 1>&2; \
 	  exit 1; \
 	fi
-	$(RUSTC) $(ALL_RUSTFLAGS) --emit=obj -o  $<
-EOF
-cat << 'EOF' >> Makefrag.rs
+	$(RUSTC) --crate-type=staticlib -C panic=abort $(ALL_RUSTFLAGS) --emit=dep-info,obj -o $@ $<
+
 .rs.d:
 	@if test "x$(RUSTC)" = "x:"; then \
 	  $(ECHO) "rustc is not available but a Rust source was encountered: $<" 1>&2; \
 	  exit 1; \
 	fi
-	@$(ECHO) "making  from $<"
-	@$(RUSTC) $(ALL_RUSTFLAGS) --emit=dep-info -o  $<
+	@$(ECHO) "making $@ from $<"
+	@$(RUSTC) --crate-type=staticlib -C panic=abort $(ALL_RUSTFLAGS) --emit=dep-info -o $@ $<
+
+# Rule for building Rust libraries (.rlib)
+.rs.rlib:
+	@if test "x$(RUSTC)" = "x:"; then \
+	  $(ECHO) "rustc is not available but a Rust source was encountered: $<" 1>&2; \
+	  exit 1; \
+	fi
+	$(RUSTC) --crate-type=rlib $(ALL_RUSTFLAGS) -o $@ $<
 EOF
  ;;
     "r_objc_rules_frag":C)

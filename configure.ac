@@ -40,6 +40,22 @@ AC_ARG_ENABLE([fast-config],
                   [skip optional feature/library checks and assume common defaults (experimental)])],
   [enable_fast_config="${enableval}"],
   [enable_fast_config=no])
+
+AC_ARG_ENABLE([debug],
+  [AS_HELP_STRING([--enable-debug],
+                  [build with debugging symbols and no optimization (-g -O0)])],
+  [enable_debug="${enableval}"],
+  [enable_debug=no])
+
+dnl Apply debug flags early so they affect all compiler checks
+if test "x${enable_debug}" = "xyes"; then
+  : ${CFLAGS="-g -O0 -UNDEBUG"}
+  : ${CXXFLAGS="-g -O0 -UNDEBUG"}
+  : ${FFLAGS="-g -O0"}
+  : ${FCFLAGS="-g -O0"}
+  AC_MSG_NOTICE([Debug mode enabled: using -g -O0 flags])
+fi
+
 AC_SUBST([top_builddir], ['${ac_top_builddir}'])
 AC_SUBST([top_srcdir],   ['${ac_top_srcdir}'])
 AC_SUBST([abs_top_builddir], ['${ac_abs_top_builddir}'])
@@ -47,6 +63,7 @@ AC_SUBST([abs_top_srcdir],  ['${ac_abs_top_srcdir}'])
 m4_include([m4/gettext.m4])
 m4_include([m4/gettext-lib.m4])
 m4_include([m4/codeset.m4])
+m4_include([m4/rust.m4])
 
 ### * Information on the package.
 
@@ -1225,21 +1242,22 @@ R_PROG_CXX_MAKEFRAG
 
 ### *** Rust compiler
 
+dnl Detect Rust compiler and check edition support (macros in m4/rust.m4)
+R_PROG_RUST
+
+dnl Generate Makefrag.rs
 R_PROG_RUST_MAKEFRAG
-AC_PATH_PROG([RUSTC], [rustc])
-if test -z "${RUSTC}"; then
-  AC_MSG_WARN([rustc not found: Rust sources will not be built])
-  RUSTC=:
+
+dnl Detect native static libs needed for linking Rust code
+R_RUST_NATIVE_STATIC_LIBS
+
+dnl Set default Rust edition flag for Makeconf
+if test "x${RUST_DEFAULT_EDITION}" != "x"; then
+  RUST_EDITION_FLAG="--edition=${RUST_DEFAULT_EDITION}"
+else
+  RUST_EDITION_FLAG=""
 fi
-if test -z "${RUSTFLAGS}"; then
-  RUSTFLAGS=""
-fi
-if test -z "${RUSTPICFLAGS}"; then
-  RUSTPICFLAGS="-C relocation-model=pic"
-fi
-AC_SUBST(RUSTC)
-AC_SUBST(RUSTFLAGS)
-AC_SUBST(RUSTPICFLAGS)
+AC_SUBST(RUST_EDITION_FLAG)
 
 ## OpenMP selection has to come after dialect is chosen.
 
@@ -3046,6 +3064,7 @@ AC_CONFIG_FILES(
   src/extra/intl/Makefile
   src/extra/tre/Makefile
   src/extra/tzone/Makefile
+  src/extra/rust_test/Makefile
   src/extra/xdr/Makefile
   src/include/Makefile
   src/include/Rmath.h0
