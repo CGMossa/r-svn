@@ -4854,6 +4854,10 @@ NEWS_HTML=
 if test "x${enable_html_docs}" = xyes; then
   DOC_HTML_SUBDIRS="html manual"
   NEWS_HTML="html/NEWS.html"
+  if test ! -f "${srcdir}/doc/html/resources.html"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: doc/html/resources.html is missing; HTML docs will install without it." >&5
+printf "%s\n" "$as_me: WARNING: doc/html/resources.html is missing; HTML docs will install without it." >&2;}
+  fi
 fi
 
 ENABLE_HTML_DOCS=${enable_html_docs}
@@ -30870,7 +30874,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:30873: \"$ac_link\") >&5
+(eval echo $as_me:30877: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -30948,7 +30952,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:30951: \"$ac_link\") >&5
+(eval echo $as_me:30955: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -34979,7 +34983,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:34982: \"$ac_link\") >&5
+(eval echo $as_me:34986: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -35065,7 +35069,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:35068: \"$ac_link\") >&5
+(eval echo $as_me:35072: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS

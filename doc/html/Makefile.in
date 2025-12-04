@@ -48,6 +48,8 @@ svnonly:
 	      $(INSTALL_DATA) $(srcdir)/$${f} . ; \
 	    done \
 	  fi \
+	else \
+	  $(ECHO) "warning: doc/html/resources.html not present; HTML install will omit it"; \
 	fi
 
 ## NB, not used on Windows, replaced by src/gnuwin32/fixed/html/rwin.html
@@ -60,7 +62,11 @@ install: svnonly install-message installdirs install-sources
 	  $(INSTALL_DATA) $${f} "$(DESTDIR)$(rdocdir)/html"; \
 	done
 	@for f in $(NON_SVN_INSTFILES); do \
-	  $(INSTALL_DATA) $${f} "$(DESTDIR)$(rdocdir)/html"; \
+	  if test -f "$${f}"; then \
+	    $(INSTALL_DATA) $${f} "$(DESTDIR)$(rdocdir)/html"; \
+	  else \
+	    $(ECHO) "warning: missing $${f}, skipping install"; \
+	  fi; \
 	done
 	@for d in $(INSTDIRS); do \
 	  cp -p -R $${d} "$(DESTDIR)$(rdocdir)/html"; \

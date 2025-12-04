@@ -171,6 +171,9 @@ NEWS_HTML=
 if test "x${enable_html_docs}" = xyes; then
   DOC_HTML_SUBDIRS="html manual"
   NEWS_HTML="html/NEWS.html"
+  if test ! -f "${srcdir}/doc/html/resources.html"; then
+    AC_MSG_WARN([doc/html/resources.html is missing; HTML docs will install without it.])
+  fi
 fi
 AC_SUBST(DOC_HTML_SUBDIRS)
 AC_SUBST(ENABLE_HTML_DOCS, ${enable_html_docs})
