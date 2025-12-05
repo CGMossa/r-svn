@@ -922,9 +922,7 @@ if test "${OBJC}" = gcc; then
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM(,[id foo;])],,[OBJC=''])
   AC_LANG_POP([Objective C])
 fi
-## Silence Obj-C probes entirely (R does not require Obj-C tooling here).
-OBJC=:
-OBJCFLAGS=
+## R needs ObjC for Aqua/Quartz support on macOS (qdCocoa.m in grDevices)
 ## deferred until C++ standard is chosen.
 dnl R_PROG_OBJCXX
 

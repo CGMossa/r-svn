@@ -255,8 +255,8 @@
 
 ## Objective-C(++), mainly for macOS
 ## On macOS, Apple clang with additional gcc flag -fobjc-exceptions
-OBJC=clang
-OBJCFLAGS="-g -O2 -fobjc-exceptions"
+## OBJC=
+## OBJCFLAGS=
 ## OBJC_LIBS-
 ## Objective-C compiler, usually the same as $CXX $CXXSTD
 ## OBJCXX=
