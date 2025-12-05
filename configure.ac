@@ -2248,7 +2248,7 @@ case "${host_os}" in
   if test "${ac_cv_have_decl_select}" = "no"; then
      AC_MSG_ERROR([Building R on Unix requires the 'select' system call])
   fi
-  if test "${ac_cv_header_sys_select_h}" = "no" -a "${ac_cv_header_sys_times_h} = "no""; then
+  if test "${ac_cv_header_sys_select_h}" = "no" -a "${ac_cv_header_sys_time_h}" = "no"; then
      AC_MSG_ERROR([Building R on Unix requires either <sys/select.h> or <sys/time.h>])
   fi
   ;;
