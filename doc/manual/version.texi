@@ -1,5 +1,0 @@
-@set VERSIONno 4.6.0
-@set VERSION 4.6.0 Under development
-@set RWVERSION R-devel
-@set RWTVERSION R-devel
-@afourpaper
