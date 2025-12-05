@@ -511,3 +511,62 @@
 
 ## The exception, looked for in /usr/xpg4/bin before the path
 ## SED=sed
+
+## ============================================================
+## Homebrew auto-detection (macOS)
+## ============================================================
+## Automatically set paths for Homebrew-installed dependencies.
+## This makes building R on macOS with Homebrew much easier.
+## To disable, run configure with --disable-site-config
+
+if test -z "${R_CONFIG_SITE_HOMEBREW_DONE}"; then
+  R_CONFIG_SITE_HOMEBREW_DONE=yes
+
+  # Detect Homebrew prefix (works on both Intel and Apple Silicon)
+  if command -v brew >/dev/null 2>&1; then
+    HOMEBREW_PREFIX="$(brew --prefix)"
+
+    # Core include/lib paths
+    : ${CPPFLAGS="${CPPFLAGS} -I${HOMEBREW_PREFIX}/include"}
+    : ${LDFLAGS="${LDFLAGS} -L${HOMEBREW_PREFIX}/lib"}
+
+    # PKG_CONFIG_PATH for libraries that need it
+    _pkg_paths=""
+    for _pkg in readline xz zstd icu4c libffi openssl@3; do
+      _dir="${HOMEBREW_PREFIX}/opt/${_pkg}/lib/pkgconfig"
+      if test -d "${_dir}"; then
+        _pkg_paths="${_pkg_paths}${_pkg_paths:+:}${_dir}"
+      fi
+    done
+    if test -n "${_pkg_paths}"; then
+      : ${PKG_CONFIG_PATH="${_pkg_paths}${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}"}
+      export PKG_CONFIG_PATH
+    fi
+
+    # Readline (keg-only, needs explicit paths)
+    _readline_prefix="${HOMEBREW_PREFIX}/opt/readline"
+    if test -d "${_readline_prefix}"; then
+      CPPFLAGS="${CPPFLAGS} -I${_readline_prefix}/include"
+      LDFLAGS="${LDFLAGS} -L${_readline_prefix}/lib"
+    fi
+
+    # xz/lzma (for connections.c)
+    _xz_prefix="${HOMEBREW_PREFIX}/opt/xz"
+    if test -d "${_xz_prefix}"; then
+      CPPFLAGS="${CPPFLAGS} -I${_xz_prefix}/include"
+      LDFLAGS="${LDFLAGS} -L${_xz_prefix}/lib"
+    fi
+
+    # gettext (keg-only)
+    _gettext_prefix="${HOMEBREW_PREFIX}/opt/gettext"
+    if test -d "${_gettext_prefix}"; then
+      CPPFLAGS="${CPPFLAGS} -I${_gettext_prefix}/include"
+      LDFLAGS="${LDFLAGS} -L${_gettext_prefix}/lib"
+    fi
+
+    # Export the accumulated flags
+    export CPPFLAGS LDFLAGS
+
+    unset _pkg_paths _pkg _dir _readline_prefix _xz_prefix _gettext_prefix
+  fi
+fi
