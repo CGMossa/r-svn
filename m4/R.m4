@@ -2691,16 +2691,20 @@ case "${with_blas}" in
   *) BLAS_LIBS="-l${with_blas}" ;;
 esac
 
+dnl Try pkg-config for BLAS first, fall through to library search if not found
 if test "${acx_blas_ok}" = no && test -z "${BLAS_LIBS}"; then
   PKG_CHECK_MODULES([OPENBLAS],[openblas],
     [acx_blas_ok=yes
      BLAS_LIBS="${OPENBLAS_LIBS}"
      CPPFLAGS="${CPPFLAGS} ${OPENBLAS_CFLAGS}"],
-    [PKG_CHECK_MODULES([REFBLAS],[blas],
-      [acx_blas_ok=yes
-       BLAS_LIBS="${REFBLAS_LIBS}"
-       CPPFLAGS="${CPPFLAGS} ${REFBLAS_CFLAGS}"],
-      [])])
+    [:])
+fi
+if test "${acx_blas_ok}" = no && test -z "${BLAS_LIBS}"; then
+  PKG_CHECK_MODULES([REFBLAS],[blas],
+    [acx_blas_ok=yes
+     BLAS_LIBS="${REFBLAS_LIBS}"
+     CPPFLAGS="${CPPFLAGS} ${REFBLAS_CFLAGS}"],
+    [:])
 fi
 
 if test "${r_cv_prog_fc_append_underscore}" = yes; then
