@@ -126,7 +126,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 
 Makedeps: Makefile Copy ../../include/Rconfig.h
 	@$(MAKE) $(DEPENDS)
-	@cat $(DEPENDS) | $(SED) -e 's/^\([^:]*\)\.o\([ 	]\)*:/\1.o \1.lo\2:/' >> Makefile
+	@cat $(filter %.d,$^) | $(SED) -e 's/^\([^:]*\)\.o\([ 	]\)*:/\1.o \1.lo\2:/' >> Makefile
 	@touch $@
 
 libRmath.a: $(libRmath_a_OBJECTS)

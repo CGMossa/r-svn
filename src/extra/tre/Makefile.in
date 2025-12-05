@@ -43,7 +43,7 @@ Makefile: $(srcdir)/Makefile.in \
 	@cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 Makedeps: Makefile $(DEPENDS)
-	@cat $(DEPENDS) >> Makefile
+	@cat $(filter %.d,$^) >> Makefile
 	@touch $@
 
 R: Makefile @BUILD_TRE_TRUE@

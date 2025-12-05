@@ -37,9 +37,11 @@ DISTCLEANFILES = Makefile Rmath.h0 config.h stamp-h
 .SUFFIXES: .h .ts .tsa
 
 .h.ts:
+	@$(MKINSTALLDIRS) $(top_builddir)/include
 	@$(INSTALL_DATA) $< $(top_builddir)/include/`basename $<`
 	@touch $@
 .h.tsa:
+	@$(MKINSTALLDIRS) $(top_builddir)/include@R_ARCH@
 	@$(INSTALL_DATA) $< $(top_builddir)/include@R_ARCH@/`basename $<`
 	@touch $@
 

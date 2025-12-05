@@ -29,7 +29,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 Makedeps: Makefile $(DEPENDS)
-	@cat $(DEPENDS) >> Makefile
+	@cat $(filter %.d,$^) >> Makefile
 	@touch $@
 
 shlib: $(SHLIB)
