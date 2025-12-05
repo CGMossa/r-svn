@@ -26,6 +26,7 @@
 | --enable-BLAS-shlib | Split BLAS into shared lib | unset | configure.ac:318 |
 | --enable-maintainer-mode | Extra maintainer rules | no | configure.ac:332 |
 | --enable-strict-barrier | Compile-time write-barrier traps | no | configure.ac:340 |
+| --enable-strict-warnings | Enable strict compiler warnings (-Wall -Wextra -Wpedantic -Wshadow -Wconversion etc.) | no | configure.ac:415 |
 | --enable-prebuilt-html | Prebuild static HTML help | no | configure.ac:352 |
 | --enable-lto | Link-time optimisation | no | configure.ac:358 |
 | --enable-java | Java/JNI support | yes | configure.ac:409 |

@@ -411,6 +411,13 @@ if test x"${use_strict_barrier}" = xyes; then
              violation.])
 fi
 
+## Enable strict compiler warnings for code quality.
+AC_ARG_ENABLE([strict-warnings],
+[AS_HELP_STRING([--enable-strict-warnings],[enable strict compiler warnings for code quality
+                 @<:@no@:>@])],
+[use_strict_warnings="${enableval}"],
+[use_strict_warnings=no])
+
 AC_ARG_ENABLE([prebuilt-html],
 [AS_HELP_STRING([--enable-prebuilt-html],[build static HTML help pages @<:@no@:>@])],
 [want_prebuilt_html="${enableval}"],
@@ -1328,6 +1335,36 @@ R_XTRA_CPPFLAGS=
 R_XTRA_CXXFLAGS=
 R_XTRA_FFLAGS=
 R_XTRA_LIBS=
+
+## Add strict warning flags if requested (GCC/Clang only)
+if test x"${use_strict_warnings}" = xyes; then
+  if test "${GCC}" = yes; then
+    AC_MSG_NOTICE([enabling strict compiler warnings])
+    ## Core warnings
+    R_PROG_CC_FLAG([-Wall],
+                   R_SH_VAR_ADD(R_XTRA_CFLAGS, [-Wall]))
+    R_PROG_CC_FLAG([-Wextra],
+                   R_SH_VAR_ADD(R_XTRA_CFLAGS, [-Wextra]))
+    R_PROG_CC_FLAG([-Wpedantic],
+                   R_SH_VAR_ADD(R_XTRA_CFLAGS, [-Wpedantic]))
+    ## Code quality warnings
+    R_PROG_CC_FLAG([-Wshadow],
+                   R_SH_VAR_ADD(R_XTRA_CFLAGS, [-Wshadow]))
+    R_PROG_CC_FLAG([-Wconversion],
+                   R_SH_VAR_ADD(R_XTRA_CFLAGS, [-Wconversion]))
+    R_PROG_CC_FLAG([-Wdouble-promotion],
+                   R_SH_VAR_ADD(R_XTRA_CFLAGS, [-Wdouble-promotion]))
+    R_PROG_CC_FLAG([-Wimplicit-fallthrough],
+                   R_SH_VAR_ADD(R_XTRA_CFLAGS, [-Wimplicit-fallthrough]))
+    ## Suppress noisy warnings that are common in R codebase
+    R_PROG_CC_FLAG([-Wno-unused-parameter],
+                   R_SH_VAR_ADD(R_XTRA_CFLAGS, [-Wno-unused-parameter]))
+    R_PROG_CC_FLAG([-Wno-unused-function],
+                   R_SH_VAR_ADD(R_XTRA_CFLAGS, [-Wno-unused-function]))
+  else
+    AC_MSG_WARN([--enable-strict-warnings requires GCC or Clang])
+  fi
+fi
 
 dnl This was for glibc 2.1
 dnl case "${host_cpu}" in
@@ -3333,6 +3370,9 @@ if test "${use_maintainer_mode}" = yes; then
 fi
 if test "${use_strict_barrier}" = yes; then
   R_SH_VAR_ADD(r_options, [strict barrier], [, ])
+fi
+if test "${use_strict_warnings}" = yes; then
+  R_SH_VAR_ADD(r_options, [strict warnings], [, ])
 fi
 if test "${want_prebuilt_html}" = yes; then
   R_SH_VAR_ADD(r_options, [static HTML], [, ])

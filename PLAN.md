@@ -43,6 +43,11 @@
   - `build-svn.yaml`: Fixed macOS artifact upload to use `${{ env.ARCH }}` instead of hardcoded architecture
   - Linux builds (ubuntu-22.04, ubuntu-24.04, ubuntu-24.04-arm) now passing
   - Windows and macOS builds in progress
+- **Added `--enable-strict-warnings` configure option** for code quality:
+  - Enables `-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wdouble-promotion -Wimplicit-fallthrough`
+  - Suppresses `-Wno-unused-parameter -Wno-unused-function` to reduce noise
+  - GCC/Clang only, checks each flag for compiler support
+  - Useful for code quality audits and modernization
 
 ## Next
 
