@@ -64,9 +64,6 @@ R.sh: $(srcdir)/R.sh.in $(top_builddir)/config.status
 	@cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 	@chmod +x $@
 
-$(top_builddir)/libtool:
-	@(cd $(@D); $(MAKE) $(@F))
-
 install: installdirs install-cmds
 	@rm -f $(DESTDIR)$(bindir)/R
 	@(d=`$(ECHO) '$(rhome)' | sed 's,/,\\\/,g';`; \
@@ -92,12 +89,11 @@ install-cmds:
 	@for f in $(SCRIPTS_B); do \
 	  $(INSTALL_SCRIPT) $${f} "$(DESTDIR)$(Rexecbindir)"; \
 	done
-	@$(INSTALL_SCRIPT) $(top_builddir)/libtool "$(DESTDIR)$(Rexecbindir)"
 ## there are no programs to install in this dir
 install-strip:
 	@$(MAKE) INSTALL_PROGRAM="${INSTALL_PROGRAM} -s" install
 uninstall:
-	@for f in $(SCRIPTS_S) $(SCRIPTS_B) libtool R; do \
+	@for f in $(SCRIPTS_S) $(SCRIPTS_B) R; do \
 	  rm -f "$(DESTDIR)$(Rexecbindir)/$${f}"; \
 	done
 	@rm -f $(DESTDIR)$(bindir)/R

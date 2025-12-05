@@ -18,6 +18,18 @@
 - `--disable-site-config` now also removes the default user library path (`~/Library/...`) so sandboxed `.libPaths()` stays within the temp prefix.
 - New `--disable-html-docs` switch (and `HTML_DOCS=no` env toggle in justfile) skips building/installing HTML manuals/NEWS, silencing texi2any/resources warnings during fast sandbox builds.
 - Streamlined `tools/rsync-recommended` (mktemp, cleaner path handling) and added VS Code file associations for Makefile-like infiles.
+- **Removed libtool dependency entirely.** R already had its own complete shared library detection (SHLIB_LD, SHLIB_LDFLAGS, CPICFLAGS, etc.) and never actually used libtool for building. Changes:
+  - Removed `LT_INIT([disable-static])` from configure.ac
+  - Replaced `LT_LIB_M` with inline LIBM detection (checks `-lm` on non-Darwin/Cygwin)
+  - Added default `wl="-Wl,"`, `shlibpath_var`, `striplib`/`old_striplib` platform detection
+  - Removed `LIBTOOL` variable from both Makeconf.in files
+  - Removed libtool installation from src/scripts/Makefile.in
+  - Removed libtool build rule and deps from root Makefile.in
+  - Deleted 5 m4 files: libtool.m4, ltoptions.m4, ltsugar.m4, ltversion.m4, lt~obsolete.m4 (~13k lines)
+  - Deleted tools/ltmain.sh (~11k lines) - the libtool script template
+  - Removed `AC_REQUIRE([LT_INIT])` from m4/R.m4 (R_INTERNAL_XDR_USABLE macro)
+  - No libtool script generated (~364KB savings per build)
+  - Configure output is significantly quieter (no libtool probes for C/C++/Fortran)
 
 ## Next
 

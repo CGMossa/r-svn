@@ -63,7 +63,6 @@ LIBR = @LIBR0@ @LIBR1@
 ## -lrt -ldl on Linux, -lnsl -lsocket -lrt -lsunmath -ldl -liconv on Solaris.
 LIBS = @LIBS@
 LIBnn = @LIBnn@
-LIBTOOL = @LIBTOOL@
 ## AFAICS unused
 LN_S = @LN_S@
 MAIN_CFLAGS = @MAIN_CFLAGS@

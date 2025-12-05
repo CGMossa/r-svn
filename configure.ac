@@ -592,16 +592,6 @@ AC_ARG_WITH([internal-wcwidth],
 [use_internal_wcwidth=${withval}],
 [use_internal_wcwidth=yes])
 
-## <FIXME>
-## Completely disable using libtool for building shlibs until libtool
-## fully supports Fortran and C++.
-## AC_ARG_WITH([libtool],
-## [AS_HELP_STRING([--with-libtool],[use libtool for building shared libraries @<:@yes@:>@])],
-## [use_libtool="${withval}"],
-## [use_libtool=yes])
-## AM_CONDITIONAL(USE_LIBTOOL, [test "x${use_libtool}" = xyes])
-## </FIXME>
-
 ## Recommended R packages.
 AC_ARG_WITH([recommended-packages],
 [AS_HELP_STRING([--with-recommended-packages],[use/install recommended R packages @<:@yes@:>@])],
@@ -982,12 +972,33 @@ AC_SUBST(C99FLAGS)
 CC=${CC_save}
 CFLAGS=${CFLAGS_save}
 
-## Libtool.
-## (Run this after selecting the Fortran compiler as LT_INIT
-## checks for a Fortran 77 compiler and sets F77 accordingly.)
-: ${lt_cv_sys_max_cmd_len=65536}
-LT_INIT([disable-static])
-AC_SUBST(LIBTOOL_DEPS)
+## Shared library support.
+## R has its own shared library detection (SHLIB_LD, SHLIB_LDFLAGS, etc.)
+## and does not use libtool for building. We only need a few variables
+## that libtool used to provide.
+
+## shlibpath_var: name of environment variable for shared library path
+## (only used as fallback for systems not explicitly handled below)
+case "${host_os}" in
+  hpux*)
+    shlibpath_var=SHLIB_PATH
+    ;;
+  *)
+    shlibpath_var=LD_LIBRARY_PATH
+    ;;
+esac
+
+## Strip commands for shared and static libraries
+case "${host_os}" in
+  darwin*)
+    striplib='strip -x'
+    old_striplib='strip -S'
+    ;;
+  *)
+    striplib='strip --strip-unneeded'
+    old_striplib='strip --strip-debug'
+    ;;
+esac
 
 ### * Checks for libraries.
 
@@ -1026,9 +1037,7 @@ esac
 
 ## Record name of environment variable which tells the dynamic linker
 ## where to find shlibs (typically, 'LD_LIBRARY_PATH').
-## Used in etc/ldpaths: As from R 3.0.0 override what libtool thinks on macOS
-## http://hublog.hubmed.org/archives/001192.html suggests this was in 10.4
-## However, as from 10.11 this variable is not passed down to shells.
+## As from 10.11, DYLD_LIBRARY_PATH is not passed down to shells.
 case "${host_os}" in
   darwin*)
     Rshlibpath_var=DYLD_FALLBACK_LIBRARY_PATH
@@ -1056,14 +1065,19 @@ AC_SUBST(Rshlibpath_var)
 AC_SUBST(STRIP_SHARED_LIB)
 AC_SUBST(STRIP_STATIC_LIB)
 
-## <NOTE>
-## This actually comes from libtool.m4.
-LT_LIB_M
+## Check for math library (-lm).
+## Some systems (Darwin, Cygwin, Windows) have it in libc.
+LIBM=
+case "${host_os}" in
+  darwin* | cygwin* | mingw* | pw32*)
+    # These systems don't need -lm
+    ;;
+  *)
+    AC_CHECK_LIB([m], [cos], [LIBM=-lm])
+    ;;
+esac
 AC_SUBST(LIBM)
-## </NOTE>
-## LT_LIB_M computes LIBM but does not add to LIBS, hence we do
-## the following as well.
-## This gives: 'sin' is a builtin with type 'double (double)'
+## Also check for sin to add -lm to LIBS if needed
 AC_CHECK_LIB(m, sin)
 AC_CHECK_LIB(dl, dlopen)
 
@@ -1492,6 +1506,8 @@ shlib_cxxld="${CXX}"
 : ${SHLIB_EXT=".so"}
 SHLIB_LIBADD=
 use_exportfiles=no
+## Default linker flag prefix (most systems use -Wl,)
+wl="-Wl,"
 
 ## Step 1.  Ask imake.
 r_xtra_path="${PATH}"
@@ -1603,8 +1619,7 @@ case "${host_os}" in
     fpicflags=
     ## not clear if this is correct for native compilers
     wl="-Wl,"
-    ## libtool suggests that ia64 needs -Bexport and not -brtl
-    ## but we have no confirmation.
+    ## ia64 may need -Bexport and not -brtl, but we have no confirmation.
     dylib_undefined_allowed=no
     ##ADD: A symbol of memcpy,memset is exported in libR by expall.
     ##ADD: However, for example, symbol in libc of memcpy is __memmove,__memmove64.
@@ -1794,10 +1809,8 @@ dnl     ;;
     fi
     ;;
   openbsd*)
-    ## ${wl} is defined by libtool configuration code.
     ## Both -Wl,-export-dynamic and -Wl,--export-dynamic seem to
     ## work with the GNU linker, but the second is what is documented.
-    ## libtool seems to use -Wl-E , a GNU ld alias of -Wl,--export-dynamic
     if test -z "`echo __ELF__ | $CC -E - | grep __ELF__`"; then
       main_ldflags="${wl}-export-dynamic"
       shlib_ldflags="-shared -fPIC"
@@ -1866,19 +1879,7 @@ dnl     ;;
     ;;
 esac
 
-## <FIXME>
-## Completely disable using libtool for building shlibs until libtool
-## fully supports at least Fortran and C++.
-## ## Step 4.  In case we use libtool ...
-## if test "${use_libtool}" = yes; then
-##   case "${host_os}" in
-##     *)
-##       ;;
-##   esac
-## fi
-## </FIXME>
-
-## Step 5.  Overrides from the environment and error checking.
+## Step 4.  Overrides from the environment and error checking.
 if test -z "${MAIN_LD}"; then
    main_ld_was_given=no
   if test "${main_ld}" = "${CC}"; then

@@ -38,7 +38,6 @@ ACINCLUDE_DEPENDENCIES = \
 	m4/codeset.m4 \
 	m4/cxx.m4 \
 	m4/gettext.m4 m4/gettext-lib.m4 \
-	m4/libtool.m4 m4/ltoptions.m4 m4/ltversion.m4 m4/ltsugar.m4 m4/lt~obsolete.m4 \
 	m4/openmp.m4 \
 	m4/stat-time.m4
 CONFIGURE_DEPENDENCIES = $(srcdir)/VERSION
@@ -50,10 +49,6 @@ $(ACLOCAL_M4): $(srcdir)/configure.ac acinclude.m4
 	@BD=`pwd`; cd $(srcdir) && $(ACLOCAL) --output=$${BD}/$@ -I $${BD}
 acinclude.m4: $(srcdir)/configure.ac $(ACINCLUDE_DEPENDENCIES)
 	@(cd $(srcdir) && cat $(ACINCLUDE_DEPENDENCIES)) > $@
-
-LIBTOOL_DEPS = @LIBTOOL_DEPS@
-libtool: $(LIBTOOL_DEPS)
-	$(SHELL) ./config.status --recheck
 
 R: Makefile
 	@if test "$(BUILDDIR_IS_SRCDIR)" = no ; then \
@@ -142,7 +137,7 @@ distclean: clean
 	fi
 	-@rm -Rf libconftest.dSYM
 	-@rm -f Makeconf Makefile Makefile.bak Makefrag.* \
-	  config.cache config.log config.status libtool stamp-java \
+	  config.cache config.log config.status stamp-java \
 	  $(ACLOCAL_M4) acinclude.m4 $(distdir).tar.gz
 ## left behind by the Intel compilers from configuring.
 	-@rm -f *.f90 *.mod

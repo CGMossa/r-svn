@@ -23,7 +23,6 @@ DISTFILES = README \
 	install-sh \
 	ldAIX4 \
 	link-recommended \
-	ltmain.sh \
 	mdate-sh \
 	missing \
 	move-if-change \
