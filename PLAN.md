@@ -37,6 +37,12 @@
   - Guard variable `R_CONFIG_SITE_HOMEBREW_DONE` prevents double-loading when config.site is sourced twice
   - Can be disabled with `--disable-site-config` configure flag
   - R now builds out-of-the-box on macOS with Homebrew without manual CPPFLAGS/LDFLAGS
+- **Fixed GitHub Actions CI workflows**:
+  - `justfile-ci.yaml`: Added step to relink Homebrew packages after cache restore (fixes `just: command not found`)
+  - `justfile-ci.yaml`: Added `$(brew --prefix)/bin` to `$GITHUB_PATH` after installing just
+  - `build-svn.yaml`: Fixed macOS artifact upload to use `${{ env.ARCH }}` instead of hardcoded architecture
+  - Linux builds (ubuntu-22.04, ubuntu-24.04, ubuntu-24.04-arm) now passing
+  - Windows and macOS builds in progress
 
 ## Next
 

@@ -1,0 +1,8 @@
+R = https://CRAN.R-project.org/doc/manuals
+R-FAQ mono ${R}/R-FAQ.html
+R-admin mono ${R}/R-admin.html
+R-data mono ${R}/R-data.html
+R-exts mono ${R}/R-exts.html
+R-intro mono ${R}/R-intro.html
+R-ints mono ${R}/R-ints.html
+R-lang mono ${R}/R-lang.html

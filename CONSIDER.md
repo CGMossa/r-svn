@@ -20,48 +20,6 @@ This document tracks potential improvements and items for future investigation.
 
 ---
 
-## Deprecated Libtool Macros
-
-The following macros from `m4/libtool.m4` are deprecated (defined via `AU_DEFUN`) and should be migrated to their modern equivalents if still used:
-
-| Deprecated Macro | Modern Replacement |
-|-----------------|-------------------|
-| `AC_LIBTOOL_CXX` | `LT_LANG([CXX])` |
-| `AC_LIBTOOL_F77` | `LT_LANG([F77])` |
-| `AC_LIBTOOL_FC` | `LT_LANG([FC])` |
-| `AC_LIBTOOL_GCJ` | `LT_LANG([GCJ])` |
-| `AC_LIBTOOL_RC` | `LT_LANG([RC])` |
-| `AC_LIBTOOL_DLOPEN` | `LT_INIT([dlopen])` |
-| `AC_LIBTOOL_WIN32_DLL` | `LT_INIT([win32-dll])` |
-| `AC_LIBTOOL_PICMODE` | N/A (obsolete) |
-| `AM_ENABLE_SHARED` | `LT_INIT` with `--enable-shared` |
-| `AM_DISABLE_SHARED` | `LT_INIT` with `--disable-shared` |
-| `AM_ENABLE_STATIC` | `LT_INIT` with `--enable-static` |
-| `AM_DISABLE_STATIC` | `LT_INIT` with `--disable-static` |
-| `AC_ENABLE_FAST_INSTALL` | `LT_INIT` options |
-| `AC_DISABLE_FAST_INSTALL` | `LT_INIT` options |
-
-**Status**: ✅ Audited. Results:
-
-- `configure.ac`: Clean - uses `LT_INIT([disable-static])` (not deprecated `AC_DISABLE_STATIC`)
-- `m4/R.m4`: Fixed `AC_TRY_LINK_FUNC` → `AC_LINK_IFELSE([AC_LANG_CALL(...)])` (2 occurrences)
-- `m4/libtool.m4`: Contains deprecated macros (`AC_LANG_SAVE`, `AS_SHELL_SANITIZE`) but this is the standard libtool distribution file - **do not modify**
-
-### Other Deprecated Macros (Not Used)
-
-| Macro | Status |
-|-------|--------|
-| `AC_FOREACH` | Not used (alias of `m4_foreach_w`) |
-| `AS_SHELL_SANITIZE` | Only in libtool.m4 (standard file) |
-| `AC_TRY_LINK` | Not used; fixed `AC_TRY_LINK_FUNC` |
-| `AC_TRY_COMPILE` | Not used |
-| `AC_TRY_RUN` | Not used |
-| `AC_TRY_CPP` | Not used |
-
-**Note**: `AS_INIT` is automatically called by `AC_INIT`, so no explicit invocation needed.
-
----
-
 ## m4 Macro Audit Results
 
 ### Unused Macros
@@ -83,23 +41,6 @@ The following macros from `m4/libtool.m4` are deprecated (defined via `AU_DEFUN`
 | `m4/clibs.m4` | Library linking (AC_LIB_*) | Active |
 | `m4/gettext.m4` | GNU gettext/NLS | Active (when NLS enabled) |
 | `m4/gettext-lib.m4` | Gettext library detection | Active (when NLS enabled) |
-| `m4/libtool.m4` | Libtool support | Standard - do not modify |
-| `m4/ltoptions.m4` | Libtool options | Internal |
-| `m4/ltsugar.m4` | Libtool helper macros | Internal |
-| `m4/ltversion.m4` | Libtool version info | Internal |
-| `m4/lt~obsolete.m4` | Deprecated libtool macros | Compatibility only |
-
----
-
-## Autoconf Warning
-
-```text
-configure.ac: warning: AC_REQUIRE: 'AC_FC_LIBRARY_LDFLAGS' was expanded before it was required
-```
-
-**Root cause**: `LT_INIT` internally calls `AC_FC_LIBRARY_LDFLAGS` before `R_PROG_FC_APPEND_UNDERSCORE` (which uses `AC_FC_WRAPPERS`) runs. This is an ordering issue inside autoconf/libtool internals.
-
-**Status**: ⚠️ Cannot fix without patching autoconf. The warning is harmless - `AC_FC_LIBRARY_LDFLAGS` has already been expanded by the time it's "required", so the check succeeds. This is a cosmetic warning only.
 
 ---
 

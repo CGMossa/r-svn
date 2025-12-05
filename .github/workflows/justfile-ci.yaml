@@ -51,6 +51,8 @@ jobs:
       - name: Install just
         run: |
           brew install just
+          # Link just in case it was installed but not linked from cache
+          brew link --overwrite just 2>/dev/null || true
           # Ensure just is in PATH for subsequent steps
           echo "$(brew --prefix)/bin" >> $GITHUB_PATH
 
