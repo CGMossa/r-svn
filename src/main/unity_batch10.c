@@ -1,5 +1,5 @@
-/* Unity build batch 4 - auto-generated */
-/* 16 files - conflict-aware grouping */
+/* Unity build batch 10 - auto-generated */
+/* 1 files - conflict-aware grouping */
 /* Regenerate with: tools/make-unity-smart.sh */
 
 #ifdef HAVE_CONFIG_H
@@ -21,19 +21,4 @@
 /* Note: pmatch is #defined to Rf_pmatch in Rinternals.h */
 Rboolean Rf_pmatch(SEXP, SEXP, Rboolean);
 
-#include "altclasses.c"
-#include "character.c"
-#include "dcf.c"
-#include "envir.c"
-#include "format.c"
-#include "gram.c"
-#include "lapack.c"
-#include "main.c"
-#include "mapply.c"
-#include "qsort.c"
-#include "random.c"
-#include "source.c"
-#include "subset.c"
-#include "summary.c"
-#include "sysutils.c"
-#include "unique.c"
+#include "saveload.c"

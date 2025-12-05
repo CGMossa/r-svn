@@ -20,7 +20,9 @@ trap 'rm -f "$CONFLICT_FILE"* "$BATCH_FILE"*' EXIT
 # RNG.c defines "#define long Int32" (Knuth license prohibits changes)
 # dounzip.c defines "#define local static" (zlib compatibility)
 # agrep.c does "#undef pmatch" which breaks other files
-ISOLATE_FILES="RNG.c dounzip.c agrep.c"
+# radixsort.c defines "#define warning(...) Do not use warning" - breaks all other files
+# memory.c provides external linkage versions of inline functions (STRING_ELT etc)
+ISOLATE_FILES="RNG.c dounzip.c agrep.c radixsort.c memory.c"
 
 # Write known conflicts (files that cannot be in same batch)
 cat > "$CONFLICT_FILE" << 'EOF'
@@ -82,6 +84,20 @@ connections.c Renviron.c
 connections.c gram.c
 eval.c gram.c
 builtin.c eval.c
+# More macro conflicts from unity compilation round 2
+duplicate.c memory.c
+coerce.c memory.c
+complex.c qsort.c
+engine.c random.c
+arithmetic.c sort.c
+# More conflicts from unity compilation round 3
+subassign.c subset.c
+arithmetic.c summary.c
+platform.c sysutils.c
+# More conflicts from unity compilation round 4
+memory.c unique.c
+altclasses.c sort.c
+sort.c summary.c
 EOF
 
 # Check if a file must be isolated
@@ -166,34 +182,47 @@ while [ $b -le $batch_num ]; do
 
     unity_file="$OUTPUT_DIR/unity_batch${b}.c"
 
-    {
-        echo "/* Unity build batch $b - auto-generated */"
-        echo "/* $count files - conflict-aware grouping */"
-        echo "/* Regenerate with: tools/make-unity-smart.sh */"
-        echo ""
-        echo "#ifdef HAVE_CONFIG_H"
-        echo "#include <config.h>"
-        echo "#endif"
-        echo ""
-        echo "/* Enable all features needed by source files */"
-        echo "#define R_USE_SIGNALS 1"
-        echo "#define NEED_CONNECTION_PSTREAMS 1"
-        echo "#ifndef Win32"
-        echo "#define Unix 1"
-        echo "#endif"
-        echo "#define R_INTERFACE_PTRS 1"
-        echo "#include <Defn.h>"
-        echo "#include <Internal.h>"
-        echo "#include <Rinterface.h>"
-        echo ""
-        echo "/* Forward declarations for internal functions used across files */"
-        echo "/* Note: pmatch is #defined to Rf_pmatch in Rinternals.h */"
-        echo "Rboolean Rf_pmatch(SEXP, SEXP, Rboolean);"
-        echo ""
-        for f in $batch_files; do
-            echo "#include \"$f\""
-        done
-    } > "$unity_file"
+    # Check if this is a single isolated file
+    first_file=$(echo "$batch_files" | head -1)
+    if [ $count -eq 1 ] && is_isolated "$first_file"; then
+        # Isolated files get minimal wrapper - just include the file directly
+        # This preserves their original include structure
+        {
+            echo "/* Unity build batch $b - isolated file */"
+            echo "/* Regenerate with: tools/make-unity-smart.sh */"
+            echo "#include \"$first_file\""
+        } > "$unity_file"
+    else
+        # Normal batch gets full unity header
+        {
+            echo "/* Unity build batch $b - auto-generated */"
+            echo "/* $count files - conflict-aware grouping */"
+            echo "/* Regenerate with: tools/make-unity-smart.sh */"
+            echo ""
+            echo "#ifdef HAVE_CONFIG_H"
+            echo "#include <config.h>"
+            echo "#endif"
+            echo ""
+            echo "/* Enable all features needed by source files */"
+            echo "#define R_USE_SIGNALS 1"
+            echo "#define NEED_CONNECTION_PSTREAMS 1"
+            echo "#ifndef Win32"
+            echo "#define Unix 1"
+            echo "#endif"
+            echo "#define R_INTERFACE_PTRS 1"
+            echo "#include <Defn.h>"
+            echo "#include <Internal.h>"
+            echo "#include <Rinterface.h>"
+            echo ""
+            echo "/* Forward declarations for internal functions used across files */"
+            echo "/* Note: pmatch is #defined to Rf_pmatch in Rinternals.h */"
+            echo "Rboolean Rf_pmatch(SEXP, SEXP, Rboolean);"
+            echo ""
+            for f in $batch_files; do
+                echo "#include \"$f\""
+            done
+        } > "$unity_file"
+    fi
 
     echo "  Batch $b: $count files -> $(basename "$unity_file")"
     printf "    "

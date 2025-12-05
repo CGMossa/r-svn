@@ -1,5 +1,5 @@
 /* Unity build batch 5 - auto-generated */
-/* 4 files - conflict-aware grouping */
+/* 5 files - conflict-aware grouping */
 /* Regenerate with: tools/make-unity-smart.sh */
 
 #ifdef HAVE_CONFIG_H
@@ -25,3 +25,4 @@ Rboolean Rf_pmatch(SEXP, SEXP, Rboolean);
 #include "errors.c"
 #include "paste.c"
 #include "scan.c"
+#include "sort.c"

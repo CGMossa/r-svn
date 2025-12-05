@@ -1,5 +1,5 @@
 /* Unity build batch 1 - auto-generated */
-/* 79 files - conflict-aware grouping */
+/* 71 files - conflict-aware grouping */
 /* Regenerate with: tools/make-unity-smart.sh */
 
 #ifdef HAVE_CONFIG_H
@@ -67,7 +67,6 @@ Rboolean Rf_pmatch(SEXP, SEXP, Rboolean);
 #include "machine.c"
 #include "mask.c"
 #include "match.c"
-#include "memory.c"
 #include "mkdtemp.c"
 #include "names.c"
 #include "objects.c"
@@ -80,14 +79,10 @@ Rboolean Rf_pmatch(SEXP, SEXP, Rboolean);
 #include "print.c"
 #include "printarray.c"
 #include "printvector.c"
-#include "qsort.c"
-#include "radixsort.c"
-#include "random.c"
 #include "raw.c"
 #include "registration.c"
 #include "relop.c"
 #include "rlocale.c"
-#include "sort.c"
 #include "split.c"
 #include "sprintf.c"
 #include "startup.c"
@@ -95,8 +90,5 @@ Rboolean Rf_pmatch(SEXP, SEXP, Rboolean);
 #include "strncasecmp.c"
 #include "subassign.c"
 #include "subscript.c"
-#include "subset.c"
-#include "summary.c"
-#include "sysutils.c"
 #include "times.c"
 #include "version.c"
