@@ -126,8 +126,8 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: MacOS-R-devel-${{ matrix.OS == 'macOS-13' && 'x86_64' || 'arm64' }}
-        path: /opt/R/r-devel-${{ matrix.OS == 'macOS-13' && 'x86_64' || 'arm64' }}.tar.xz
+        name: MacOS-R-devel-${{ env.ARCH }}
+        path: /opt/R/r-devel-${{ env.ARCH }}.tar.xz
 
     - name: Check
       run: make check-all
