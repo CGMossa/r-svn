@@ -30,6 +30,13 @@
   - Removed `AC_REQUIRE([LT_INIT])` from m4/R.m4 (R_INTERNAL_XDR_USABLE macro)
   - No libtool script generated (~364KB savings per build)
   - Configure output is significantly quieter (no libtool probes for C/C++/Fortran)
+- **Added Homebrew auto-detection to config.site** for macOS builds:
+  - Automatically detects Homebrew prefix (works on Intel `/usr/local` and Apple Silicon `/opt/homebrew`)
+  - Sets CPPFLAGS/LDFLAGS for keg-only packages: readline, xz, gettext
+  - Sets PKG_CONFIG_PATH for: readline, xz, zstd, icu4c, libffi, openssl@3
+  - Guard variable `R_CONFIG_SITE_HOMEBREW_DONE` prevents double-loading when config.site is sourced twice
+  - Can be disabled with `--disable-site-config` configure flag
+  - R now builds out-of-the-box on macOS with Homebrew without manual CPPFLAGS/LDFLAGS
 
 ## Next
 
@@ -40,5 +47,5 @@
 - Decide how to handle missing `xt.pc` (Homebrew `libxt` or XQuartz path) and `libjbig` (add stub .pc or keep manual flags) so pkg-config path stays clean.
 - Optional: trim legacy platform checks that survived the first pass once pkg-config coverage is expanded.
 - Decide whether to ship/replace doc/FAQ + resources.html when missing from source tarball; current install skips them quietly.
-- Evaluate if readline detection should inject `-lncurses`/`-ltinfo` automatically rather than relying on Homebrew LDFLAGS overrides.
+- Evaluate if readline detection should inject `-lncurses`/`-ltinfo` automatically (now handled by config.site Homebrew detection on macOS).
 - Consider moving texi2any/html doc generation behind a toggle or documenting the current warning in sandbox builds.
