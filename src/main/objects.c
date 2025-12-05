@@ -1289,6 +1289,7 @@ static SEXP dispatchNonGeneric(SEXP name, SEXP env, SEXP fdef)
 	case CLOSXP:
 	    value = R_findVarInFrame(CLOENV(fun), R_dot_Generic);
 	    if(value == R_UnboundValue) break;
+	    R_FALLTHROUGH;
 	case BUILTINSXP:  case SPECIALSXP:
 	default:
 	    /* in all other cases, go on to the parent environment */

@@ -490,6 +490,7 @@ static int SubassignTypeFix(SEXP *x, SEXP *y, R_xlen_t stretch, int level,
         if (dispatch_asvector(y, call, rho)) {
             return SubassignTypeFix(x, y, stretch, level, call, rho);
         }
+	R_FALLTHROUGH;
 
     default:
 	error(_("incompatible types (from %s to %s) in subassignment type fix"),

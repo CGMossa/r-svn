@@ -211,19 +211,19 @@ attribute_hidden SEXP do_vapply(SEXP call, SEXP op, SEXP args, SEXP rho)
 		switch (commonType) {
 		case REALSXP:
 		    memcpy(REAL(ans) + common_len_offset,
-			   REAL(val), commonLen * sizeof(double)); break;
+			   REAL(val), (size_t) commonLen * sizeof(double)); break;
 		case INTSXP:
 		    memcpy(INTEGER(ans) + common_len_offset,
-			   INTEGER(val), commonLen * sizeof(int)); break;
+			   INTEGER(val), (size_t) commonLen * sizeof(int)); break;
 		case LGLSXP:
 		    memcpy(LOGICAL(ans) + common_len_offset,
-			   LOGICAL(val), commonLen * sizeof(int)); break;
+			   LOGICAL(val), (size_t) commonLen * sizeof(int)); break;
 		case RAWSXP:
 		    memcpy(RAW(ans) + common_len_offset,
-			   RAW(val), commonLen * sizeof(Rbyte)); break;
+			   RAW(val), (size_t) commonLen * sizeof(Rbyte)); break;
 		case CPLXSXP:
 		    memcpy(COMPLEX(ans) + common_len_offset,
-			   COMPLEX(val), commonLen * sizeof(Rcomplex)); break;
+			   COMPLEX(val), (size_t) commonLen * sizeof(Rcomplex)); break;
 		case STRSXP:
 		    for (int j = 0; j < commonLen; j++)
 			SET_STRING_ELT(ans, common_len_offset + j, STRING_ELT(val, j));
@@ -388,7 +388,7 @@ static int islistfactor(SEXP X)
 	return ans;
     }
     default:
-	return isFactor(X);
+	return isFactor(X) ? 1 : 0;
     }
 }
 

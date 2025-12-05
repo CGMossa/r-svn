@@ -2128,7 +2128,9 @@ double R_strtod5(const char *str, char **endptr, char dec,
    /* optional sign */
     switch (*p) {
     case '-': sign = -1;
+	      R_FALLTHROUGH;
     case '+': p++;
+	      R_FALLTHROUGH;
     default: ;
     }
 
@@ -2184,7 +2186,9 @@ double R_strtod5(const char *str, char **endptr, char dec,
 	    int expsign = 1;
 	    switch(*++p) {
 	    case '-': expsign = -1;
+		      R_FALLTHROUGH;
 	    case '+': p++;
+		      R_FALLTHROUGH;
 	    default: ;
 	    }
 #define MAX_EXPONENT_PREFIX 9999
@@ -2244,7 +2248,9 @@ double R_strtod5(const char *str, char **endptr, char dec,
 	int expsign = 1;
 	switch(*++p) {
 	case '-': expsign = -1;
+		  R_FALLTHROUGH;
 	case '+': p++;
+		  R_FALLTHROUGH;
 	default: ;
 	}
 	/* The test for n is in response to PR#16358; which was

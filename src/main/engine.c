@@ -290,12 +290,15 @@ double toDeviceX(double value, GEUnit from, pGEDevDesc dd)
     case GE_CM:
 	/* Convert GE_CM to GE_INCHES */
 	result = result / 2.54;
+	R_FALLTHROUGH;
     case GE_INCHES:
 	/* Convert GE_INCHES to GE_NDC */
 	result = (result / dd->dev->ipr[0]) / fabs(dd->dev->right - dd->dev->left);
+	R_FALLTHROUGH;
     case GE_NDC:
 	/* Convert GE_NDC to Dev */
 	result = dd->dev->left + result*(dd->dev->right - dd->dev->left);
+	R_FALLTHROUGH;
     case GE_DEVICE:
 	/* Do nothing */
 	break;
@@ -330,12 +333,15 @@ double toDeviceY(double value, GEUnit from, pGEDevDesc dd)
     case GE_CM:
 	/* Convert GE_CM to GE_INCHES */
 	result = result / 2.54;
+	R_FALLTHROUGH;
     case GE_INCHES:
 	/* Convert GE_INCHES to GE_NDC */
 	result = (result / dd->dev->ipr[1]) / fabs(dd->dev->top - dd->dev->bottom);
+	R_FALLTHROUGH;
     case GE_NDC:
 	/* Convert GE_NDC to Dev */
 	result = dd->dev->bottom + result*(dd->dev->top - dd->dev->bottom);
+	R_FALLTHROUGH;
     case GE_DEVICE:
 	/* Do nothing */
 	break;
@@ -368,12 +374,15 @@ double toDeviceWidth(double value, GEUnit from, pGEDevDesc dd)
     case GE_CM:
 	/* Convert GE_CM to GE_INCHES */
 	result = result / 2.54;
+	R_FALLTHROUGH;
     case GE_INCHES:
 	/* Convert GE_INCHES to GE_NDC */
 	result = (result / dd->dev->ipr[0]) / fabs(dd->dev->right - dd->dev->left);
+	R_FALLTHROUGH;
     case GE_NDC:
 	/* Convert GE_NDC to Dev */
 	result = result*(dd->dev->right - dd->dev->left);
+	R_FALLTHROUGH;
     case GE_DEVICE:
 	/* Do nothing */
 	break;
@@ -406,12 +415,15 @@ double toDeviceHeight(double value, GEUnit from, pGEDevDesc dd)
     case GE_CM:
 	/* Convert GE_CM to GE_INCHES */
 	result = result / 2.54;
+	R_FALLTHROUGH;
     case GE_INCHES:
 	/* Convert GE_INCHES to GE_NDC */
 	result = (result / dd->dev->ipr[1]) / fabs(dd->dev->top - dd->dev->bottom);
+	R_FALLTHROUGH;
     case GE_NDC:
 	/* Convert GE_NDC to Dev */
 	result = result*(dd->dev->top - dd->dev->bottom);
+	R_FALLTHROUGH;
     case GE_DEVICE:
 	/* Do nothing */
 	break;

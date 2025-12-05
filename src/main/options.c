@@ -139,6 +139,7 @@ attribute_hidden int FixupWidth(SEXP width, warn_type warn)
     if (w == NA_INTEGER || w < R_MIN_WIDTH_OPT || w > R_MAX_WIDTH_OPT) {
 	switch(warn) {
 	case iWARN: warning(_("invalid printing width %d, used 80"), w);
+		    R_FALLTHROUGH;
 	case iSILENT:
 	    return 80; // for SILENT and WARN
 	case iERROR: error(_("invalid printing width"));
@@ -157,6 +158,7 @@ attribute_hidden int FixupDigits(SEXP digits, warn_type warn)
     if (d == NA_INTEGER || d < R_MIN_DIGITS_OPT || d > R_MAX_DIGITS_OPT) {
 	switch(warn) {
 	case iWARN: warning(_("invalid printing digits %d, used 7"), d);
+		    R_FALLTHROUGH;
 	case iSILENT:
 	    return 7; // for SILENT and WARN
 	case iERROR: error(_("invalid printing digits %d"), d);
@@ -189,6 +191,7 @@ int FixupScipen(SEXP scipen, warn_type warn)
 	    /* d > R_MAX_SCIPEN_OPT */ R_MAX_SCIPEN_OPT;
 	switch(warn) {
 	case iWARN: warning(_("invalid 'scipen' %d, used %d"), d, dnew);
+		    R_FALLTHROUGH;
 	case iSILENT:
 	    return dnew; // for SILENT and WARN
 	case iERROR: error(_("invalid 'scipen' %d"), d);

@@ -3558,7 +3558,7 @@ attribute_hidden SEXP do_set(SEXP call, SEXP op, SEXP args, SEXP rho)
     switch (TYPEOF(lhs)) {
     case STRSXP:
 	lhs = installTrChar(STRING_ELT(lhs, 0));
-	/* fall through */
+	R_FALLTHROUGH;
     case SYMSXP:
 	rhs = eval(CADR(args), rho);
 	INCREMENT_NAMED(rhs);
@@ -3894,7 +3894,7 @@ attribute_hidden SEXP do_eval(SEXP call, SEXP op, SEXP args, SEXP rho)
     switch(TYPEOF(env)) {
     case NILSXP:
 	env = encl;     /* so eval(expr, NULL, encl) works */
-	/* falls through */
+	R_FALLTHROUGH;
     case ENVSXP:
 	PROTECT(env);	/* so we can unprotect 2 at the end */
 	break;

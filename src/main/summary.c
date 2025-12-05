@@ -940,6 +940,7 @@ attribute_hidden SEXP do_summary(SEXP call, SEXP op, SEXP args, SEXP env)
 		    ans_type = STRSXP;
 		    break;
 		}
+		R_FALLTHROUGH;
 	    default:
 		goto invalid_type;
 	    }

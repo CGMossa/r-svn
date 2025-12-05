@@ -924,7 +924,7 @@ static void NewMakeLists (SEXP obj, SEXP sym_list, SEXP env_list)
 	    error(_("cannot save environment with locked/active bindings \
 in version 1 workspaces"));
 	HashAdd(obj, env_list);
-	/* FALLTHROUGH */
+	R_FALLTHROUGH;
     case LISTSXP:
     case LANGSXP:
     case PROMSXP:

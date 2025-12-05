@@ -398,6 +398,7 @@ static bool neWithNaN(double x, double y, ne_strictness_type str)
 	    return(R_IsNA(x) ? FALSE : TRUE);
 	if(ISNAN(x))
 	    return(ISNAN(y) ? FALSE : TRUE);
+	R_FALLTHROUGH;
 
     case bit_NA__num_eq:
     case bit_NA__num_bit:

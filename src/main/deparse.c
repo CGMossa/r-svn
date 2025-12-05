@@ -602,6 +602,7 @@ static bool needsparens(PPinfo mainop, SEXP arg, unsigned int left,
 		    default:
 			return false;
 		    }
+		    R_FALLTHROUGH;
 		default:
 		    break;
 		}
@@ -613,16 +614,17 @@ static bool needsparens(PPinfo mainop, SEXP arg, unsigned int left,
 		    case PP_SUBSET:
 			if (mainop.precedence > arginfo.precedence)
 			    return false;
-			/* else fall through */
+			R_FALLTHROUGH;
 		    default:
 			break;
 		    }
+		    R_FALLTHROUGH;
 		case PP_BINARY:
 		case PP_BINARY2:
 		    if (mainop.precedence == PREC_COMPARE &&
 			arginfo.precedence == PREC_COMPARE)
 			return true;     /*   a < b < c   is not legal syntax */
-		    /* else fall through */
+		    R_FALLTHROUGH;
 		case PP_ASSIGN:
 		case PP_ASSIGN2:
 		case PP_DOLLAR:

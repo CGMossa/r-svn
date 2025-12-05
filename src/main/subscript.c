@@ -1017,6 +1017,7 @@ int_arraySubscript(int dim, SEXP s, SEXP dims, SEXP x, SEXP call)
     case SYMSXP:
 	if (s == R_MissingArg)
 	    return nullSubscript(nd);
+	R_FALLTHROUGH;
     default:
 	ECALL3(call, _("invalid subscript type '%s'"), R_typeToChar(s));
     }
@@ -1101,6 +1102,7 @@ makeSubscript(SEXP x, SEXP s, R_xlen_t *stretch, SEXP call)
 	    ans = nullSubscript(nx);
 	    break;
 	}
+	R_FALLTHROUGH;
     default:
 	ECALL3(call, _("invalid subscript type '%s'"), R_typeToChar(s));
     }

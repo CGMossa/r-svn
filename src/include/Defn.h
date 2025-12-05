@@ -79,6 +79,15 @@
 # endif
 #endif
 
+/* Fallthrough annotation for switch statements to silence -Wimplicit-fallthrough */
+#if defined(__GNUC__) && __GNUC__ >= 7
+# define R_FALLTHROUGH __attribute__((fallthrough))
+#elif defined(__clang__)
+# define R_FALLTHROUGH __attribute__((fallthrough))
+#else
+# define R_FALLTHROUGH /* fallthrough */
+#endif
+
 #define MAXELTSIZE 8192 /* Used as a default for string buffer sizes,
 			   and occasionally as a limit. */
 

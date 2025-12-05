@@ -602,6 +602,7 @@ static void InFormat(R_inpstream_t stream)
 	    stream->InBytes(stream, buf, 1);
 	    break;
 	}
+	R_FALLTHROUGH;
     default:
 	type = R_pstream_any_format;  /* keep compiler happy */
 	error(_("unknown input format"));

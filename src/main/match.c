@@ -84,7 +84,7 @@ static R_INLINE SEXP charFromSexp(SEXP s)
     case STRSXP:
 	if (LENGTH(s) == 1)
 	    return STRING_ELT(s, 0);
-	/* fall back to error */
+	R_FALLTHROUGH;
     default:
 	error(_("invalid partial string match"));
     }

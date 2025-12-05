@@ -229,13 +229,13 @@ attribute_hidden int R_Newhashpjw(const char *s)
     char *p;
     unsigned h = 0, g;
     for (p = (char *) s; *p; p++) {
-	h = (h << 4) + (*p);
+	h = (h << 4) + (unsigned) (unsigned char) (*p);
 	if ((g = h & 0xf0000000) != 0) {
 	    h = h ^ (g >> 24);
 	    h = h ^ g;
 	}
     }
-    return h;
+    return (int) h;
 }
 
 /*----------------------------------------------------------------------
@@ -3811,7 +3811,7 @@ static SEXP checkNSname(SEXP call, SEXP name)
 	    name = installTrChar(STRING_ELT(name, 0));
 	    break;
 	}
-	/* else fall through */
+	R_FALLTHROUGH;
     default:
 	errorcall(call, _("bad namespace name"));
     }
@@ -3901,7 +3901,7 @@ static SEXP checkVarName(SEXP call, SEXP name)
 	    name = installTrChar(STRING_ELT(name, 0));
 	    break;
 	}
-	/* else fall through */
+	R_FALLTHROUGH;
     default:
 	errorcall(call, _("bad variable name"));
     }

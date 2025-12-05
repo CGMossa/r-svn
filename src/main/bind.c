@@ -617,7 +617,8 @@ static void namesCount(SEXP v, int recurse, struct NameData *nameData)
 		UNPROTECT(1); /*namei*/
 	    }
 	    break;
-	} /* else fall through */
+	}
+	R_FALLTHROUGH;
     case VECSXP:
     case EXPRSXP:
 	if (recurse) {
@@ -627,7 +628,8 @@ static void namesCount(SEXP v, int recurse, struct NameData *nameData)
 		    namesCount(VECTOR_ELT(v, i), recurse, nameData);
 	    }
 	    break;
-	} /* else fall through */
+	}
+	R_FALLTHROUGH;
     case LGLSXP:
     case INTSXP:
     case REALSXP:

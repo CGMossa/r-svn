@@ -144,9 +144,9 @@ attribute_hidden void InitArithmetic(void)
     R_NaReal = R_ValueOfNA();
 // we assume C99, so
 #ifndef OLD
-    R_NaN = NAN;
-    R_PosInf = INFINITY;
-    R_NegInf = -INFINITY;
+    R_NaN = (double) NAN;
+    R_PosInf = (double) INFINITY;
+    R_NegInf = (double) -INFINITY;
 #else
     R_NaN = 0.0/R_Zero_Hack;
     R_PosInf = 1.0/R_Zero_Hack;

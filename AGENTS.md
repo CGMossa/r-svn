@@ -8,6 +8,7 @@
 - Out-of-tree builds: `config.status` now copies `share/make/vars.mk` into the build tree; Makeconf stops reassigning `top_srcdir` so per-dir values stay valid; MKINSTALLDIRS points at the build tree script.
 - `--disable-site-config` now also suppresses the default user library path (R_LIBS_USER), keeping sandbox builds inside their prefix.
 - `--disable-html-docs` skips building/installing HTML manuals/NEWS (helpful in sandboxes lacking texi2any/resources); `HTML_DOCS=no` in the justfile toggles this.
+- `R_FALLTHROUGH` macro added to `src/include/Defn.h` for annotating intentional switch fallthroughs (works with GCC 7+/Clang, silences `-Wimplicit-fallthrough`).
 
 ## Rust build path
 - `rustc` is auto-detected (`RUSTC`, `RUSTFLAGS`, `RUSTPICFLAGS`), and a new `Makefrag.rs` supplies `.rs -> .o/.d` rules.

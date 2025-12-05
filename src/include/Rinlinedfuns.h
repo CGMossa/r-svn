@@ -982,6 +982,7 @@ INLINE_FUN Rboolean isNumeric(SEXP s)
     switch(TYPEOF(s)) {
     case INTSXP:
 	if (inherits(s,"factor")) return FALSE;
+	R_FALLTHROUGH;
     case LGLSXP:
     case REALSXP:
 	return TRUE;
@@ -996,6 +997,7 @@ INLINE_FUN Rboolean isNumber(SEXP s)
     switch(TYPEOF(s)) {
     case INTSXP:
 	if (inherits(s,"factor")) return FALSE;
+	R_FALLTHROUGH;
     case LGLSXP:
     case REALSXP:
     case CPLXSXP:

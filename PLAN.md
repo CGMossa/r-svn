@@ -48,6 +48,10 @@
   - Suppresses `-Wno-unused-parameter -Wno-unused-function` to reduce noise
   - GCC/Clang only, checks each flag for compiler support
   - Useful for code quality audits and modernization
+- **Fixed all `-Wimplicit-fallthrough` warnings** in src/main/*.c:
+  - Added `R_FALLTHROUGH` macro to `src/include/Defn.h` (GCC 7+/Clang fallthrough attribute)
+  - Fixed intentional switch fallthroughs in: apply.c, arithmetic.c, envir.c, eval.c, objects.c, options.c, Rinlinedfuns.h, match.c, saveload.c, subassign.c, subscript.c, util.c, identical.c, bind.c, serialize.c, deparse.c, summary.c, engine.c
+  - Replaced comment-based fallthrough markers (`/* fall through */`) with `R_FALLTHROUGH;` macro
 
 ## Next
 
