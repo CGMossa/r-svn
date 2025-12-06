@@ -10,6 +10,13 @@
 /config.status
 /libtool
 
+# In-tree build output directories
+/bin/
+/include/
+/lib/
+/library/
+/modules/
+
 # Top-level generated Makefiles and fragments
 /Makeconf
 /Makefile
@@ -105,6 +112,9 @@ doc/html/*.html
 doc/manual/*.html
 doc/manual/*.pdf
 doc/manual/*.info*
+doc/manual/htmlxref.cnf
+doc/manual/stamp-*
+doc/manual/version.texi
 
 # Test artifacts
 tests/*.Rout
