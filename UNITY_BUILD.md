@@ -23,13 +23,6 @@ All conflicts resolved via preprocessor techniques (`#define`/`#undef`) in the u
 
 Files that include `Defn.h` must come **before** files that only include `Rinternals.h`. This ensures `USE_RINTERNALS` is defined before any file references inline functions like `ALTCOMPLEX_ELT`, which would otherwise be declared as external symbols.
 
-## Scripts Created (Experimental)
-
-| Script | Purpose | Status |
-|--------|---------|--------|
-| `tools/make-unity-library.sh` | Generate unity files for library packages | Generates files, but most don't compile |
-| `tools/make-unity-nmath.sh` | Generate unity files for nmath | Disabled |
-
 ## Conflicts Found By Component
 
 ### src/main/
