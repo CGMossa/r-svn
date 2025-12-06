@@ -13,9 +13,13 @@ R_HOME = $(top_builddir)
 R_SHARE_DIR = $(R_HOME)/share
 R_INCLUDE_DIR = $(R_HOME)/include
 
-## Unity build enabled - combines all C files into single translation unit
-## tcltk.c and tcltk_unix.c include Defn.h and must come first
+## Unity build (default): combines all C files into single translation unit
+## Use UNITY_BUILD=no to compile files separately
+ifneq ($(UNITY_BUILD),no)
 SOURCES_C = unity_tcltk.c
+else
+SOURCES_C = init.c tcltk.c tcltk_unix.c
+endif
 SOURCES_F =
 DEPENDS = $(SOURCES_C:.c=.d)
 OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)

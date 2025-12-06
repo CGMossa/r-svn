@@ -13,11 +13,17 @@ R_HOME = $(top_builddir)
 R_SHARE_DIR = $(R_HOME)/share
 R_INCLUDE_DIR = $(R_HOME)/include
 
-## Unity build enabled - static function conflicts resolved via preprocessor:
-## - colors.c: CheckAlpha -> colors_CheckAlpha (via #define before include)
-## - devPicTeX.c: SetFont -> PicTeX_SetFont (via #define before include)
-## devQuartz.c and Aqua files compiled separately (macOS framework header conflicts)
+## Unity build (default): combines most C files into single translation unit
+## Use UNITY_BUILD=no to compile files separately
+## devQuartz.c always separate (macOS framework header conflicts)
+ifneq ($(UNITY_BUILD),no)
 SOURCES_C = unity_grDevices.c devQuartz.c @BUILD_AQUA_TRUE@ qdBitmap.c qdPDF.c
+else
+SOURCES_C = axis_scales.c chull.c devices.c init.c stubs.c colors.c \
+  clippath.c patterns.c mask.c group.c \
+  devCairo.c devPicTeX.c devPS.c \
+  devQuartz.c @BUILD_AQUA_TRUE@ qdBitmap.c qdPDF.c
+endif
 SOURCES_M = @BUILD_AQUA_TRUE@ qdCocoa.m
 
 DEPENDS = $(SOURCES_C:.c=.d) $(SOURCES_M:.m=.d)

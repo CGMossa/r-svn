@@ -757,6 +757,92 @@ test-all-rust: test-rust test-rust-shlib
     @echo
     @echo "=== All Rust tests passed! ==="
 
+# Time library builds WITH unity builds (default)
+# Requires an existing configured build in _build/
+time-libs:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    builddir="{{justfile_directory()}}/_build"
+    if [ ! -f "$builddir/Makefile" ]; then
+        echo "Error: No configured build in _build/. Run 'just build-local' first."
+        exit 1
+    fi
+
+    libs="methods parallel tcltk grDevices graphics utils grid"
+
+    echo "=== Timing library builds (WITH unity) ==="
+    echo "Compilation units: 8"
+    echo
+
+    total_start=$(date +%s.%N)
+
+    for lib in $libs; do
+        libdir="$builddir/src/library/$lib/src"
+        if [ -d "$libdir" ]; then
+            echo -n "$lib: "
+            make -C "$libdir" clean >/dev/null 2>&1 || true
+            start=$(date +%s.%N)
+            make -C "$libdir" >/dev/null 2>&1
+            end=$(date +%s.%N)
+            elapsed=$(echo "$end - $start" | bc)
+            printf "%.2fs\n" "$elapsed"
+        fi
+    done
+
+    total_end=$(date +%s.%N)
+    total=$(echo "$total_end - $total_start" | bc)
+    echo
+    printf "Total: %.2fs\n" "$total"
+
+# Time library builds WITHOUT unity builds
+# Requires an existing configured build in _build/
+time-libs-no-unity:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    builddir="{{justfile_directory()}}/_build"
+    if [ ! -f "$builddir/Makefile" ]; then
+        echo "Error: No configured build in _build/. Run 'just build-local' first."
+        exit 1
+    fi
+
+    libs="methods parallel tcltk grDevices graphics utils grid"
+
+    echo "=== Timing library builds (WITHOUT unity) ==="
+    echo "Compilation units: 54"
+    echo
+
+    total_start=$(date +%s.%N)
+
+    for lib in $libs; do
+        libdir="$builddir/src/library/$lib/src"
+        if [ -d "$libdir" ]; then
+            echo -n "$lib: "
+            make -C "$libdir" clean >/dev/null 2>&1 || true
+            start=$(date +%s.%N)
+            make -C "$libdir" UNITY_BUILD=no >/dev/null 2>&1
+            end=$(date +%s.%N)
+            elapsed=$(echo "$end - $start" | bc)
+            printf "%.2fs\n" "$elapsed"
+        fi
+    done
+
+    total_end=$(date +%s.%N)
+    total=$(echo "$total_end - $total_start" | bc)
+    echo
+    printf "Total: %.2fs\n" "$total"
+
+# Compare unity vs non-unity build times
+time-libs-compare:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Running unity build timing..."
+    just time-libs
+    echo
+    echo "Running non-unity build timing..."
+    just time-libs-no-unity
+
 # Build with unity build enabled (combines .c files for faster compilation)
 # This passes UNITY_BUILD=yes to make, enabling the conditional in Makefiles
 build-unity:

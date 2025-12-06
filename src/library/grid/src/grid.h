@@ -18,6 +18,9 @@
  *  https://www.R-project.org/Licenses/
  */
 
+#ifndef R_GRID_H
+#define R_GRID_H
+
 #include <R.h>
 #include <Rconfig.h>
 #include <Rinternals.h>
@@ -698,4 +701,5 @@ SEXP summaryUnits(SEXP units, SEXP op_type);
 /* From gpar.c */
 SEXP L_getGPar(void);
 SEXP L_setGPar(SEXP gpars);
-    
+
+#endif /* R_GRID_H */

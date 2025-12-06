@@ -13,11 +13,14 @@ R_HOME = $(top_builddir)
 R_SHARE_DIR = $(R_HOME)/share
 R_INCLUDE_DIR = $(R_HOME)/include
 
-## Unity build enabled - static symbol conflicts resolved via preprocessor:
-## - plot3d.c: TypeCheck -> plot3d_TypeCheck (conflicts with plot.c)
-## - plot3d.c: Edge -> plot3d_Edge (conflicts with graphics.c struct)
+## Unity build (default): combines all C files into single translation unit
+## Use UNITY_BUILD=no to compile files separately
 ## Note: par-common.c is #included by par.c, not compiled standalone
+ifneq ($(UNITY_BUILD),no)
 SOURCES_C = unity_graphics.c
+else
+SOURCES_C = base.c graphics.c init.c par.c plot.c plot3d.c stem.c
+endif
 
 DEPENDS = $(SOURCES_C:.c=.d)
 OBJECTS = $(SOURCES_C:.c=.o)

@@ -13,9 +13,13 @@ R_HOME = $(top_builddir)
 R_SHARE_DIR = $(R_HOME)/share
 R_INCLUDE_DIR = $(R_HOME)/include
 
-## Unity build enabled - utils.c must come FIRST because it declares
-## IS_UTF8/ENC_KNOWN as function prototypes (macros in Defn.h)
+## Unity build (default): combines all C files into single translation unit
+## Use UNITY_BUILD=no to compile files separately
+ifneq ($(UNITY_BUILD),no)
 SOURCES_C = unity_utils.c
+else
+SOURCES_C = hashtab.c init.c io.c size.c sock.c stubs.c utils.c
+endif
 
 DEPENDS = $(SOURCES_C:.c=.d)
 OBJECTS = $(SOURCES_C:.c=.o)
