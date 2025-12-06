@@ -105,6 +105,13 @@ src/library/*/DESCRIPTION
 # Library build artifacts
 /library/
 
+# Generated library files (from make)
+src/library/*/all.R
+src/library/*.inn
+
+# Unity build files (experimental, not used in normal builds)
+src/main/unity_batch*.c
+
 # Documentation build artifacts
 doc/NEWS
 doc/NEWS.pdf

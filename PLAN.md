@@ -52,6 +52,19 @@
   - Added `R_FALLTHROUGH` macro to `src/include/Defn.h` (GCC 7+/Clang fallthrough attribute)
   - Fixed intentional switch fallthroughs in: apply.c, arithmetic.c, envir.c, eval.c, objects.c, options.c, Rinlinedfuns.h, match.c, saveload.c, subassign.c, subscript.c, util.c, identical.c, bind.c, serialize.c, deparse.c, summary.c, engine.c
   - Replaced comment-based fallthrough markers (`/* fall through */`) with `R_FALLTHROUGH;` macro
+- **Fixed out-of-tree build support in library Makefiles**:
+  - Changed `PKG_CPPFLAGS` from `-I../../../include` to `-I$(top_builddir)/src/include` in 8 library Makefiles (stats, utils, tools, parallel, tcltk, methods, graphics, grDevices)
+  - This fixes `config.h` not found errors when building from a separate build directory
+  - Added `$(srcdir)/` prefix to image paths in doc/manual/Makefile.in
+  - Fixed symlink paths in src/nmath/standalone/Makefile.in
+- **Fixed floating-point comparison in lm.influence.Rd**:
+  - Changed `identical()` to `all.equal()` for comparing floating-point results
+  - Fixes test failures on macOS Intel due to minor numerical differences
+- **Fixed TI-RPC/libtirpc detection bug in m4/R.m4**:
+  - PKG_CHECK_MODULES was setting `TIRPC_CPPFLAGS` but it was immediately reset to empty
+  - Added guard to only reset `TIRPC_CPPFLAGS` when pkg-config didn't find libtirpc
+  - CI workaround: `CPPFLAGS="-I/usr/include/tirpc"` until configure is regenerated
+  - Fixes Linux CI failures with `rpc/types.h: No such file or directory`
 
 ## Next
 
