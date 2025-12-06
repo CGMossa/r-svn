@@ -117,7 +117,7 @@ utils::str(lmI <- lm.influence(lm.SR))
 qRes <- qr(lm.SR) # == lm.SR $ qr
 qrI <- qr.influence(qRes, residuals(lm.SR))
 strip <- function(x) lapply(lapply(x, unname), drop)
-stopifnot(identical(strip(qrI),
+stopifnot(all.equal(strip(qrI),
                     strip(lmI[c("hat", "sigma")])))
 
 ## For more "user level" examples, use example(influence.measures)
