@@ -89,6 +89,36 @@ configure-full:
         --with-aqua=no \
         $html_flag
 
+# Build in local _build/ directory (out-of-tree but within repo, gitignored)
+build-local *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    srcdir="{{justfile_directory()}}"
+    builddir="$srcdir/_build"
+
+    mkdir -p "$builddir"
+    cd "$builddir"
+
+    # Platform-specific library paths
+    {{setup-paths}}
+
+    # Configure if not already done
+    if [ ! -f Makefile ]; then
+        echo "Configuring in $builddir..."
+        "$srcdir"/configure \
+            --prefix="$builddir/install" \
+            "$@"
+    fi
+
+    # Build
+    echo "Building in $builddir..."
+    make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+
+# Clean local build directory
+clean-local:
+    rm -rf "{{justfile_directory()}}/_build"
+
 # Smoke-test --disable-site-config and --no-create handling.
 configure-sandbox:
     #!/usr/bin/env bash

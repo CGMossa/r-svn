@@ -16,6 +16,7 @@
 /lib/
 /library/
 /modules/
+/_build/
 
 # Top-level generated Makefiles and fragments
 /Makeconf
