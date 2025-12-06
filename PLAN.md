@@ -65,6 +65,19 @@
   - Added guard to only reset `TIRPC_CPPFLAGS` when pkg-config didn't find libtirpc
   - CI workaround: `CPPFLAGS="-I/usr/include/tirpc"` until configure is regenerated
   - Fixes Linux CI failures with `rpc/types.h: No such file or directory`
+- **Removed build artifacts from git tracking** (~175k lines):
+  - 12 `all.R` files (concatenated R sources generated during make)
+  - 14 `.inn` placeholder files
+  - 11 `unity_batch*.c` files (experimental unity build)
+  - Added patterns to `.gitignore` to prevent re-commit
+- **Fixed test packages with SVN revision dependencies**:
+  - Removed `R (>= r56550)` from pkgA (xDir/pkg), pkgD, pkgD_2, pkgD_3
+  - SVN revision deps no longer work since we removed SVN stamping
+  - Fixes macOS CI error: `package 'pkgA' requires R >= r56550`
+- **Added UNITY_BUILD.md documentation**:
+  - Documents three unity build scripts and their strategies
+  - Recommends `make-unity-smart.sh` (conflict-aware batching)
+  - Notes experimental status (not integrated into Makefiles)
 
 ## Next
 
