@@ -109,7 +109,7 @@ Copy:
 	@$(ECHO) "Copying source files"
 	@test -f std_unif.c || $(LN_S) $(srcdir)/sunif.c std_unif.c
 	@for f in $(SOURCES_NMATH); do \
-	  test -f $${f} || $(LN_S) $(srcdir)/../$${f} . ; \
+	  test -f $${f} || $(LN_S) $(top_srcdir)/src/nmath/$${f} . ; \
 	done
 
 static: inc ../../include/Rconfig.h Copy Makedeps

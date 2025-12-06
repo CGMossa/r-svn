@@ -20,11 +20,11 @@ OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
 
 SHLIB = $(pkg)@SHLIB_EXT@
 
-## -I../../../include is for config.h.
+## $(R_INCLUDE_DIR) is for config.h (in build tree).
 ## Circumvent conflicts by having external paths last, as we
 ## need them only for tcl.h, tk.h.
 PKG_CPPFLAGS = \
-  -I../../../include -I$(top_srcdir)/src/include -DHAVE_CONFIG_H \
+  -I$(R_INCLUDE_DIR) -I$(top_srcdir)/src/include -DHAVE_CONFIG_H \
   @TCLTK_CPPFLAGS@
 PKG_CFLAGS = $(C_VISIBILITY)
 PKG_LIBS = @TCLTK_LIBS@ @LIBM@

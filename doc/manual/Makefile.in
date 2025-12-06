@@ -151,7 +151,7 @@ R-intro.epub: R-intro.texi
 	@$(ECHO) "creating doc/manual/$@"
 	@if test $(TEXI2ANY_VERSION_MAJ) -lt 7; then \
 	  mkdir -p tmp; \
-	  cp -R images tmp; \
+	  cp -R $(srcdir)/images tmp; \
 	  $(TEXI2HTML) --no-headers -I$(srcdir) $< -o $@.tmp; \
 	  $(SED) -f $(srcdir)/quot.sed $@.tmp > tmp/$*.html; \
 	  rm -f $@.tmp; \
@@ -167,7 +167,7 @@ R-intro.epub: R-intro.texi
 
 R-intro.mobi: R-intro.texi
 	@mkdir -p tmp
-	@cp -r images tmp
+	@cp -r $(srcdir)/images tmp
 	@$(TEXI2HTML) --no-headers -I$(srcdir) $< -o $@.tmp
 	@$(SED) -f $(srcdir)/quot.sed $@.tmp > tmp/$*.html
 	@rm -f $@.tmp
