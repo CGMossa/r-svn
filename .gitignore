@@ -39,6 +39,9 @@ doc/manual/Makefile
 m4/Makefile
 po/Makefile
 share/Makefile
+share/bibliographies/*.rds
+share/dictionaries/*.rds
+share/zoneinfo/
 src/Makefile
 src/appl/Makefile
 src/extra/Makefile
