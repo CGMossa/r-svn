@@ -85,3 +85,29 @@ Unity builds would require significant refactoring of R's C codebase:
 5. Restructure global variable initialization to avoid `__MAIN__`
 
 Given the scope of changes required, unity builds are not a practical optimization for R at this time.
+
+## Future Work / Next Steps
+
+If unity builds are desired, the following incremental steps could be pursued:
+
+### Low-Hanging Fruit
+
+- **Namespace local macros**: Add `#undef` after using macros like `eps`, `max`, `min`, `swap_tail`
+- **Rename static functions**: Prefix with file name (e.g., `colors_CheckAlpha`, `devPS_CheckAlpha`)
+- **Stop including `.c` files**: Convert `Trunmed.c` to a proper header or merge with `Srunmed.c`
+
+### Medium Effort
+
+- **Fix macro/function conflicts**: In `utils.c`, use different names for the function declarations
+- **Regenerate parser files**: Configure yacc/bison to use prefixed symbols (`gramLatex_*`, `gramRd_*`)
+
+### Significant Refactoring
+
+- **Restructure `__MAIN__` pattern**: Move global variable initialization out of `Defn.h` include-time
+- **Audit all static symbols**: Create tooling to detect name collisions across files
+
+### Alternative Approaches
+
+- **Precompiled headers (PCH)**: May provide some speedup without unity build conflicts
+- **ccache/sccache**: Caching compilation can speed up incremental builds
+- **Parallel make**: Already supported via `make -jN`
