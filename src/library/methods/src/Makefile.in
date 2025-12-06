@@ -20,7 +20,7 @@ DEPENDS = $(SOURCES_C:.c=.d)
 OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
 
 # need  config.h
-PKG_CPPFLAGS =-I$(R_INCLUDE_DIR) -I$(top_srcdir)/src/include -DHAVE_CONFIG_H
+PKG_CPPFLAGS =-I$(top_builddir)/src/include -I$(top_srcdir)/src/include -DHAVE_CONFIG_H
 PKG_CFLAGS=$(C_VISIBILITY)
 
 SHLIB = $(pkg)@SHLIB_EXT@

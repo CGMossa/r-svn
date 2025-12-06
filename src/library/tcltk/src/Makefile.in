@@ -24,7 +24,7 @@ SHLIB = $(pkg)@SHLIB_EXT@
 ## Circumvent conflicts by having external paths last, as we
 ## need them only for tcl.h, tk.h.
 PKG_CPPFLAGS = \
-  -I$(R_INCLUDE_DIR) -I$(top_srcdir)/src/include -DHAVE_CONFIG_H \
+  -I$(top_builddir)/src/include -I$(top_srcdir)/src/include -DHAVE_CONFIG_H \
   @TCLTK_CPPFLAGS@
 PKG_CFLAGS = $(C_VISIBILITY)
 PKG_LIBS = @TCLTK_LIBS@ @LIBM@
