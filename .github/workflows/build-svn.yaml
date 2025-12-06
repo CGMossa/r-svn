@@ -43,7 +43,7 @@ jobs:
         ./.github/scripts/wget-recommended.sh
         ./.github/scripts/svn-info.sh
     - name: Configure
-      run: CC=${{matrix.CC}} ./configure --enable-R-shlib --with-blas --with-lapack --disable-java
+      run: CC=${{matrix.CC}} CPPFLAGS="-I/usr/include/tirpc" ./configure --enable-R-shlib --with-blas --with-lapack --disable-java
 
     - name: Build
       run: make
