@@ -13,7 +13,9 @@ R_HOME = $(top_builddir)
 R_SHARE_DIR = $(R_HOME)/share
 R_INCLUDE_DIR = $(R_HOME)/include
 
-SOURCES_C = init.c rngstream.c fork.c
+## Unity build enabled - combines all C files into single translation unit
+## fork.c includes Defn.h and must come first for USE_RINTERNALS
+SOURCES_C = unity_parallel.c
 
 DEPENDS = $(SOURCES_C:.c=.d)
 OBJECTS = $(SOURCES_C:.c=.o)

@@ -145,6 +145,7 @@ jobs:
     env:
       R_CRAN_WEB: "https://cran.rstudio.com"
       CRAN_RSYNC: 'mirrors.nic.cz::CRAN'
+      R_TEXI2DVICMD: emulation
     defaults:
       run:
         shell: msys2 {0}

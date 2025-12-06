@@ -14,6 +14,10 @@ R_HOME = $(top_builddir)
 R_SHARE_DIR = $(R_HOME)/share
 R_INCLUDE_DIR = $(R_HOME)/include
 
+## NOTE: Unity builds for stats disabled due to extensive macro conflicts.
+## - Srunmed.c includes Trunmed.c, causing double-definition issues
+## - arima.c defines eps macro that conflicts with Defn.h and statsR.h
+## - Various _ macro redefinitions between statsErr.h and Defn.h
 SOURCES_C = init.c kmeans.c \
   ansari.c bandwidths.c chisqsim.c d2x2xk.c fexact.c kendall.c ks.c \
   line.c smooth.c \

@@ -12,6 +12,9 @@ R_HOME=$(top_builddir)
 
 include $(top_builddir)/Makeconf
 
+## NOTE: Unity builds for src/main are disabled because main.c must define
+## __MAIN__ before Defn.h is included for global variable initialization.
+## The current unity batch design doesn't support this correctly.
 SOURCES_C = \
 	CommandLineArgs.c \
 	Rdynload.c Renviron.c RNG.c \

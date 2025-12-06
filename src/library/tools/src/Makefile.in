@@ -13,6 +13,8 @@ R_HOME = $(top_builddir)
 R_SHARE_DIR = $(R_HOME)/share
 R_INCLUDE_DIR = $(R_HOME)/include
 
+## NOTE: Unity builds for tools disabled due to complex macro conflicts
+## (yacc-generated enums, md5.c rol macro, sha256.c conflicts)
 SOURCES_C = text.c init.c Rmd5.c md5.c signals.c install.c getfmts.c http.c \
   gramLatex.c gramRd.c pdscan.c Rsha256.c sha256.c
 DEPENDS = $(SOURCES_C:.c=.d)

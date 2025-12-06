@@ -756,3 +756,62 @@ test-rust-shlib:
 test-all-rust: test-rust test-rust-shlib
     @echo
     @echo "=== All Rust tests passed! ==="
+
+# Build with unity build enabled (combines .c files for faster compilation)
+# This passes UNITY_BUILD=yes to make, enabling the conditional in Makefiles
+build-unity:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    srcroot="{{justfile_directory()}}"
+    tmpdir="$(mktemp -d /tmp/r-conf-build-unity-XXXXXX)"
+    echo "Using unity build directory: $tmpdir"
+
+    # Copy source tree to temp
+    rsync -a --delete \
+        --exclude='.git' \
+        --exclude='autom4te.cache' \
+        --exclude='src/include/Rversion.h' \
+        --exclude='src/include/Rconfig.h' \
+        --exclude='src/include/Rmath.h' \
+        --exclude='src/include/config.h' \
+        "$srcroot"/ "$tmpdir/src/"
+    if [ ! -f "$tmpdir/src/share/make/vars.mk" ]; then
+        mkdir -p "$tmpdir/src/share/make"
+        if [ -f "$srcroot/share/make/vars.mk" ]; then
+            cp "$srcroot/share/make/vars.mk" "$tmpdir/src/share/make/vars.mk"
+        else
+            echo "R_PKGS_RECOMMENDED =" > "$tmpdir/src/share/make/vars.mk"
+        fi
+    fi
+    mkdir -p "$tmpdir/build"
+    cd "$tmpdir/build"
+
+    # Platform-specific library paths
+    {{setup-paths}}
+
+    # Use config.cache for faster subsequent runs
+    cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
+
+    echo "Configuring..."
+    ../src/configure \
+        --config-cache \
+        --cache-file="$cache_file" \
+        --prefix="$tmpdir/install" \
+        --disable-site-config \
+        --enable-fast-config \
+        --with-aqua=no \
+        --disable-R-framework \
+        --without-x \
+        --without-cairo \
+        --without-tcltk \
+        --without-recommended-packages \
+        --disable-html-docs
+
+    # Build with unity build enabled
+    echo "Building with UNITY_BUILD=yes..."
+    make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" UNITY_BUILD=yes R
+
+    echo
+    echo "Unity build completed in: $tmpdir/build"
+    echo "R binary: $tmpdir/build/bin/R"
