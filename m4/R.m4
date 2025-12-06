@@ -3580,7 +3580,10 @@ if test "${ac_cv_header_rpc_types_h}" = yes && \
 else
   r_xdr=no
 fi
-TIRPC_CPPFLAGS=
+dnl Only reset TIRPC_CPPFLAGS if pkg-config didn't already set it
+if test "${r_xdr_pkg}" != yes ; then
+  TIRPC_CPPFLAGS=
+fi
 if test "${r_xdr}" = no ; then
   ## No RPC headers, so try for TI-RPC headers: need /usr/include/tirpc
   ## on include path to find /usr/include/tirpc/netconfig.h
