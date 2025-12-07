@@ -1140,6 +1140,7 @@ if test "${use_readline}" = yes; then
   fi
   READLINE_LIBS="${LIBS}"
   LIBS="${READLINE_LIBS} ${r_save_LIBS}"
+  ])
 fi
 AC_SUBST(READLINE_LIBS)
 
@@ -1439,7 +1440,6 @@ if test "${SAFE_FFLAGS+set}" != set; then
   else
     SAFE_FFLAGS="${FFLAGS}"
   fi
-  ])
 fi
 
 ### type for Fortran 'hidden' character lengths, if any
