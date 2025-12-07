@@ -197,6 +197,15 @@ $(MAIN_LIBS):
 ../extra/intl/libintl.a:
 	(cd $(@D); $(MAKE))
 
+../extra/tre/libtre.a:
+	(cd $(@D); $(MAKE))
+
+../extra/tzone/libtz.a:
+	(cd $(@D); $(MAKE))
+
+../extra/xdr/libxdr.a:
+	(cd $(@D); $(MAKE))
+
 
 libR: $(libR_la)
 
