@@ -32,6 +32,13 @@
 /src/include/Rversion.h
 /src/include/stamp-h
 
+# Build timestamp markers and dependency files
+*.ts
+*.tsa
+stamp-R
+Makedeps
+*.a.tmp
+
 # etc/ generated files
 /etc/Makeconf
 /etc/Makefile
