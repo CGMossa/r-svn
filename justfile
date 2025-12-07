@@ -7,6 +7,68 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 # This avoids fragile `ls -td` pattern matching
 _build_state := "/tmp/.r-current-build"
 
+# =====================================================================
+# IN-TREE DEVELOPMENT (for VS Code / IDE workflow)
+# =====================================================================
+# Use these recipes for editing R source and iterating quickly.
+# Configure once, then just run 'just make' after each edit.
+
+# Configure in-tree (run once, then use 'just make' for rebuilds)
+intree-configure:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    srcdir="{{justfile_directory()}}"
+    cd "$srcdir"
+
+    # Platform-specific library paths
+    {{setup-paths}}
+
+    cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
+
+    ./configure \
+        --config-cache \
+        --cache-file="$cache_file" \
+        --prefix="$srcdir/install" \
+        --disable-site-config \
+        --enable-fast-config \
+        --with-aqua=no \
+        --disable-R-framework \
+        --without-x \
+        --without-cairo \
+        --without-tcltk \
+        --without-recommended-packages \
+        --disable-html-docs
+
+    echo
+    echo "In-tree configure complete. src/include/config.h generated for intellisense."
+    echo "Run 'just make' to build R, or 'just make-component <dir>' for specific dirs."
+
+# Quick make (rebuilds changed files only)
+make *ARGS:
+    make -C "{{justfile_directory()}}" -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" R {{ARGS}}
+
+# Make a specific component (e.g., src/main, src/nmath, src/library/grid/src)
+make-component dir *ARGS:
+    make -C "{{justfile_directory()}}/{{dir}}" -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" {{ARGS}}
+
+# Run in-tree R (after 'just make')
+run *ARGS:
+    "{{justfile_directory()}}"/bin/R --vanilla {{ARGS}}
+
+# Run R expression in-tree
+eval expr:
+    "{{justfile_directory()}}"/bin/R --vanilla -e "{{expr}}"
+
+# Clean in-tree build artifacts (keeps config for fast rebuild)
+intree-clean:
+    make -C "{{justfile_directory()}}" clean
+
+# Full distclean (removes config, need to run intree-configure again)
+intree-distclean:
+    make -C "{{justfile_directory()}}" distclean
+
+# =====================================================================
+
 # Environment variables:
 #   QUIET=1          - Suppress configure output (just show summary)
 #   HTML_DOCS=yes    - Enable HTML documentation (default: no for sandbox builds)
