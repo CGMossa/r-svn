@@ -140,77 +140,145 @@ jobs:
 
   windows:
     name: Windows
-    runs-on: ${{matrix.arch == 'arm' && 'windows-11-arm' || 'windows-latest'}}
+    runs-on: ${{ matrix.arch == 'arm' && 'windows-11-arm' || 'windows-latest' }}
     timeout-minutes: 120
     env:
       R_CRAN_WEB: "https://cran.rstudio.com"
       CRAN_RSYNC: 'mirrors.nic.cz::CRAN'
-      R_TEXI2DVICMD: emulation
+      # Rtools45 version - update when new version released
+      # Check https://cran.r-project.org/bin/windows/Rtools/rtools45/files/ for latest
+      RTOOLS_VERSION: "6536"
+      TCLTK_VERSION: "6492"
     defaults:
       run:
-        shell: msys2 {0}
+        # Use Rtools45's built-in MSYS2 bash (per CRAN howto-R-devel.html)
+        shell: C:\rtools45\usr\bin\bash.exe --login -eo pipefail {0}
     strategy:
       fail-fast: false
       matrix:
         script: [ 'check', 'installer' ]
-        arch: [ 'intel', 'arm']
+        arch: [ 'intel', 'arm' ]
     steps:
     - name: Prepare git
       run: git config --global core.autocrlf false
       shell: bash
-
-    - name: Install InnoSetup
-      if: matrix.script == 'installer'
-      run: choco install -y --no-progress innosetup
-      shell: cmd
 
     - name: Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 100
 
-    - uses: msys2/setup-msys2@v2
-      with:
-        msystem: MSYS
-        install: git make perl curl texinfo texinfo-tex rsync zip unzip diffutils
-
-    - name: "Download rtools45 toolchain"
+    - name: Install Rtools45 (per CRAN howto)
+      shell: powershell
       run: |
-        archfix=${{ matrix.arch == 'arm' && '-aarch64' || '' }}
-        url="https://github.com/r-windows/rtools-chocolatey/releases/download/6536/rtools45-toolchain-libs-base${archfix}-6536.tar.zst"
-        curl -sSL $url | tar x --zstd -C /c/
+        $arch = "${{ matrix.arch }}"
+        if ($arch -eq "arm") {
+          $url = "https://cran.r-project.org/bin/windows/Rtools/rtools45/files/rtools45-aarch64-${{ env.RTOOLS_VERSION }}.exe"
+        } else {
+          $url = "https://cran.r-project.org/bin/windows/Rtools/rtools45/files/rtools45-${{ env.RTOOLS_VERSION }}.exe"
+        }
+        Write-Host "Downloading Rtools45 from: $url"
+        $installer = "$env:RUNNER_TEMP\rtools45-installer.exe"
+        Invoke-WebRequest -Uri $url -OutFile $installer -UseBasicParsing
+        Write-Host "Installing Rtools45 to C:\rtools45..."
+        Start-Process -FilePath $installer -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/DIR=C:\rtools45" -Wait -NoNewWindow
+        Write-Host "Rtools45 installed"
+
+    - name: Install InnoSetup
+      if: matrix.script == 'installer'
+      run: choco install -y --no-progress innosetup
+      shell: cmd
 
     - name: Set timezone
       shell: powershell
       run: tzutil /s "GMT Standard Time"
 
-    - uses: r-lib/actions/setup-tinytex@v2
-      env:
-        TINYTEX_INSTALLER: TinyTeX
-
-    - name: Install additional LaTeX packages
-      run: |
-        tlmgr update --self
-        tlmgr install texinfo
-        tlmgr list --only-installed
+    - name: Install MiKTeX
       shell: powershell
+      run: |
+        choco install -y --no-progress miktex
+        # Refresh PATH
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        # Configure MiKTeX for auto-install of packages
+        & "C:\Program Files\MiKTeX\miktex\bin\x64\initexmf.exe" --set-config-value [MPM]AutoInstall=1
+        # Install inconsolata font (required per CRAN howto)
+        & "C:\Program Files\MiKTeX\miktex\bin\x64\mpm.exe" --install=inconsolata
+
+    - name: Download Tcl/Tk bundle (per CRAN howto)
+      run: |
+        cd "$(cygpath ${GITHUB_WORKSPACE})"
+        if [ "${{ matrix.arch }}" = "arm" ]; then
+          tcltk="https://cran.r-project.org/bin/windows/Rtools/rtools45/files/tcltk-aarch64-${{ env.RTOOLS_VERSION }}-${{ env.TCLTK_VERSION }}.zip"
+        else
+          tcltk="https://cran.r-project.org/bin/windows/Rtools/rtools45/files/tcltk-${{ env.RTOOLS_VERSION }}-${{ env.TCLTK_VERSION }}.zip"
+        fi
+        echo "Downloading Tcl/Tk bundle from: $tcltk"
+        curl -sSL -o tcltk.zip "$tcltk"
+        unzip -q tcltk.zip
 
     - name: Build and Check
       run: |
-        sed -i.bak 's/rsync -rc/rsync -r/' tools/rsync-recommended
-        ./.github/scripts/win-${{matrix.script}}.sh
+        cd "$(cygpath ${GITHUB_WORKSPACE})"
+
+        # Set PATH per CRAN howto-R-devel.html
+        if [ "${{ matrix.arch }}" = "arm" ]; then
+          export PATH="/aarch64-w64-mingw32.static.posix/bin:$PATH"
+        else
+          export PATH="/x86_64-w64-mingw32.static.posix/bin:$PATH"
+        fi
+        # Add MiKTeX to PATH
+        export PATH="$PATH:/c/Program Files/MiKTeX/miktex/bin/x64"
+
+        # Set TAR variables per CRAN howto
+        export TAR="/usr/bin/tar"
+        export TAR_OPTIONS="--force-local"
+
+        echo "PATH: $PATH"
+        which make gcc pdflatex tar || true
+        make --version
+        gcc --version || clang --version
+
+        # Prepare SVN build
+        sed -i.bak 's|$(GIT) svn info|./.github/scripts/svn-info.sh|' Makefile.in
+        sed -i.bak 's|$(GIT) svn info|./.github/scripts/svn-info.sh|' src/include/Makefile.win
+        curl -sSL https://curl.se/ca/cacert.pem > etc/curl-ca-bundle.crt
+        ./.github/scripts/wget-recommended.sh
+        ./.github/scripts/svn-info.sh
+
+        cd src/gnuwin32
+
+        # Configure MkRules.local per CRAN howto
+        echo 'ISDIR = C:/Program Files (x86)/Inno Setup 6' > MkRules.local
+        if [ "${{ matrix.arch }}" = "arm" ]; then
+          echo "USE_LLVM = 1" >> MkRules.local
+          echo "WIN = " >> MkRules.local
+        fi
+        cat MkRules.local
+
+        # Build per CRAN howto
+        if [ "${{ matrix.script }}" = "installer" ]; then
+          # Full build with installer
+          make rsync-recommended
+          make distribution
+        else
+          # Build and check
+          make rsync-recommended
+          make all recommended
+          make check-all
+        fi
 
     - name: Print failed tests
       if: failure() && matrix.script == 'check'
-      run: tail -n100 tests/*.fail
+      run: tail -n100 tests/*.fail || true
 
     - name: Run Installer
-      run: .\src\gnuwin32\installer\R-devel-win.exe /SILENT
       if: matrix.script == 'installer'
       shell: powershell
+      run: .\src\gnuwin32\installer\R-devel-win.exe /SILENT
 
-    - uses: actions/upload-artifact@v4
-      with:
-        name: Windows-R-devel-${{matrix.arch}}
-        path: src/gnuwin32/installer/R-devel-win.exe
+    - name: Upload installer artifact
       if: matrix.script == 'installer'
+      uses: actions/upload-artifact@v4
+      with:
+        name: Windows-R-devel-${{ matrix.arch }}
+        path: src/gnuwin32/installer/R-devel-win.exe
