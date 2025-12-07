@@ -18,6 +18,8 @@ SOURCES_F =
 DEPENDS = $(SOURCES_C:.c=.d)
 OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
 
+# need src/include headers for out-of-tree builds
+PKG_CPPFLAGS = -I$(top_builddir)/src/include -I$(top_srcdir)/src/include
 PKG_CFLAGS = $(C_VISIBILITY)
 
 SHLIB = $(pkg)@SHLIB_EXT@
@@ -40,6 +42,8 @@ shlib: $(SHLIB)
 
 include $(R_HOME)/etc${R_ARCH}/Makeconf
 include $(top_srcdir)/share/make/shlib.mk
+## Ensure dependency files are generated before object compilation
+$(OBJECTS): Makedeps
 ## override to use LTO for linking with --enable-lto=R
 LTO = @LTO@
 

@@ -25,9 +25,10 @@ R all: Makefile
 	@$(MAKE) libtz.a
 
 libtz.a: $(OBJECTS)
-	@rm -f $@
-	$(AR) -cr $@ $(OBJECTS)
-	@$(RANLIB) $@
+	@rm -f $@.tmp
+	$(AR) -cr $@.tmp $(OBJECTS)
+	@if test -n "$(RANLIB)"; then $(RANLIB) $@.tmp; fi
+	@mv -f $@.tmp $@
 
 
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status

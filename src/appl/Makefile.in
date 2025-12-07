@@ -51,12 +51,12 @@ R: Makedeps
 libappl.a: $(OBJECTS)
 	@rm -f $@
 	$(AR) -cr $@ $(OBJECTS)
-	$(RANLIB) $@
+	@if test -n "$(RANLIB)"; then $(RANLIB) $@; fi
 
 libLinpack.a: $(OBJECTS_LIN)
 	@rm -f $@
 	$(AR) -cr $@ $(OBJECTS_LIN)
-	$(RANLIB) $@
+	@if test -n "$(RANLIB)"; then $(RANLIB) $@; fi
 
 ## Used with --disable-BLAS-shlib
 blas.o: $(top_srcdir)/src/extra/blas/blas.f

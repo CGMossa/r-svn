@@ -128,14 +128,27 @@ configure-sandbox:
     tmpdir="$(mktemp -d /tmp/r-conf-build-XXXXXX)"
     echo "Using sandbox: $tmpdir"
 
-    # Exclude generated headers that would interfere with out-of-tree builds
+    # Exclude configure-generated files that would interfere with out-of-tree builds
     rsync -a --delete \
         --exclude='.git' \
         --exclude='autom4te.cache' \
-        --exclude='src/include/Rversion.h' \
+        --exclude='config.cache' \
+        --exclude='config.log' \
+        --exclude='config.status' \
+        --exclude='Makeconf' \
+        --exclude='Makefrag.*' \
+        --exclude='src/include/config.h' \
         --exclude='src/include/Rconfig.h' \
         --exclude='src/include/Rmath.h' \
-        --exclude='src/include/config.h' \
+        --exclude='src/include/Rversion.h' \
+        --exclude='src/include/stamp-h' \
+        --exclude='**/Makefile' \
+        --exclude='/_build' \
+        --exclude='/bin' \
+        --exclude='/lib' \
+        --exclude='/library' \
+        --exclude='/modules' \
+        --exclude='/include' \
         "$srcroot"/ "$tmpdir/src/"
     mkdir -p "$tmpdir/build"
     cd "$tmpdir/build"
@@ -172,14 +185,27 @@ build-r-min:
     echo "Using build directory: $tmpdir"
 
     # Copy source tree to temp (required for out-of-tree builds)
-    # Exclude generated headers that would interfere with out-of-tree builds
+    # Exclude configure-generated files that would interfere with out-of-tree builds
     rsync -a --delete \
         --exclude='.git' \
         --exclude='autom4te.cache' \
-        --exclude='src/include/Rversion.h' \
+        --exclude='config.cache' \
+        --exclude='config.log' \
+        --exclude='config.status' \
+        --exclude='Makeconf' \
+        --exclude='Makefrag.*' \
+        --exclude='src/include/config.h' \
         --exclude='src/include/Rconfig.h' \
         --exclude='src/include/Rmath.h' \
-        --exclude='src/include/config.h' \
+        --exclude='src/include/Rversion.h' \
+        --exclude='src/include/stamp-h' \
+        --exclude='**/Makefile' \
+        --exclude='/_build' \
+        --exclude='/bin' \
+        --exclude='/lib' \
+        --exclude='/library' \
+        --exclude='/modules' \
+        --exclude='/include' \
         "$srcroot"/ "$tmpdir/src/"
     if [ ! -f "$tmpdir/src/share/make/vars.mk" ]; then
         mkdir -p "$tmpdir/src/share/make"
@@ -239,13 +265,27 @@ sandbox-repl:
 
     # Exclude generated headers that would interfere with out-of-tree builds
     echo "Copying sources..."
+    # Exclude configure-generated files that would interfere with out-of-tree builds
     rsync -a --delete \
         --exclude='.git' \
         --exclude='autom4te.cache' \
-        --exclude='src/include/Rversion.h' \
+        --exclude='config.cache' \
+        --exclude='config.log' \
+        --exclude='config.status' \
+        --exclude='Makeconf' \
+        --exclude='Makefrag.*' \
+        --exclude='src/include/config.h' \
         --exclude='src/include/Rconfig.h' \
         --exclude='src/include/Rmath.h' \
-        --exclude='src/include/config.h' \
+        --exclude='src/include/Rversion.h' \
+        --exclude='src/include/stamp-h' \
+        --exclude='**/Makefile' \
+        --exclude='/_build' \
+        --exclude='/bin' \
+        --exclude='/lib' \
+        --exclude='/library' \
+        --exclude='/modules' \
+        --exclude='/include' \
         "$srcroot"/ "$tmpdir/src/"
     if [ ! -f "$tmpdir/src/share/make/vars.mk" ]; then
       mkdir -p "$tmpdir/src/share/make"
@@ -340,13 +380,27 @@ sandbox-rebuild dir:
     fi
 
     # Sync source changes
+    # Exclude configure-generated files that would interfere with out-of-tree builds
     rsync -a --delete \
         --exclude='.git' \
         --exclude='autom4te.cache' \
-        --exclude='src/include/Rversion.h' \
+        --exclude='config.cache' \
+        --exclude='config.log' \
+        --exclude='config.status' \
+        --exclude='Makeconf' \
+        --exclude='Makefrag.*' \
+        --exclude='src/include/config.h' \
         --exclude='src/include/Rconfig.h' \
         --exclude='src/include/Rmath.h' \
-        --exclude='src/include/config.h' \
+        --exclude='src/include/Rversion.h' \
+        --exclude='src/include/stamp-h' \
+        --exclude='**/Makefile' \
+        --exclude='/_build' \
+        --exclude='/bin' \
+        --exclude='/lib' \
+        --exclude='/library' \
+        --exclude='/modules' \
+        --exclude='/include' \
         "$srcroot"/ "$tmpdir/src/"
 
     cd "$tmpdir/build"
@@ -938,13 +992,27 @@ build-unity:
     echo "Using unity build directory: $tmpdir"
 
     # Copy source tree to temp
+    # Exclude configure-generated files that would interfere with out-of-tree builds
     rsync -a --delete \
         --exclude='.git' \
         --exclude='autom4te.cache' \
-        --exclude='src/include/Rversion.h' \
+        --exclude='config.cache' \
+        --exclude='config.log' \
+        --exclude='config.status' \
+        --exclude='Makeconf' \
+        --exclude='Makefrag.*' \
+        --exclude='src/include/config.h' \
         --exclude='src/include/Rconfig.h' \
         --exclude='src/include/Rmath.h' \
-        --exclude='src/include/config.h' \
+        --exclude='src/include/Rversion.h' \
+        --exclude='src/include/stamp-h' \
+        --exclude='**/Makefile' \
+        --exclude='/_build' \
+        --exclude='/bin' \
+        --exclude='/lib' \
+        --exclude='/library' \
+        --exclude='/modules' \
+        --exclude='/include' \
         "$srcroot"/ "$tmpdir/src/"
     if [ ! -f "$tmpdir/src/share/make/vars.mk" ]; then
         mkdir -p "$tmpdir/src/share/make"
@@ -997,13 +1065,27 @@ build-no-unity:
     echo "Using unity build directory: $tmpdir"
 
     # Copy source tree to temp
+    # Exclude configure-generated files that would interfere with out-of-tree builds
     rsync -a --delete \
         --exclude='.git' \
         --exclude='autom4te.cache' \
-        --exclude='src/include/Rversion.h' \
+        --exclude='config.cache' \
+        --exclude='config.log' \
+        --exclude='config.status' \
+        --exclude='Makeconf' \
+        --exclude='Makefrag.*' \
+        --exclude='src/include/config.h' \
         --exclude='src/include/Rconfig.h' \
         --exclude='src/include/Rmath.h' \
-        --exclude='src/include/config.h' \
+        --exclude='src/include/Rversion.h' \
+        --exclude='src/include/stamp-h' \
+        --exclude='**/Makefile' \
+        --exclude='/_build' \
+        --exclude='/bin' \
+        --exclude='/lib' \
+        --exclude='/library' \
+        --exclude='/modules' \
+        --exclude='/include' \
         "$srcroot"/ "$tmpdir/src/"
     if [ ! -f "$tmpdir/src/share/make/vars.mk" ]; then
         mkdir -p "$tmpdir/src/share/make"

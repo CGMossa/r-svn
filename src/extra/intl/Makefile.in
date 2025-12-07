@@ -56,9 +56,10 @@ Makedeps: Makefile $(DEPENDS)
 	@touch $@
 
 libintl.a: $(libintl_a_OBJECTS)
-	@rm -f $@
-	$(AR) -cr $@ $(libintl_a_OBJECTS)
-	$(RANLIB) $@
+	@rm -f $@.tmp
+	$(AR) -cr $@.tmp $(libintl_a_OBJECTS)
+	@if test -n "$(RANLIB)"; then $(RANLIB) $@.tmp; fi
+	@mv -f $@.tmp $@
 
 headers: libgnuintl.h
 	@$(SHELL) $(top_srcdir)/tools/copy-if-change libgnuintl.h \

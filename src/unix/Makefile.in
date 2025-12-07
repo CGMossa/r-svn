@@ -63,7 +63,7 @@ sys-unix.o: $(srcdir)/sys-unix.c
 libunix.a: $(OBJECTS)
 	@rm -Rf $@
 	$(AR) -cr $@ $(OBJECTS)
-	$(RANLIB) $@
+	@if test -n "$(RANLIB)"; then $(RANLIB) $@; fi
 
 mostlyclean: clean
 clean:

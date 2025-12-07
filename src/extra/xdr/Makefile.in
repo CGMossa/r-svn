@@ -44,9 +44,10 @@ R: Makedeps
 	@$(MAKE) $(noinst_LIBRARIES)
 
 libxdr.a: $(libxdr_a_OBJECTS)
-	@rm -f $@
-	$(AR) -cr $@ $(libxdr_a_OBJECTS)
-	$(RANLIB) $@
+	@rm -f $@.tmp
+	$(AR) -cr $@.tmp $(libxdr_a_OBJECTS)
+	@if test -n "$(RANLIB)"; then $(RANLIB) $@.tmp; fi
+	@mv -f $@.tmp $@
 
 
 mostlyclean: clean

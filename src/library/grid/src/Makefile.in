@@ -26,7 +26,9 @@ SOURCES_F =
 DEPENDS = $(SOURCES_C:.c=.d)
 OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o)
 
-PKG_CFLAGS=$(C_VISIBILITY)
+# need config.h and src/include headers for unity builds
+PKG_CPPFLAGS = -I$(top_builddir)/src/include -I$(top_srcdir)/src/include -DHAVE_CONFIG_H
+PKG_CFLAGS = $(C_VISIBILITY)
 
 SHLIB = $(pkg)@SHLIB_EXT@
 
@@ -48,6 +50,8 @@ shlib: $(SHLIB)
 
 include $(R_HOME)/etc${R_ARCH}/Makeconf
 include $(top_srcdir)/share/make/shlib.mk
+## Ensure dependency files are generated before object compilation
+$(OBJECTS): Makedeps
 ## override to use LTO for linking with --enable-lto=R
 LTO = @LTO@
 

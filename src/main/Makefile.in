@@ -178,7 +178,7 @@ libR.a: $(OBJECTS) $(STATIC_LIBS)
 	@(cd libs; for l in $(STATIC_LIBS); do $(AR) -x ../$$l; done)
 	@rm -Rf $@
 	$(AR) -cr $@ $(OBJECTS) libs/*o
-	$(RANLIB) $@
+	@if test -n "$(RANLIB)"; then $(RANLIB) $@; fi
 	@rm -Rf libs
 
 install-bin-local: $(R_binary)

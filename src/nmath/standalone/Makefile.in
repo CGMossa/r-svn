@@ -132,7 +132,7 @@ Makedeps: Makefile Copy ../../include/Rconfig.h
 libRmath.a: $(libRmath_a_OBJECTS)
 	@rm -Rf $@
 	$(AR) -cr $@ $(libRmath_a_OBJECTS)
-	$(RANLIB) $@
+	@if test -n "$(RANLIB)"; then $(RANLIB) $@; fi
 
 ## under peculiar circumstances, $(LIBM) here helps.
 $(libRmath_la): $(libRmath_la_OBJECTS)
