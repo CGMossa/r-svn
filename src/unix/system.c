@@ -418,14 +418,14 @@ int Rf_initialize_R(int ac, char **av)
 				 _("path given in -f/--file is too long"));	\
 			R_Suicide(msg);					\
 		    }							\
-		    char path[R_PATH_MAX], *p = path;			\
-		    p = unescape_arg(p, _AV_);				\
-		    *p = '\0';						\
-		    ifp = R_fopen(path, "r");				\
+		    char fpath__[R_PATH_MAX], *fptr__ = fpath__;	\
+		    fptr__ = unescape_arg(fptr__, _AV_);		\
+		    *fptr__ = '\0';					\
+		    ifp = R_fopen(fpath__, "r");			\
 		    if(!ifp) {						\
 			snprintf(msg, MSGSIZE,				\
 				 _("cannot open file '%s': %s"),	\
-				 path, strerror(errno));		\
+				 fpath__, strerror(errno));		\
 			R_Suicide(msg);					\
 		    }							\
 		}
@@ -439,9 +439,9 @@ int Rf_initialize_R(int ac, char **av)
 		ac--; av++;
 		Rp->R_Interactive = FALSE;
 		if(strlen(cmdlines) + strlen(*av) + 2 <= 10000) {
-		    char *p = cmdlines+strlen(cmdlines);
-		    p = unescape_arg(p, *av);
-		    *p++ = '\n'; *p = '\0';
+		    char *cmdptr = cmdlines+strlen(cmdlines);
+		    cmdptr = unescape_arg(cmdptr, *av);
+		    *cmdptr++ = '\n'; *cmdptr = '\0';
 		} else {
 		    snprintf(msg, MSGSIZE, _("WARNING: '-e %s' omitted as input is too long\n"), *av);
 		    R_ShowMessage(msg);

@@ -642,21 +642,21 @@ static R_size_t R_NodesInUse = 0;
 /* unsnap node s from its list */
 #define UNSNAP_NODE(s) do { \
   SEXP un__n__ = (s); \
-  SEXP next = NEXT_NODE(un__n__); \
-  SEXP prev = PREV_NODE(un__n__); \
-  SET_NEXT_NODE(prev, next); \
-  SET_PREV_NODE(next, prev); \
+  SEXP un__next__ = NEXT_NODE(un__n__); \
+  SEXP un__prev__ = PREV_NODE(un__n__); \
+  SET_NEXT_NODE(un__prev__, un__next__); \
+  SET_PREV_NODE(un__next__, un__prev__); \
 } while(0)
 
 /* snap in node s before node t */
 #define SNAP_NODE(s,t) do { \
   SEXP sn__n__ = (s); \
-  SEXP next = (t); \
-  SEXP prev = PREV_NODE(next); \
-  SET_NEXT_NODE(sn__n__, next); \
-  SET_PREV_NODE(next, sn__n__); \
-  SET_NEXT_NODE(prev, sn__n__); \
-  SET_PREV_NODE(sn__n__, prev); \
+  SEXP sn__next__ = (t); \
+  SEXP sn__prev__ = PREV_NODE(sn__next__); \
+  SET_NEXT_NODE(sn__n__, sn__next__); \
+  SET_PREV_NODE(sn__next__, sn__n__); \
+  SET_NEXT_NODE(sn__prev__, sn__n__); \
+  SET_PREV_NODE(sn__n__, sn__prev__); \
 } while (0)
 
 /* move all nodes on from_peg to to_peg */
@@ -697,7 +697,8 @@ static R_size_t R_NodesInUse = 0;
 #endif
 
 #ifdef PROTECTCHECK
-#define FREE_FORWARD_CASE case FREESXP: if (gc_inhibit_release) break;
+#define FREE_FORWARD_CASE case FREESXP: if (gc_inhibit_release) break; \
+  __attribute__((fallthrough));
 #else
 #define FREE_FORWARD_CASE
 #endif
@@ -726,17 +727,17 @@ static R_size_t R_NodesInUse = 0;
     break; \
   case STRSXP: \
     { \
-      R_xlen_t i; \
-      for (i = 0; i < XLENGTH(__n__); i++) \
-	dc__str__action__(VECTOR_ELT_0(__n__, i), dc__extra__); \
+      R_xlen_t dc__i__; \
+      for (dc__i__ = 0; dc__i__ < XLENGTH(__n__); dc__i__++) \
+	dc__str__action__(VECTOR_ELT_0(__n__, dc__i__), dc__extra__); \
     } \
     break; \
   case EXPRSXP: \
   case VECSXP: \
     { \
-      R_xlen_t i; \
-      for (i = 0; i < XLENGTH(__n__); i++) \
-	dc__action__(VECTOR_ELT_0(__n__, i), dc__extra__); \
+      R_xlen_t dc__i__; \
+      for (dc__i__ = 0; dc__i__ < XLENGTH(__n__); dc__i__++) \
+	dc__action__(VECTOR_ELT_0(__n__, dc__i__), dc__extra__); \
     } \
     break; \
   case ENVSXP: \
@@ -1671,10 +1672,10 @@ attribute_hidden SEXP do_regFinaliz(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 #define PROCESS_NODES() do { \
     while (forwarded_nodes != NULL) { \
-	SEXP s = forwarded_nodes; \
+	SEXP pn__s__ = forwarded_nodes; \
 	forwarded_nodes = NEXT_NODE(forwarded_nodes); \
-	PROCESS_ONE_NODE(s); \
-	FORWARD_CHILDREN(s); \
+	PROCESS_ONE_NODE(pn__s__); \
+	FORWARD_CHILDREN(pn__s__); \
     } \
 } while (0)
 
@@ -1788,9 +1789,9 @@ static int RunGenCollect(R_size_t size_needed)
     if (R_SymbolTable != NULL)             /* in case of GC during startup */
 	for (i = 0; i < HSIZE; i++) {      /* Symbol table */
 	    FORWARD_NODE(R_SymbolTable[i]);
-	    SEXP s;
-	    for (s = R_SymbolTable[i]; s != R_NilValue; s = CDR(s))
-		if (ATTRIB(CAR(s)) != R_NilValue)
+	    SEXP sym;
+	    for (sym = R_SymbolTable[i]; sym != R_NilValue; sym = CDR(sym))
+		if (ATTRIB(CAR(sym)) != R_NilValue)
 		    gc_error("****found a symbol with attributes\n");
 	}
 

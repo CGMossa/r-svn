@@ -734,7 +734,7 @@ int R_SignalHandlers = 1;  /* Exposed in R_interface.h */
 
 const char* get_workspace_name(void);  /* from startup.c */
 
-attribute_hidden void BindDomain(char *R_Home)
+attribute_hidden void BindDomain(char *r_home_dir)
 {
 #ifdef ENABLE_NLS
     char *localedir = NULL;
@@ -744,7 +744,7 @@ attribute_hidden void BindDomain(char *R_Home)
     textdomain(PACKAGE);
     char *p = getenv("R_TRANSLATIONS");
     if (p) Rasprintf_malloc(&localedir, "%s", p);
-    else Rasprintf_malloc(&localedir, "%s/library/translations", R_Home);
+    else Rasprintf_malloc(&localedir, "%s/library/translations", r_home_dir);
     if (!localedir)
 	R_Suicide("allocation failure in BindDomain");
     bindtextdomain(PACKAGE, localedir); // PACKAGE = DOMAIN = "R"
