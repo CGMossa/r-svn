@@ -1470,8 +1470,8 @@ attribute_hidden void R_init_jit_enabled(void)
     if (R_compile_pkgs <= 0) {
 	char *compile = getenv("_R_COMPILE_PKGS_");
 	if (compile != NULL) {
-	    int val = atoi(compile);
-	    if (val > 0)
+	    int compile_val = atoi(compile);
+	    if (compile_val > 0)
 		R_compile_pkgs = TRUE;
 	    else
 		R_compile_pkgs = FALSE;
@@ -1481,8 +1481,8 @@ attribute_hidden void R_init_jit_enabled(void)
     if (R_disable_bytecode <= 0) {
 	char *disable = getenv("R_DISABLE_BYTECODE");
 	if (disable != NULL) {
-	    int val = atoi(disable);
-	    if (val > 0)
+	    int disable_val = atoi(disable);
+	    if (disable_val > 0)
 		R_disable_bytecode = TRUE;
 	    else
 		R_disable_bytecode = FALSE;
