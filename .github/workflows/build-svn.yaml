@@ -145,10 +145,6 @@ jobs:
     env:
       R_CRAN_WEB: "https://cran.rstudio.com"
       CRAN_RSYNC: 'mirrors.nic.cz::CRAN'
-      # Rtools45 version - update when new version released
-      # Check https://cran.r-project.org/bin/windows/Rtools/rtools45/files/ for latest
-      RTOOLS_VERSION: "6536"
-      TCLTK_VERSION: "6492"
     defaults:
       run:
         # Use Rtools45's built-in MSYS2 bash (per CRAN howto-R-devel.html)
@@ -172,17 +168,42 @@ jobs:
       shell: powershell
       run: |
         $arch = "${{ matrix.arch }}"
+        $baseUrl = "https://cran.r-project.org/bin/windows/Rtools/rtools45/files/"
+
+        # Fetch directory listing and find latest rtools45 installer
+        Write-Host "Fetching available Rtools45 versions from: $baseUrl"
+        $page = Invoke-WebRequest -Uri $baseUrl -UseBasicParsing
+
         if ($arch -eq "arm") {
-          $url = "https://cran.r-project.org/bin/windows/Rtools/rtools45/files/rtools45-aarch64-${{ env.RTOOLS_VERSION }}.exe"
+          # Match: rtools45-aarch64-NNNN.exe (largest NNNN wins)
+          $pattern = 'rtools45-aarch64-(\d+)\.exe'
         } else {
-          $url = "https://cran.r-project.org/bin/windows/Rtools/rtools45/files/rtools45-${{ env.RTOOLS_VERSION }}.exe"
+          # Match: rtools45-NNNN.exe (not aarch64, largest NNNN wins)
+          $pattern = 'rtools45-(\d+)\.exe'
         }
-        Write-Host "Downloading Rtools45 from: $url"
+
+        $matches = [regex]::Matches($page.Content, $pattern) |
+          ForEach-Object { @{ File = $_.Value; Version = [int]$_.Groups[1].Value } } |
+          Sort-Object -Property Version -Descending
+
+        if ($matches.Count -eq 0) {
+          Write-Error "No Rtools45 installer found for arch=$arch"
+          exit 1
+        }
+
+        $latest = $matches[0]
+        $url = "$baseUrl$($latest.File)"
+        Write-Host "Found latest Rtools45: $($latest.File) (version $($latest.Version))"
+        Write-Host "Downloading from: $url"
+
         $installer = "$env:RUNNER_TEMP\rtools45-installer.exe"
         Invoke-WebRequest -Uri $url -OutFile $installer -UseBasicParsing
         Write-Host "Installing Rtools45 to C:\rtools45..."
         Start-Process -FilePath $installer -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/DIR=C:\rtools45" -Wait -NoNewWindow
         Write-Host "Rtools45 installed"
+
+        # Export version for Tcl/Tk download
+        echo "RTOOLS_VERSION=$($latest.Version)" >> $env:GITHUB_ENV
 
     - name: Install InnoSetup
       if: matrix.script == 'installer'
@@ -205,16 +226,41 @@ jobs:
         & "C:\Program Files\MiKTeX\miktex\bin\x64\mpm.exe" --install=inconsolata
 
     - name: Download Tcl/Tk bundle (per CRAN howto)
+      shell: powershell
       run: |
-        cd "$(cygpath ${GITHUB_WORKSPACE})"
-        if [ "${{ matrix.arch }}" = "arm" ]; then
-          tcltk="https://cran.r-project.org/bin/windows/Rtools/rtools45/files/tcltk-aarch64-${{ env.RTOOLS_VERSION }}-${{ env.TCLTK_VERSION }}.zip"
-        else
-          tcltk="https://cran.r-project.org/bin/windows/Rtools/rtools45/files/tcltk-${{ env.RTOOLS_VERSION }}-${{ env.TCLTK_VERSION }}.zip"
-        fi
-        echo "Downloading Tcl/Tk bundle from: $tcltk"
-        curl -sSL -o tcltk.zip "$tcltk"
-        unzip -q tcltk.zip
+        $arch = "${{ matrix.arch }}"
+        $rtoolsVer = "${{ env.RTOOLS_VERSION }}"
+        $baseUrl = "https://cran.r-project.org/bin/windows/Rtools/rtools45/files/"
+
+        # Fetch directory listing and find matching tcltk bundle
+        Write-Host "Finding Tcl/Tk bundle for Rtools version $rtoolsVer"
+        $page = Invoke-WebRequest -Uri $baseUrl -UseBasicParsing
+
+        if ($arch -eq "arm") {
+          # Match: tcltk-aarch64-RTOOLS_VER-TCLTK_VER.zip
+          $pattern = "tcltk-aarch64-$rtoolsVer-(\d+)\.zip"
+        } else {
+          # Match: tcltk-RTOOLS_VER-TCLTK_VER.zip (not aarch64)
+          $pattern = "tcltk-$rtoolsVer-(\d+)\.zip"
+        }
+
+        $matches = [regex]::Matches($page.Content, $pattern) |
+          ForEach-Object { @{ File = $_.Value; TcltkVersion = [int]$_.Groups[1].Value } } |
+          Sort-Object -Property TcltkVersion -Descending
+
+        if ($matches.Count -eq 0) {
+          Write-Error "No Tcl/Tk bundle found for Rtools $rtoolsVer arch=$arch"
+          exit 1
+        }
+
+        $latest = $matches[0]
+        $url = "$baseUrl$($latest.File)"
+        Write-Host "Found Tcl/Tk: $($latest.File)"
+        Write-Host "Downloading from: $url"
+
+        Invoke-WebRequest -Uri $url -OutFile "tcltk.zip" -UseBasicParsing
+        Expand-Archive -Path "tcltk.zip" -DestinationPath "." -Force
+        Remove-Item "tcltk.zip"
 
     - name: Build and Check
       run: |
