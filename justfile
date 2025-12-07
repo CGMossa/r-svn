@@ -1,6 +1,11 @@
 # Build/test recipes for R configure modernisation
 
 set positional-arguments := true
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+# State file to track the current build directory
+# This avoids fragile `ls -td` pattern matching
+_build_state := "/tmp/.r-current-build"
 
 # Environment variables:
 #   QUIET=1          - Suppress configure output (just show summary)
@@ -57,6 +62,8 @@ configure-min:
         --without-recommended-packages \
         $html_flag
 
+    # Track this as the current build directory
+    echo "$tmpdir" > {{_build_state}}
     ls -a "$tmpdir"
 
 # Run configure with defaults (recommended packages required)
@@ -88,6 +95,9 @@ configure-full:
         --enable-fast-config \
         --with-aqua=no \
         $html_flag
+
+    # Track this as the current build directory
+    echo "$tmpdir" > {{_build_state}}
 
 # Build in local _build/ directory (out-of-tree but within repo, gitignored)
 build-local *args:
@@ -174,6 +184,8 @@ configure-sandbox:
         $html_flag \
         --no-create
 
+    # Track this as the current build directory
+    echo "$tmpdir" > {{_build_state}}
     ls -a .
 
 build-r-min:
@@ -247,6 +259,9 @@ build-r-min:
     # Ensure include headers are generated before install
     make -C src/include R
     make install
+
+    # Track this as the current build directory
+    echo "$tmpdir" > {{_build_state}}
 
     echo
     echo "R installed under: $tmpdir/install"
@@ -349,6 +364,9 @@ sandbox-repl:
     make -C src/include R
     make install
 
+    # Track this as the current build directory
+    echo "$tmpdir" > {{_build_state}}
+
     echo "Launching R from $tmpdir/install/bin/R"
     exec "$tmpdir/install/bin/R" --vanilla
 
@@ -356,8 +374,8 @@ sandbox-repl:
 sandbox-quick:
     #!/usr/bin/env bash
     set -euo pipefail
-    latest=$(ls -td /tmp/r-conf-build-*/build 2>/dev/null | head -1 | xargs dirname)
-    if [ -z "$latest" ]; then
+    latest=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$latest" ] || [ ! -d "$latest" ]; then
         echo "No existing sandbox found. Run 'just sandbox-repl' first."
         exit 1
     fi
@@ -466,12 +484,15 @@ configure-fast:
         ls -a "$tmpdir"
     fi
 
+    # Track this as the current build directory
+    echo "$tmpdir" > {{_build_state}}
+
 # Quick rebuild - reuse existing build directory
 rebuild *ARGS:
     #!/usr/bin/env bash
     set -euo pipefail
-    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
-    if [ -z "$BUILD" ]; then
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$BUILD" ] || [ ! -d "$BUILD" ]; then
         echo "No existing build dir found. Run configure-min first."
         exit 1
     fi
@@ -483,8 +504,8 @@ rebuild *ARGS:
 rebuild-component component:
     #!/usr/bin/env bash
     set -euo pipefail
-    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
-    if [ -z "$BUILD" ]; then
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$BUILD" ] || [ ! -d "$BUILD" ]; then
         echo "No existing build dir found. Run configure-min first."
         exit 1
     fi
@@ -496,8 +517,8 @@ rebuild-component component:
 test-r *ARGS:
     #!/usr/bin/env bash
     set -euo pipefail
-    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
-    if [ -z "$BUILD" ]; then
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$BUILD" ] || [ ! -d "$BUILD" ]; then
         echo "No existing build dir found. Run build-r-min first."
         exit 1
     fi
@@ -509,8 +530,8 @@ test-r *ARGS:
 test-rust:
     #!/usr/bin/env bash
     set -euo pipefail
-    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
-    if [ -z "$BUILD" ]; then
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$BUILD" ] || [ ! -d "$BUILD" ]; then
         echo "No existing build dir found. Run configure-min first."
         exit 1
     fi
@@ -535,8 +556,8 @@ test-rust:
 # Show configure summary from last build
 show-config:
     #!/usr/bin/env bash
-    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
-    if [ -n "$BUILD" ]; then
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -n "$BUILD" ] && [ -d "$BUILD" ]; then
         echo "Build dir: $BUILD"
         echo
         echo "=== Configure Summary ==="
@@ -592,6 +613,9 @@ configure-asan:
         --without-recommended-packages \
         --disable-html-docs
 
+    # Track this as the current build directory
+    echo "$tmpdir" > {{_build_state}}
+
     echo
     echo "ASAN build configured in: $tmpdir"
     echo "Run 'just rebuild' to build with AddressSanitizer"
@@ -630,12 +654,47 @@ configure-debug:
         --disable-html-docs \
         --enable-strict-barrier
 
+    # Track this as the current build directory
+    echo "$tmpdir" > {{_build_state}}
+
     echo
     echo "Debug build configured in: $tmpdir"
 
 # List all build directories
 list-builds:
     @ls -ltdh /tmp/r-conf-build-* 2>/dev/null | head -10 || echo "No builds found"
+
+# Show the current tracked build directory
+current-build:
+    @if [ -f {{_build_state}} ]; then \
+        echo "Current build: $(cat {{_build_state}})"; \
+    else \
+        echo "No current build tracked"; \
+    fi
+
+# Switch to a different existing build directory
+use-build dir:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ ! -d "{{dir}}" ]; then
+        echo "Error: {{dir}} does not exist"
+        exit 1
+    fi
+    echo "{{dir}}" > {{_build_state}}
+    echo "Now using: {{dir}}"
+
+# Clean the current tracked build directory
+clean-current:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$BUILD" ] || [ ! -d "$BUILD" ]; then
+        echo "No current build to clean"
+        exit 0
+    fi
+    echo "Removing: $BUILD"
+    rm -rf "$BUILD"
+    rm -f {{_build_state}}
 
 # Clear the config.cache file to force fresh configure checks
 clear-cache:
@@ -681,8 +740,8 @@ clean-all-builds:
 compile-commands:
     #!/usr/bin/env bash
     set -euo pipefail
-    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
-    if [ -z "$BUILD" ]; then
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$BUILD" ] || [ ! -d "$BUILD" ]; then
         echo "No existing build dir found. Run configure-min first."
         exit 1
     fi
@@ -697,8 +756,8 @@ compile-commands:
 # Quick R expression test
 run-expr expr:
     #!/usr/bin/env bash
-    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
-    if [ -z "$BUILD" ] || [ ! -x "$BUILD/install/bin/R" ]; then
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$BUILD" ] || [ ! -d "$BUILD" ] || [ ! -x "$BUILD/install/bin/R" ]; then
         echo "No installed R found. Run build-r-min first."
         exit 1
     fi
@@ -707,8 +766,8 @@ run-expr expr:
 # Run R with specific arguments
 run-r *ARGS:
     #!/usr/bin/env bash
-    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
-    if [ -z "$BUILD" ] || [ ! -x "$BUILD/install/bin/R" ]; then
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$BUILD" ] || [ ! -d "$BUILD" ] || [ ! -x "$BUILD/install/bin/R" ]; then
         echo "No installed R found. Run build-r-min first."
         exit 1
     fi
@@ -717,8 +776,8 @@ run-r *ARGS:
 # Show R version info from latest build
 r-version:
     #!/usr/bin/env bash
-    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
-    if [ -z "$BUILD" ] || [ ! -x "$BUILD/install/bin/R" ]; then
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$BUILD" ] || [ ! -d "$BUILD" ] || [ ! -x "$BUILD/install/bin/R" ]; then
         echo "No installed R found. Run build-r-min first."
         exit 1
     fi
@@ -727,8 +786,8 @@ r-version:
 # Compare Makeconf files (top-level vs etc for packages)
 compare-makeconf:
     #!/usr/bin/env bash
-    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
-    if [ -z "$BUILD" ]; then
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$BUILD" ] || [ ! -d "$BUILD" ]; then
         echo "No existing build dir found. Run configure-min first."
         exit 1
     fi
@@ -749,8 +808,8 @@ rust-link-info:
 test-rust-shlib:
     #!/usr/bin/env bash
     set -euo pipefail
-    BUILD=$(ls -td /tmp/r-conf-build-* 2>/dev/null | head -1)
-    if [ -z "$BUILD" ] || [ ! -x "$BUILD/install/bin/R" ]; then
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$BUILD" ] || [ ! -d "$BUILD" ] || [ ! -x "$BUILD/install/bin/R" ]; then
         echo "No installed R found. Run build-r-min first."
         exit 1
     fi
@@ -890,14 +949,7 @@ time-libs-no-unity:
     printf "Total: %.2fs\n" "$total"
 
 # Compare unity vs non-unity build times (libraries only)
-time-libs-compare:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    echo "Running unity build timing..."
-    just time-libs
-    echo
-    echo "Running non-unity build timing..."
-    just time-libs-no-unity
+time-libs-compare: time-libs time-libs-no-unity
 
 # Time full R build WITH unity builds
 # Uses existing build in /tmp/r-conf-build-unity-*
@@ -905,8 +957,8 @@ time-full:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    BUILD=$(ls -td /tmp/r-conf-build-unity-* 2>/dev/null | head -1)
-    if [ -z "$BUILD" ] || [ ! -f "$BUILD/build/Makefile" ]; then
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$BUILD" ] || [ ! -d "$BUILD" ] || [ ! -f "$BUILD/build/Makefile" ]; then
         echo "No existing unity build found. Run 'just build-unity' first."
         exit 1
     fi
@@ -941,8 +993,8 @@ time-full-no-unity:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    BUILD=$(ls -td /tmp/r-conf-build-unity-* 2>/dev/null | head -1)
-    if [ -z "$BUILD" ] || [ ! -f "$BUILD/build/Makefile" ]; then
+    BUILD=$(cat {{_build_state}} 2>/dev/null)
+    if [ -z "$BUILD" ] || [ ! -d "$BUILD" ] || [ ! -f "$BUILD/build/Makefile" ]; then
         echo "No existing unity build found. Run 'just build-unity' first."
         exit 1
     fi
@@ -972,14 +1024,7 @@ time-full-no-unity:
     printf "\nTotal build time: %.2fs\n" "$elapsed"
 
 # Compare full unity vs non-unity build times
-time-full-compare:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    echo "Running FULL unity build timing..."
-    just time-full
-    echo
-    echo "Running FULL non-unity build timing..."
-    just time-full-no-unity
+time-full-compare: time-full time-full-no-unity
 
 # Build with unity build enabled (combines .c files for faster compilation)
 # This passes UNITY_BUILD=yes to make, enabling the conditional in Makefiles
@@ -1049,6 +1094,9 @@ build-unity:
     # Build with unity build enabled
     echo "Building with UNITY_BUILD=yes..."
     make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" UNITY_BUILD=yes R
+
+    # Track this as the current build directory
+    echo "$tmpdir" > {{_build_state}}
 
     echo
     echo "Unity build completed in: $tmpdir/build"
@@ -1122,6 +1170,9 @@ build-no-unity:
     # Build without unity build
     echo "Building with UNITY_BUILD=no..."
     make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" UNITY_BUILD=no R
+
+    # Track this as the current build directory
+    echo "$tmpdir" > {{_build_state}}
 
     echo
     echo "Non-unity build completed in: $tmpdir/build"
