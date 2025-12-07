@@ -312,23 +312,28 @@ fi
 ## Detect the native static libraries needed when linking Rust code
 AC_DEFUN([R_RUST_NATIVE_STATIC_LIBS],
 [
-AC_MSG_CHECKING([for Rust native static libs])
-if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
-  cat > conftest.rs << 'EOF'
+if test "x${enable_fast_config}" = "xyes"; then
+  AC_MSG_NOTICE([fast-config: assuming standard Rust native static libs])
+  RUST_NATIVE_STATIC_LIBS=""
+else
+  AC_MSG_CHECKING([for Rust native static libs])
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    cat > conftest.rs << 'EOF'
 #[no_mangle]
 pub extern "C" fn rust_dummy() -> i32 { 0 }
 EOF
-  RUST_NATIVE_STATIC_LIBS=`${RUSTC} --crate-type=staticlib --print native-static-libs conftest.rs 2>&1 | grep "native-static-libs:" | sed 's/.*native-static-libs: //'`
-  rm -f conftest.rs libconftest.a
-  if test -n "${RUST_NATIVE_STATIC_LIBS}"; then
-    AC_MSG_RESULT([${RUST_NATIVE_STATIC_LIBS}])
+    RUST_NATIVE_STATIC_LIBS=`${RUSTC} --crate-type=staticlib --print native-static-libs conftest.rs 2>&1 | grep "native-static-libs:" | sed 's/.*native-static-libs: //'`
+    rm -f conftest.rs libconftest.a
+    if test -n "${RUST_NATIVE_STATIC_LIBS}"; then
+      AC_MSG_RESULT([${RUST_NATIVE_STATIC_LIBS}])
+    else
+      AC_MSG_RESULT([none detected])
+      RUST_NATIVE_STATIC_LIBS=""
+    fi
   else
-    AC_MSG_RESULT([none detected])
+    AC_MSG_RESULT([rustc not available])
     RUST_NATIVE_STATIC_LIBS=""
   fi
-else
-  AC_MSG_RESULT([rustc not available])
-  RUST_NATIVE_STATIC_LIBS=""
 fi
 AC_SUBST(RUST_NATIVE_STATIC_LIBS)
 ])# R_RUST_NATIVE_STATIC_LIBS

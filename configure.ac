@@ -146,6 +146,8 @@ if test "x${enable_fast_config}" = "xyes"; then
   want_aqua=no
   WANT_JAVA=no
   want_java=no
+  # NLS: set both enable_nls (for AM_NLS) and USE_NLS (for later checks)
+  enable_nls=no
   USE_NLS=no
   use_readline=yes
   USE_RECOMMENDED_PACKAGES=no

@@ -4883,6 +4883,8 @@ printf "%s\n" "$as_me: fast-config: skipping optional subsystems (X11, Cairo, Tc
   want_aqua=no
   WANT_JAVA=no
   want_java=no
+  # NLS: set both enable_nls (for AM_NLS) and USE_NLS (for later checks)
+  enable_nls=no
   USE_NLS=no
   use_readline=yes
   USE_RECOMMENDED_PACKAGES=no
@@ -14623,7 +14625,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:14626: \"$ac_link\") >&5
+(eval echo $as_me:14628: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -14701,7 +14703,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:14704: \"$ac_link\") >&5
+(eval echo $as_me:14706: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -15861,27 +15863,33 @@ ac_config_commands="$ac_config_commands r_rust_rules_frag"
 
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Rust native static libs" >&5
+if test "x${enable_fast_config}" = "xyes"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: fast-config: assuming standard Rust native static libs" >&5
+printf "%s\n" "$as_me: fast-config: assuming standard Rust native static libs" >&6;}
+  RUST_NATIVE_STATIC_LIBS=""
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Rust native static libs" >&5
 printf %s "checking for Rust native static libs... " >&6; }
-if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
-  cat > conftest.rs << 'EOF'
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    cat > conftest.rs << 'EOF'
 #[no_mangle]
 pub extern "C" fn rust_dummy() -> i32 { 0 }
 EOF
-  RUST_NATIVE_STATIC_LIBS=`${RUSTC} --crate-type=staticlib --print native-static-libs conftest.rs 2>&1 | grep "native-static-libs:" | sed 's/.*native-static-libs: //'`
-  rm -f conftest.rs libconftest.a
-  if test -n "${RUST_NATIVE_STATIC_LIBS}"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_NATIVE_STATIC_LIBS}" >&5
+    RUST_NATIVE_STATIC_LIBS=`${RUSTC} --crate-type=staticlib --print native-static-libs conftest.rs 2>&1 | grep "native-static-libs:" | sed 's/.*native-static-libs: //'`
+    rm -f conftest.rs libconftest.a
+    if test -n "${RUST_NATIVE_STATIC_LIBS}"; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_NATIVE_STATIC_LIBS}" >&5
 printf "%s\n" "${RUST_NATIVE_STATIC_LIBS}" >&6; }
-  else
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: none detected" >&5
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: none detected" >&5
 printf "%s\n" "none detected" >&6; }
+      RUST_NATIVE_STATIC_LIBS=""
+    fi
+  else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: rustc not available" >&5
+printf "%s\n" "rustc not available" >&6; }
     RUST_NATIVE_STATIC_LIBS=""
   fi
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: rustc not available" >&5
-printf "%s\n" "rustc not available" >&6; }
-  RUST_NATIVE_STATIC_LIBS=""
 fi
 
 
@@ -19796,7 +19804,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:19799: \"$ac_link\") >&5
+(eval echo $as_me:19807: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -19882,7 +19890,7 @@ _ACEOF
 # flags.
 r_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:19885: \"$ac_link\") >&5
+(eval echo $as_me:19893: \"$ac_link\") >&5
 r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$r_c_v_output" >&5
 CFLAGS=$r_save_CFLAGS
@@ -21038,27 +21046,33 @@ r_rust_rules_frag=Makefrag.rs
 
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Rust native static libs" >&5
+if test "x${enable_fast_config}" = "xyes"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: fast-config: assuming standard Rust native static libs" >&5
+printf "%s\n" "$as_me: fast-config: assuming standard Rust native static libs" >&6;}
+  RUST_NATIVE_STATIC_LIBS=""
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Rust native static libs" >&5
 printf %s "checking for Rust native static libs... " >&6; }
-if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
-  cat > conftest.rs << 'EOF'
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    cat > conftest.rs << 'EOF'
 #[no_mangle]
 pub extern "C" fn rust_dummy() -> i32 { 0 }
 EOF
-  RUST_NATIVE_STATIC_LIBS=`${RUSTC} --crate-type=staticlib --print native-static-libs conftest.rs 2>&1 | grep "native-static-libs:" | sed 's/.*native-static-libs: //'`
-  rm -f conftest.rs libconftest.a
-  if test -n "${RUST_NATIVE_STATIC_LIBS}"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_NATIVE_STATIC_LIBS}" >&5
+    RUST_NATIVE_STATIC_LIBS=`${RUSTC} --crate-type=staticlib --print native-static-libs conftest.rs 2>&1 | grep "native-static-libs:" | sed 's/.*native-static-libs: //'`
+    rm -f conftest.rs libconftest.a
+    if test -n "${RUST_NATIVE_STATIC_LIBS}"; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_NATIVE_STATIC_LIBS}" >&5
 printf "%s\n" "${RUST_NATIVE_STATIC_LIBS}" >&6; }
-  else
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: none detected" >&5
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: none detected" >&5
 printf "%s\n" "none detected" >&6; }
+      RUST_NATIVE_STATIC_LIBS=""
+    fi
+  else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: rustc not available" >&5
+printf "%s\n" "rustc not available" >&6; }
     RUST_NATIVE_STATIC_LIBS=""
   fi
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: rustc not available" >&5
-printf "%s\n" "rustc not available" >&6; }
-  RUST_NATIVE_STATIC_LIBS=""
 fi
 
 
@@ -48618,7 +48632,9 @@ if test "${ac_cv_header_rpc_types_h}" = yes && \
 else
   r_xdr=no
 fi
-TIRPC_CPPFLAGS=
+if test "${r_xdr_pkg}" != yes ; then
+  TIRPC_CPPFLAGS=
+fi
 if test "${r_xdr}" = no ; then
   ## No RPC headers, so try for TI-RPC headers: need /usr/include/tirpc
   ## on include path to find /usr/include/tirpc/netconfig.h
