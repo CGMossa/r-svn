@@ -11,9 +11,15 @@ top_builddir = ../../../..
 subdir = src/library/$(pkg)/src
 R_HOME = $(top_builddir)
 
+## Unity build (default): combines most C files into single translation unit
+## Use UNITY_BUILD=no to compile files separately
+ifneq ($(UNITY_BUILD),no)
+SOURCES_C = unity_grDevices_win.c
+else
 SOURCES_C = axis_scales.c chull.c devices.c init.c stubs.c colors.c \
    clippath.c patterns.c mask.c group.c \
    devPicTeX.c devPS.c devWindows.c winbitmap.c
+endif
 SOURCES_F =
 DEPENDS = $(SOURCES_C:.c=.d)
 OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o) ../../../gnuwin32/dllversion.o

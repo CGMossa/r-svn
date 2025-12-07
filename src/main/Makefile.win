@@ -9,6 +9,29 @@ all: makeMakedeps libmain.a
 CPPFLAGS = -I. -I../include -DHAVE_CONFIG_H -DR_DLL_BUILD $(arch_DEFS)
 
 # (flexiblas not supported on Windows)
+ifneq ($(UNITY_BUILD),no)
+## Unity build - 12 batches + main.c + memory.c + inlined.c separate (99 -> 15 files)
+## main.c must be compiled separately due to __MAIN__ pattern
+## memory.c must be compiled separately due to STRING_ELT redefinition
+## inlined.c must be compiled separately to export non-inline API functions
+CSOURCES = \
+	main.c \
+	memory.c \
+	inlined.c \
+	unity_main_batch1.c \
+	unity_main_batch2.c \
+	unity_main_batch3.c \
+	unity_main_batch4.c \
+	unity_main_batch5.c \
+	unity_main_batch6.c \
+	unity_main_batch7.c \
+	unity_main_batch8.c \
+	unity_main_batch9.c \
+	unity_main_batch10.c \
+	unity_main_batch11.c \
+	unity_main_batch12.c
+else
+## Individual file compilation
 CSOURCES = \
 	CommandLineArgs.c \
 	Rdynload.c Renviron.c RNG.c \
@@ -35,6 +58,7 @@ CSOURCES = \
 	unique.c util.c \
 	version.c \
 	g_alab_her.c g_cntrlify.c g_fontdb.c g_her_glyph.c
+endif
 
 
 FSOURCES = xxxpr.f
