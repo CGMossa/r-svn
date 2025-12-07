@@ -76,6 +76,11 @@ src/unix/Makefile
 tests/Makefile
 tests/*/Makefile
 tools/Makefile
+tests/
+src/library/**/*.tar.gz
+src/library/**/*.tgz
+cran.rstudio.com/
+tests/**/*.Rcheck
 
 # Generated scripts
 src/scripts/R.sh

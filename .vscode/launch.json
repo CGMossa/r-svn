@@ -1,0 +1,33 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug R",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/exec/R",
+            "args": ["--vanilla"],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "R_HOME": "${workspaceFolder}",
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/lib",
+                "R_LIBS_USER": "",
+                "R_PROFILE_USER": ""
+            }
+        },
+        {
+            "name": "Debug R (with args)",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/exec/R",
+            "args": ["--vanilla", "-e", "print('hello')"],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "R_HOME": "${workspaceFolder}",
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/lib",
+                "R_LIBS_USER": "",
+                "R_PROFILE_USER": ""
+            }
+        }
+    ]
+}

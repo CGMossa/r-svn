@@ -45,7 +45,17 @@ intree-configure:
 
 # Quick make (rebuilds changed files only)
 make *ARGS:
-    make -C "{{justfile_directory()}}" -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" R {{ARGS}}
+    #!/usr/bin/env bash
+    set -euo pipefail
+    srcdir="{{justfile_directory()}}"
+    make -C "$srcdir" -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" R {{ARGS}}
+    # Fix rpath for lldb debugging on macOS (binary uses relative libR.dylib path)
+    if [[ "$(uname)" == "Darwin" ]] && [[ -f "$srcdir/bin/exec/R" ]]; then
+        if ! otool -L "$srcdir/bin/exec/R" | grep -q '@rpath/libR'; then
+            install_name_tool -add_rpath "@executable_path/../../lib" "$srcdir/bin/exec/R" 2>/dev/null || true
+            install_name_tool -change "libR.dylib" "@rpath/libR.dylib" "$srcdir/bin/exec/R" 2>/dev/null || true
+        fi
+    fi
 
 # Make a specific component (e.g., src/main, src/nmath, src/library/grid/src)
 make-component dir *ARGS:
@@ -54,6 +64,14 @@ make-component dir *ARGS:
 # Run in-tree R (after 'just make')
 run *ARGS:
     "{{justfile_directory()}}"/bin/R --vanilla {{ARGS}}
+
+# Debug in-tree R with lldb (works around sandbox issues)
+debug *ARGS:
+    #!/usr/bin/env bash
+    srcdir="{{justfile_directory()}}"
+    cd "$srcdir"
+    # Run lldb directly on the binary with proper env
+    DYLD_LIBRARY_PATH="$srcdir/lib" lldb -o "env DYLD_LIBRARY_PATH=$srcdir/lib" -o "env R_HOME=$srcdir" -- "$srcdir/bin/exec/R" {{ARGS}}
 
 # Run R expression in-tree
 eval expr:
@@ -66,6 +84,150 @@ intree-clean:
 # Full distclean (removes config, need to run intree-configure again)
 intree-distclean:
     make -C "{{justfile_directory()}}" distclean
+
+# =====================================================================
+# CI-LIKE LOCAL TESTING (mirrors build-svn.yaml workflow)
+# =====================================================================
+# Run the same steps as CI to catch issues before pushing.
+
+# Run full CI-like build and check (like build-svn.yaml)
+# This does: prepare -> configure -> build -> check-all
+ci-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    srcdir="{{justfile_directory()}}"
+    cd "$srcdir"
+
+    echo "=== CI-like local check ==="
+    echo "This mirrors the build-svn.yaml workflow"
+    echo
+
+    # Step 1: Prepare (patch Makefile.in, download recommended, svn-info)
+    echo "=== Step 1: Prepare ==="
+    if ! grep -q 'svn-info.sh' Makefile.in; then
+        sed -i.bak 's|$(GIT) svn info|./.github/scripts/svn-info.sh|' Makefile.in
+        echo "Patched Makefile.in for svn-info"
+    fi
+    if [ ! -d src/library/Recommended ] || [ -z "$(ls -A src/library/Recommended/*.tgz 2>/dev/null)" ]; then
+        echo "Downloading recommended packages..."
+        ./.github/scripts/wget-recommended.sh
+    else
+        echo "Recommended packages already present"
+    fi
+    ./.github/scripts/svn-info.sh
+
+    # Step 2: Configure (like CI does for macOS)
+    echo
+    echo "=== Step 2: Configure ==="
+    {{setup-paths}}
+
+    ./configure \
+        --enable-R-shlib \
+        --with-blas \
+        --with-lapack \
+        --disable-java \
+        --with-aqua \
+        --without-tcltk \
+        --without-x
+
+    # Step 3: Build
+    echo
+    echo "=== Step 3: Build ==="
+    make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)"
+
+    # Step 4: Check
+    echo
+    echo "=== Step 4: Check ==="
+    make check-all
+
+    echo
+    echo "=== CI check passed! ==="
+
+# Just run make check-all on existing in-tree build
+ci-check-only:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    srcdir="{{justfile_directory()}}"
+    cd "$srcdir"
+    if [ ! -f Makefile ]; then
+        echo "No Makefile found. Run 'just ci-check' or 'just intree-configure' first."
+        exit 1
+    fi
+    make check-all
+
+# Download recommended packages (needed for full R build)
+ci-prepare:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    srcdir="{{justfile_directory()}}"
+    cd "$srcdir"
+    if ! grep -q 'svn-info.sh' Makefile.in; then
+        sed -i.bak 's|$(GIT) svn info|./.github/scripts/svn-info.sh|' Makefile.in
+        echo "Patched Makefile.in for svn-info"
+    fi
+    ./.github/scripts/wget-recommended.sh
+    ./.github/scripts/svn-info.sh
+    echo "Preparation complete"
+
+# Run check-all but skip PDF manual generation (for systems without full TeX)
+# Pass RCHK with --no-manual to skip PDF generation
+ci-check-no-pdf:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    srcdir="{{justfile_directory()}}"
+    cd "$srcdir"
+    if [ ! -f Makefile ]; then
+        echo "No Makefile found. Run 'just ci-check' first to configure and build."
+        exit 1
+    fi
+    echo "Running check-all with PDF manual checks disabled..."
+    make check-all RCHK="R_LIBS_USER=NULL ${srcdir}/bin/R CMD check --no-manual"
+
+# Open a dev shell with the in-tree R at front of PATH (builds if needed)
+dev-shell: make
+    #!/usr/bin/env bash
+    srcdir="{{justfile_directory()}}"
+
+    echo "=== R Dev Shell ==="
+    echo "R binary: $srcdir/bin/R"
+    echo "R --version: $($srcdir/bin/R --version | head -1)"
+    echo
+    echo "Type 'exit' to leave dev shell"
+
+    # Create temp dir for shell config that preserves our PATH after rc files
+    tmpdir=$(mktemp -d)
+    trap "rm -rf $tmpdir" EXIT
+
+    # For zsh: create .zshrc that sources user's config then prepends our PATH
+    printf '%s\n' \
+        '# Source user zshrc if it exists' \
+        'test -f ~/.zshrc && source ~/.zshrc' \
+        '# Prepend dev R to PATH (after user rc has run)' \
+        "export PATH=\"$srcdir/bin:\$PATH\"" \
+        "export R_HOME=\"$srcdir\"" \
+        'export R_LIBS_USER=""' \
+        'export R_PROFILE_USER=""' \
+        "export DYLD_LIBRARY_PATH=\"$srcdir/lib:\${DYLD_LIBRARY_PATH:-}\"" \
+        > "$tmpdir/.zshrc"
+
+    # For bash: similar approach
+    printf '%s\n' \
+        '# Source user bashrc if it exists' \
+        'test -f ~/.bashrc && source ~/.bashrc' \
+        '# Prepend dev R to PATH (after user rc has run)' \
+        "export PATH=\"$srcdir/bin:\$PATH\"" \
+        "export R_HOME=\"$srcdir\"" \
+        'export R_LIBS_USER=""' \
+        'export R_PROFILE_USER=""' \
+        "export DYLD_LIBRARY_PATH=\"$srcdir/lib:\${DYLD_LIBRARY_PATH:-}\"" \
+        > "$tmpdir/.bashrc"
+
+    # Launch shell with our custom config dir
+    if [[ "$SHELL" == *zsh ]]; then
+        exec env ZDOTDIR="$tmpdir" "$SHELL" -i
+    else
+        exec env BASH_ENV="$tmpdir/.bashrc" "$SHELL" --rcfile "$tmpdir/.bashrc" -i
+    fi
 
 # =====================================================================
 
