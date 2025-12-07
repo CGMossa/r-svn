@@ -4699,6 +4699,7 @@ abs_top_srcdir='${ac_abs_top_srcdir}'
 ## R_PROG_RUST
 ## -----------
 ## Detect Rust compiler and set up variables
+## Uses AC_DEFUN_ONCE to prevent duplicate expansion from AC_REQUIRE chains
 # R_PROG_RUST
 
 
@@ -11266,6 +11267,15 @@ else
 printf "%s\n" "yes, using ${r_cv_prog_cc_m}" >&6; }
 fi
 
+r_cc_rules_frag=Makefrag.cc
+
+r_cc_rules_frag=Makefrag.cc
+
+
+
+ac_config_commands="$ac_config_commands r_cc_rules_frag"
+
+
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${CC} supports -c -o FILE.lo" >&5
 printf %s "checking whether ${CC} supports -c -o FILE.lo... " >&6; }
 if test ${r_cv_prog_cc_c_o_lo+y}
@@ -11296,7 +11306,19 @@ fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $r_cv_prog_cc_c_o_lo" >&5
 printf "%s\n" "$r_cv_prog_cc_c_o_lo" >&6; }
 
+r_cc_lo_rules_frag=Makefrag.cc_lo
 
+r_cc_lo_rules_frag=Makefrag.cc_lo
+
+
+
+ac_config_commands="$ac_config_commands r_cc_lo_rules_frag"
+
+
+
+if test -z "${FLIBS}"; then
+r_save_LIBS="${LIBS}"
+LIBS=
 ac_ext=${ac_fc_srcext-f}
 ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
 ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
@@ -11675,6 +11697,382 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+FLIBS=${FCLIBS}
+if test -z "${MAIN_LD}" ; then
+  LIBS=
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking how to get verbose linking output from ${CC}" >&5
+printf %s "checking how to get verbose linking output from ${CC}... " >&6; }
+if test ${r_cv_prog_c_v+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  r_cv_prog_c_v=
+# Try some options frequently used verbose output
+for r_verb in -v -verbose --verbose -V -\#\#\#; do
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+
+# Compile and link our simple test program by passing a flag (argument
+# 1 to this macro) to the Fortran compiler in order to get
+# "verbose" output that we can then parse for the Fortran linker
+# flags.
+r_save_CFLAGS=$CFLAGS
+CFLAGS="$CFLAGS $r_verb"
+(eval echo $as_me:11748: \"$ac_link\") >&5
+r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
+echo "$r_c_v_output" >&5
+CFLAGS=$r_save_CFLAGS
+
+rm -rf conftest*
+
+# On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
+# /foo, /bar, and /baz are search directories for the Fortran linker.
+# Here, we change these into -L/foo -L/bar -L/baz (and put it first):
+r_c_v_output="`echo $r_c_v_output |
+	grep 'LPATH is:' |
+	sed 's,.*LPATH is\(: *[^ ]*\).*,\1,;s,: */, -L/,g'` $r_c_v_output"
+
+case $r_c_v_output in
+  # If we are using xlc then replace all the commas with spaces.
+  *xlcentry*)
+    r_c_v_output=`echo $r_c_v_output | sed 's/,/ /g'` ;;
+
+  # With Intel ifc, ignore the quoted -mGLOB_options_string stuff (quoted
+  # $LIBS confuse us, and the libraries appear later in the output anyway).
+  *mGLOB_options_string*)
+    r_c_v_output=`echo $r_c_v_output | sed 's/\"-mGLOB[^\"]*\"/ /g'` ;;
+esac
+
+
+  # look for -l* and *.a constructs in the output
+  for r_arg in $r_c_v_output; do
+     case $r_arg in
+        [\\/]*.a | ?:[\\/]*.a | -[lLRu]*)
+          r_cv_prog_c_v=$r_verb
+          break 2 ;;
+     esac
+  done
+done
+if test -z "$r_cv_prog_c_v"; then
+   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: cannot determine how to obtain linking information from ${CC}" >&5
+printf "%s\n" "$as_me: WARNING: cannot determine how to obtain linking information from ${CC}" >&2;}
+fi
+else case e in #(
+  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: compilation failed" >&5
+printf "%s\n" "$as_me: WARNING: compilation failed" >&2;} ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+ ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $r_cv_prog_c_v" >&5
+printf "%s\n" "$r_cv_prog_c_v" >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for C libraries of ${CC}" >&5
+printf %s "checking for C libraries of ${CC}... " >&6; }
+if test ${r_cv_c_libs+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) if test "x$CLIBS" != "x"; then
+  r_cv_c_libs="$CLIBS" # Let the user override the test.
+else
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+
+# Compile and link our simple test program by passing a flag (argument
+# 1 to this macro) to the Fortran compiler in order to get
+# "verbose" output that we can then parse for the Fortran linker
+# flags.
+r_save_CFLAGS=$CFLAGS
+CFLAGS="$CFLAGS $r_cv_prog_c_v"
+(eval echo $as_me:11826: \"$ac_link\") >&5
+r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
+echo "$r_c_v_output" >&5
+CFLAGS=$r_save_CFLAGS
+
+rm -rf conftest*
+
+# On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
+# /foo, /bar, and /baz are search directories for the Fortran linker.
+# Here, we change these into -L/foo -L/bar -L/baz (and put it first):
+r_c_v_output="`echo $r_c_v_output |
+	grep 'LPATH is:' |
+	sed 's,.*LPATH is\(: *[^ ]*\).*,\1,;s,: */, -L/,g'` $r_c_v_output"
+
+case $r_c_v_output in
+  # If we are using xlc then replace all the commas with spaces.
+  *xlcentry*)
+    r_c_v_output=`echo $r_c_v_output | sed 's/,/ /g'` ;;
+
+  # With Intel ifc, ignore the quoted -mGLOB_options_string stuff (quoted
+  # $LIBS confuse us, and the libraries appear later in the output anyway).
+  *mGLOB_options_string*)
+    r_c_v_output=`echo $r_c_v_output | sed 's/\"-mGLOB[^\"]*\"/ /g'` ;;
+esac
+
+
+
+r_cv_c_libs=
+
+# Save positional arguments (if any)
+r_save_positional="$@"
+
+set X $r_c_v_output
+while test $# != 1; do
+  shift
+  r_arg=$1
+  case $r_arg in
+        [\\/]*.a | ?:[\\/]*.a)
+            ac_exists=false
+  for ac_i in $r_cv_c_libs; do
+    if test x"$r_arg" = x"$ac_i"; then
+      ac_exists=true
+      break
+    fi
+  done
+
+  if test x"$ac_exists" = xtrue
+then :
+
+else case e in #(
+  e) r_cv_c_libs="$r_cv_c_libs $r_arg" ;;
+esac
+fi
+          ;;
+        -bI:*)
+            ac_exists=false
+  for ac_i in $r_cv_c_libs; do
+    if test x"$r_arg" = x"$ac_i"; then
+      ac_exists=true
+      break
+    fi
+  done
+
+  if test x"$ac_exists" = xtrue
+then :
+
+else case e in #(
+  e) if test "$ac_compiler_gnu" = yes; then
+  for ac_link_opt in $r_arg; do
+    r_cv_c_libs="$r_cv_c_libs -Xlinker $ac_link_opt"
+  done
+else
+  r_cv_c_libs="$r_cv_c_libs $r_arg"
+fi ;;
+esac
+fi
+          ;;
+          # Ignore these flags.
+        -lang* | -lcrt[01].o | -lcrtbegin.o | -lc | -lgcc | -libmil | -LANG:=*)
+          ;;
+        -lkernel32)
+          test x"$CYGWIN" != xyes && r_cv_c_libs="$r_cv_c_libs $r_arg"
+          ;;
+        -[LRuY])
+          # These flags, when seen by themselves, take an argument.
+          # We remove the space between option and argument and re-iterate
+          # unless we find an empty arg or a new option (starting with -)
+	  case $2 in
+	     "" | -*);;
+	     *)
+		r_arg="$r_arg$2"
+		shift; shift
+		set X $r_arg "$@"
+		;;
+	  esac
+          ;;
+        -YP,*)
+          for r_j in `echo $r_arg | sed -e 's/-YP,/-L/;s/:/ -L/g'`; do
+              ac_exists=false
+  for ac_i in $r_cv_c_libs; do
+    if test x"$r_j" = x"$ac_i"; then
+      ac_exists=true
+      break
+    fi
+  done
+
+  if test x"$ac_exists" = xtrue
+then :
+
+else case e in #(
+  e) r_arg="$r_arg $r_j"
+                               r_cv_c_libs="$r_cv_c_libs $r_j" ;;
+esac
+fi
+          done
+          ;;
+        -[lLR]*)
+            ac_exists=false
+  for ac_i in $r_cv_c_libs; do
+    if test x"$r_arg" = x"$ac_i"; then
+      ac_exists=true
+      break
+    fi
+  done
+
+  if test x"$ac_exists" = xtrue
+then :
+
+else case e in #(
+  e) r_cv_c_libs="$r_cv_c_libs $r_arg" ;;
+esac
+fi
+          ;;
+          # Ignore everything else.
+  esac
+done
+# restore positional arguments
+set X $r_save_positional; shift
+
+# We only consider "LD_RUN_PATH" on Solaris systems.  If this is seen,
+# then we insist that the "run path" must be an absolute path (i.e. it
+# must begin with a "/").
+case `(uname -sr) 2>/dev/null` in
+   "SunOS 5"*)
+      r_ld_run_path=`echo $r_c_v_output |
+                        sed -n 's,^.*LD_RUN_PATH *= *\(/[^ ]*\).*$,-R\1,p'`
+      test "x$r_ld_run_path" != x &&
+        if test "$ac_compiler_gnu" = yes; then
+  for ac_link_opt in $r_ld_run_path; do
+    r_cv_c_libs="$r_cv_c_libs -Xlinker $ac_link_opt"
+  done
+else
+  r_cv_c_libs="$r_cv_c_libs $r_ld_run_path"
+fi
+      ;;
+esac
+fi # test "x$CLIBS" = "x"
+ ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $r_cv_c_libs" >&5
+printf "%s\n" "$r_cv_c_libs" >&6; }
+CLIBS=
+for arg in $r_cv_c_libs; do
+  case "${arg}" in
+    -L*)
+      CLIBS="${CLIBS} $arg"
+      ;;
+  esac
+done
+
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+else
+  CLIBS=
+fi
+LIBS="${r_save_LIBS}"
+case "${host_os}" in
+  linux*)
+    r_libpath_default="/usr/lib64 /lib64 /usr/lib /lib"
+    ;;
+  solaris*)
+    r_libpath_default="/usr/lib /lib"
+    ;;
+  *)
+    r_libpath_default=
+    ;;
+esac
+r_extra_libs=
+for arg in ${LDFLAGS} ${CLIBS}; do
+  case "${arg}" in
+    -L*)
+      lib=`echo ${arg} | sed "s/^-L//"`
+      test -d "${lib}" || continue
+      ## Canonicalize (/usr/lib/gcc-lib/i686-linux/3.4.3/../../..).
+      lib=`cd "${lib}" && ${GETWD}`
+      r_extra_libs="${r_extra_libs} $lib"
+      ;;
+  esac
+done
+
+flibs=
+if test "${GCC}" = yes; then
+  linker_option="-Wl,"
+else
+  linker_option=
+fi
+r_save_flibs=""
+for arg in ${FLIBS}; do
+  case "${arg}" in
+    ## this is not for a Fortran main program
+    -lcrt*.o | -lfrtbegin | -lgfortranbegin | -lmx | -lSystem)
+      ;;
+    -[a-zA-Z]/*\" | -[a-zA-Z]*\\) # ifc
+      ;;
+    -l:*)
+      flibs="${flibs} ${linker_option}${arg}"
+      ;;
+    -L*)
+      lib=`echo ${arg} | sed "s/^-L//"`
+      ## Do not add non-existent directories.
+      test -d "${lib}" || continue
+      ## Canonicalize (/usr/lib/gcc-lib/i686-linux/3.4.3/../../..).
+      lib=`cd "${lib}" && ${GETWD}`
+      r_want_lib=true
+      ## Do not add something twice nor default paths nor those in LDFLAGS
+      for dir in ${r_save_flibs} ${r_libpath_default} ${r_extra_libs}; do
+        if test "${dir}" = "${lib}"; then
+           r_want_lib=false
+           break
+        fi
+      done
+      if test x"${r_want_lib}" = xtrue; then
+        flibs="${flibs} -L${lib}"
+	r_save_flibs="${r_save_flibs} ${lib}"
+      fi
+      ;;
+    *)
+      flibs="${flibs} ${arg}"
+      ;;
+  esac
+done
+FLIBS="${flibs}"
+
+fi
+
 ac_ext=${ac_fc_srcext-f}
 ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
 ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
@@ -12029,6 +12427,75 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+
+case "${ac_cv_fc_mangling}" in
+  "upper "*)
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Fortran compiler uses uppercase external names" >&5
+printf "%s\n" "$as_me: WARNING: Fortran compiler uses uppercase external names" >&2;}
+    as_fn_error $? "cannot use Fortran" "$LINENO" 5
+    ;;
+esac
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${FC} appends underscores to external names" >&5
+printf %s "checking whether ${FC} appends underscores to external names... " >&6; }
+if test ${r_cv_prog_fc_append_underscore+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) case "${ac_cv_fc_mangling}" in
+  *", underscore, "*)
+    r_cv_prog_fc_append_underscore=yes
+    ;;
+  *", no underscore, "*)
+    r_cv_prog_fc_append_underscore=no
+    ;;
+esac ;;
+esac
+fi
+
+if test -n "${r_cv_prog_fc_append_underscore}"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${r_cv_prog_fc_append_underscore}" >&5
+printf "%s\n" "${r_cv_prog_fc_append_underscore}" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
+printf "%s\n" "unknown" >&6; }
+  as_fn_error $? "cannot use Fortran" "$LINENO" 5
+fi
+if test "${r_cv_prog_fc_append_underscore}" = yes; then
+
+printf "%s\n" "#define HAVE_F77_UNDERSCORE 1" >>confdefs.h
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${FC} appends extra underscores to external names" >&5
+printf %s "checking whether ${FC} appends extra underscores to external names... " >&6; }
+if test ${r_cv_prog_fc_append_second_underscore+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) case "${ac_cv_fc_mangling}" in
+  *", extra underscore")
+    r_cv_prog_fc_append_second_underscore=yes
+    ;;
+  *", no extra underscore")
+    r_cv_prog_fc_append_second_underscore=no
+    ;;
+esac ;;
+esac
+fi
+
+if test -n "${r_cv_prog_fc_append_second_underscore}"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${r_cv_prog_fc_append_second_underscore}" >&5
+printf "%s\n" "${r_cv_prog_fc_append_second_underscore}" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
+printf "%s\n" "unknown" >&6; }
+  as_fn_error $? "cannot use Fortran" "$LINENO" 5
+fi
+if test "${r_cv_prog_fc_append_second_underscore}" = yes; then
+
+printf "%s\n" "#define HAVE_F77_EXTRA_UNDERSCORE 1" >>confdefs.h
+
+fi
+
 LIBM=
 case $host in
 *-*-beos* | *-*-cegcc* | *-*-cygwin* | *-*-haiku* | *-*-mingw* | *-*-pw32* | *-*-darwin*)
@@ -12226,6 +12693,510 @@ esac
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $r_cv_prog_cxx_m" >&5
 printf "%s\n" "$r_cv_prog_cxx_m" >&6; }
+
+r_cxx_rules_frag=Makefrag.cxx
+
+r_cxx_rules_frag=Makefrag.cxx
+
+
+
+ac_config_commands="$ac_config_commands r_cxx_rules_frag"
+
+
+
+
+
+
+# Check whether --enable-rust was given.
+if test ${enable_rust+y}
+then :
+  enableval=$enable_rust; want_rust=$enableval
+else case e in #(
+  e) want_rust=yes ;;
+esac
+fi
+
+
+if test "x${want_rust}" = "xyes"; then
+  # Extract the first word of "rustc", so it can be a program name with args.
+set dummy rustc; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_RUSTC+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) case $RUSTC in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_RUSTC="$RUSTC" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_RUSTC="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac ;;
+esac
+fi
+RUSTC=$ac_cv_path_RUSTC
+if test -n "$RUSTC"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $RUSTC" >&5
+printf "%s\n" "$RUSTC" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+  if test -z "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: rustc not found: Rust sources will not be built" >&5
+printf "%s\n" "$as_me: WARNING: rustc not found: Rust sources will not be built" >&2;}
+    RUSTC=:
+    HAVE_RUST=0
+  else
+    HAVE_RUST=1
+
+    # Check and report rustc version
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking rustc version" >&5
+printf %s "checking rustc version... " >&6; }
+    RUST_VERSION=`${RUSTC} --version 2>/dev/null | cut -d' ' -f2`
+    if test -n "${RUST_VERSION}"; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_VERSION}" >&5
+printf "%s\n" "${RUST_VERSION}" >&6; }
+
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
+printf "%s\n" "unknown" >&6; }
+      RUST_VERSION=unknown
+    fi
+
+    # Extract major.minor for comparison
+    RUST_VERSION_MAJOR=`echo ${RUST_VERSION} | cut -d. -f1`
+    RUST_VERSION_MINOR=`echo ${RUST_VERSION} | cut -d. -f2`
+
+
+
+    # Check for each edition (optional) - skip if fast-config enabled
+    if test "x${enable_fast_config}" = "xyes"; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: fast-config: assuming Rust 2021 edition support" >&5
+printf "%s\n" "$as_me: fast-config: assuming Rust 2021 edition support" >&6;}
+      RUST2015=yes
+      RUST2015STD="--edition=2015"
+      HAVE_RUST2015=1
+      RUST2018=yes
+      RUST2018STD="--edition=2018"
+      HAVE_RUST2018=1
+      RUST2021=yes
+      RUST2021STD="--edition=2021"
+      HAVE_RUST2021=1
+      RUST2024=no
+      RUST2024STD=""
+      HAVE_RUST2024=0
+      RUST_DEFAULT_EDITION=2021
+    else
+          ax_rust_compile_edition_2015_required=false
+  ac_success=no
+
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2015 edition" >&5
+printf %s "checking whether ${RUSTC} supports Rust 2015 edition... " >&6; }
+
+        cat > conftest.rs << '_ACEOF'
+
+// Rust 2015 edition test
+fn main() {
+    let x: i32 = 42;
+    println!("{}", x);
+}
+
+_ACEOF
+
+        if ${RUSTC} --edition=2015 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+      ac_success=yes
+      RUST2015=yes
+      RUST2015STD="--edition=2015"
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+      RUST2015=no
+      RUST2015STD=""
+    fi
+    rm -f conftest.rs conftest.rmeta
+  fi
+
+  if test x$ax_rust_compile_edition_2015_required = xtrue; then
+    if test x$ac_success = xno; then
+      as_fn_error $? "*** A Rust compiler with support for edition 2015 is required." "$LINENO" 5
+    fi
+  fi
+
+  if test x$ac_success = xno; then
+    HAVE_RUST2015=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2015 support was found" >&5
+printf "%s\n" "$as_me: No Rust compiler with edition 2015 support was found" >&6;}
+  else
+    HAVE_RUST2015=1
+  fi
+
+
+
+
+          ax_rust_compile_edition_2018_required=false
+  ac_success=no
+
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2018 edition" >&5
+printf %s "checking whether ${RUSTC} supports Rust 2018 edition... " >&6; }
+
+        cat > conftest.rs << '_ACEOF'
+
+// Rust 2018 edition test - uses 2018-specific module system
+// In 2018, 'dyn Trait' is required instead of bare 'Trait'
+fn takes_trait_object(_: &dyn std::fmt::Debug) {}
+
+fn main() {
+    let x = 42;
+    takes_trait_object(&x);
+}
+
+_ACEOF
+
+        if ${RUSTC} --edition=2018 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+      ac_success=yes
+      RUST2018=yes
+      RUST2018STD="--edition=2018"
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+      RUST2018=no
+      RUST2018STD=""
+    fi
+    rm -f conftest.rs conftest.rmeta
+  fi
+
+  if test x$ax_rust_compile_edition_2018_required = xtrue; then
+    if test x$ac_success = xno; then
+      as_fn_error $? "*** A Rust compiler with support for edition 2018 is required." "$LINENO" 5
+    fi
+  fi
+
+  if test x$ac_success = xno; then
+    HAVE_RUST2018=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2018 support was found" >&5
+printf "%s\n" "$as_me: No Rust compiler with edition 2018 support was found" >&6;}
+  else
+    HAVE_RUST2018=1
+  fi
+
+
+
+
+          ax_rust_compile_edition_2021_required=false
+  ac_success=no
+
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2021 edition" >&5
+printf %s "checking whether ${RUSTC} supports Rust 2021 edition... " >&6; }
+
+        cat > conftest.rs << '_ACEOF'
+
+// Rust 2021 edition test - uses 2021-specific features
+fn main() {
+    // IntoIterator for arrays is stable in 2021
+    let arr = [1, 2, 3];
+    for x in arr {
+        let _ = x;
+    }
+
+    // Disjoint capture in closures (2021 feature)
+    let s = (String::from("hello"), String::from("world"));
+    let c = || {
+        let _ = &s.0;  // Only captures s.0, not all of s
+    };
+    c();
+    let _ = s.1;  // s.1 is still accessible
+}
+
+_ACEOF
+
+        if ${RUSTC} --edition=2021 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+      ac_success=yes
+      RUST2021=yes
+      RUST2021STD="--edition=2021"
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+      RUST2021=no
+      RUST2021STD=""
+    fi
+    rm -f conftest.rs conftest.rmeta
+  fi
+
+  if test x$ax_rust_compile_edition_2021_required = xtrue; then
+    if test x$ac_success = xno; then
+      as_fn_error $? "*** A Rust compiler with support for edition 2021 is required." "$LINENO" 5
+    fi
+  fi
+
+  if test x$ac_success = xno; then
+    HAVE_RUST2021=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2021 support was found" >&5
+printf "%s\n" "$as_me: No Rust compiler with edition 2021 support was found" >&6;}
+  else
+    HAVE_RUST2021=1
+  fi
+
+
+
+
+          ax_rust_compile_edition_2024_required=false
+  ac_success=no
+
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2024 edition" >&5
+printf %s "checking whether ${RUSTC} supports Rust 2024 edition... " >&6; }
+
+        cat > conftest.rs << '_ACEOF'
+
+// Rust 2024 edition test
+// 2024 makes unsafe_op_in_unsafe_fn a hard error
+#![deny(unsafe_op_in_unsafe_fn)]
+
+unsafe fn unsafe_inner() {}
+
+unsafe fn unsafe_outer() {
+    // In 2024, must explicitly use unsafe block
+    unsafe { unsafe_inner(); }
+}
+
+fn main() {
+    unsafe { unsafe_outer(); }
+}
+
+_ACEOF
+
+        if ${RUSTC} --edition=2024 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+      ac_success=yes
+      RUST2024=yes
+      RUST2024STD="--edition=2024"
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+      RUST2024=no
+      RUST2024STD=""
+    fi
+    rm -f conftest.rs conftest.rmeta
+  fi
+
+  if test x$ax_rust_compile_edition_2024_required = xtrue; then
+    if test x$ac_success = xno; then
+      as_fn_error $? "*** A Rust compiler with support for edition 2024 is required." "$LINENO" 5
+    fi
+  fi
+
+  if test x$ac_success = xno; then
+    HAVE_RUST2024=0
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2024 support was found" >&5
+printf "%s\n" "$as_me: No Rust compiler with edition 2024 support was found" >&6;}
+  else
+    HAVE_RUST2024=1
+  fi
+
+
+
+
+
+      # Set default edition based on what's available
+      if test "x${RUST2021}" = "xyes"; then
+        RUST_DEFAULT_EDITION=2021
+      elif test "x${RUST2018}" = "xyes"; then
+        RUST_DEFAULT_EDITION=2018
+      else
+        RUST_DEFAULT_EDITION=2015
+      fi
+    fi
+
+
+    # Check for cargo (optional but useful)
+    # Extract the first word of "cargo", so it can be a program name with args.
+set dummy cargo; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_CARGO+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) case $CARGO in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_CARGO="$CARGO" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_CARGO="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac ;;
+esac
+fi
+CARGO=$ac_cv_path_CARGO
+if test -n "$CARGO"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $CARGO" >&5
+printf "%s\n" "$CARGO" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+    if test -z "${CARGO}"; then
+      CARGO=:
+      HAVE_CARGO=0
+    else
+      HAVE_CARGO=1
+    fi
+
+
+
+    # Get target triple
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking rustc target triple" >&5
+printf %s "checking rustc target triple... " >&6; }
+    RUST_TARGET=`${RUSTC} --version --verbose 2>/dev/null | grep "^host:" | cut -d' ' -f2`
+    if test -n "${RUST_TARGET}"; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_TARGET}" >&5
+printf "%s\n" "${RUST_TARGET}" >&6; }
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
+printf "%s\n" "unknown" >&6; }
+      RUST_TARGET=unknown
+    fi
+
+  fi
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Rust support disabled by user" >&5
+printf "%s\n" "$as_me: Rust support disabled by user" >&6;}
+  RUSTC=:
+  HAVE_RUST=0
+fi
+
+# Set up flags
+if test -z "${RUSTFLAGS}"; then
+  RUSTFLAGS=""
+fi
+if test -z "${RUSTPICFLAGS}"; then
+  RUSTPICFLAGS="-C relocation-model=pic"
+fi
+
+# Optimization flags
+if test -z "${RUSTOPTFLAGS}"; then
+  RUSTOPTFLAGS="-C opt-level=2"
+fi
+
+# Debug flags
+if test -z "${RUSTDEBUGFLAGS}"; then
+  RUSTDEBUGFLAGS="-g -C opt-level=0"
+fi
+
+
+
+
+
+
+
+ if test "x${RUSTC}" != "x:"; then
+  BUILD_RUST_TRUE=
+  BUILD_RUST_FALSE='#'
+else
+  BUILD_RUST_TRUE='#'
+  BUILD_RUST_FALSE=
+fi
+
+ if test "x${RUSTC}" != "x:"; then
+  BUILD_RUST_TEST_TRUE=
+  BUILD_RUST_TEST_FALSE='#'
+else
+  BUILD_RUST_TEST_TRUE='#'
+  BUILD_RUST_TEST_FALSE=
+fi
+
+
+r_rust_rules_frag=Makefrag.rs
+r_rust_rules_frag=Makefrag.rs
+
+
+
+ac_config_commands="$ac_config_commands r_rust_rules_frag"
+
+
+
+if test "x${enable_fast_config}" = "xyes"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: fast-config: assuming standard Rust native static libs" >&5
+printf "%s\n" "$as_me: fast-config: assuming standard Rust native static libs" >&6;}
+  RUST_NATIVE_STATIC_LIBS=""
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Rust native static libs" >&5
+printf %s "checking for Rust native static libs... " >&6; }
+  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
+    cat > conftest.rs << 'EOF'
+#[no_mangle]
+pub extern "C" fn rust_dummy() -> i32 { 0 }
+EOF
+    RUST_NATIVE_STATIC_LIBS=`${RUSTC} --crate-type=staticlib --print native-static-libs conftest.rs 2>&1 | grep "native-static-libs:" | sed 's/.*native-static-libs: //'`
+    rm -f conftest.rs libconftest.a
+    if test -n "${RUST_NATIVE_STATIC_LIBS}"; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_NATIVE_STATIC_LIBS}" >&5
+printf "%s\n" "${RUST_NATIVE_STATIC_LIBS}" >&6; }
+    else
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: none detected" >&5
+printf "%s\n" "none detected" >&6; }
+      RUST_NATIVE_STATIC_LIBS=""
+    fi
+  else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: rustc not available" >&5
+printf "%s\n" "rustc not available" >&6; }
+    RUST_NATIVE_STATIC_LIBS=""
+  fi
+fi
+
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether we can compute ObjC Make dependencies" >&5
 printf %s "checking whether we can compute ObjC Make dependencies... " >&6; }
@@ -14099,22 +15070,6 @@ else
 printf "%s\n" "$as_me: Not using the 'long double' type" >&6;}
 fi
 
-r_cc_rules_frag=Makefrag.cc
-
-r_cc_rules_frag=Makefrag.cc
-
-
-
-ac_config_commands="$ac_config_commands r_cc_rules_frag"
-
-
-r_cc_lo_rules_frag=Makefrag.cc_lo
-
-r_cc_lo_rules_frag=Makefrag.cc_lo
-
-
-
-ac_config_commands="$ac_config_commands r_cc_lo_rules_frag"
 
 
 
@@ -14196,835 +15151,11 @@ printf "%s\n" "$ac_cv_prog_c_openmp" >&6; }
 
 ### *** Fortran compiler.
 
-if test -z "${FLIBS}"; then
-r_save_LIBS="${LIBS}"
-LIBS=
-ac_ext=${ac_fc_srcext-f}
-ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
-ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_fc_compiler_gnu
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking how to get verbose linking output from $FC" >&5
-printf %s "checking how to get verbose linking output from $FC... " >&6; }
-if test ${ac_cv_prog_fc_v+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) cat > conftest.$ac_ext <<_ACEOF
-      program main
-
-      end
-_ACEOF
-if ac_fn_fc_try_compile "$LINENO"
-then :
-  ac_cv_prog_fc_v=
-# Try some options frequently used verbose output
-for ac_verb in -v -verbose --verbose -V -\#\#\#; do
-  cat > conftest.$ac_ext <<_ACEOF
-      program main
-
-      end
-_ACEOF
-
-# Compile and link our simple test program by passing a flag (argument
-# 1 to this macro) to the Fortran compiler in order to get
-# "verbose" output that we can then parse for the Fortran linker
-# flags.
-ac_save_FCFLAGS=$FCFLAGS
-FCFLAGS="$FCFLAGS $ac_verb"
-eval "set x $ac_link"
-shift
-printf "%s\n" "$as_me:${as_lineno-$LINENO}: $*" >&5
-# gfortran 4.3 outputs lines setting COLLECT_GCC_OPTIONS, COMPILER_PATH,
-# LIBRARY_PATH; skip all such settings.
-ac_fc_v_output=`eval $ac_link 5>&1 2>&1 |
-  sed '/^Driving:/d; /^Configured with:/d;
-      '"/^[_$as_cr_Letters][_$as_cr_alnum]*=/d"`
-printf "%s\n" "$ac_fc_v_output" >&5
-FCFLAGS=$ac_save_FCFLAGS
-
-rm -rf conftest*
-
-# On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
-# /foo, /bar, and /baz are search directories for the Fortran linker.
-# Here, we change these into -L/foo -L/bar -L/baz (and put it first):
-ac_fc_v_output="`echo $ac_fc_v_output |
-	grep 'LPATH is:' |
-	sed 's|.*LPATH is\(: *[^ ]*\).*|\1|;s|: */| -L/|g'` $ac_fc_v_output"
-
-# FIXME: we keep getting bitten by quoted arguments; a more general fix
-#        that detects unbalanced quotes in FLIBS should be implemented
-#        and (ugh) tested at some point.
-case $ac_fc_v_output in
-  # With xlf replace commas with spaces,
-  # and remove "-link" and closing parenthesis.
-  *xlfentry*)
-    ac_fc_v_output=`echo $ac_fc_v_output |
-      sed '
-        s/,/ /g
-        s/ -link / /g
-        s/) *$//
-      '
-    ` ;;
-
-  # With Intel ifc, ignore the quoted -mGLOB_options_string stuff (quoted
-  # $LIBS confuse us, and the libraries appear later in the output anyway).
-  *mGLOB_options_string*)
-    ac_fc_v_output=`echo $ac_fc_v_output | sed 's/"-mGLOB[^"]*"/ /g'` ;;
-
-  # Portland Group compiler has singly- or doubly-quoted -cmdline argument
-  # Singly-quoted arguments were reported for versions 5.2-4 and 6.0-4.
-  # Doubly-quoted arguments were reported for "PGF90/x86 Linux/x86 5.0-2".
-  *-cmdline\ * | *-ignore\ * | *-def\ *)
-    ac_fc_v_output=`echo $ac_fc_v_output | sed "\
-	s/-cmdline  *'[^']*'/ /g; s/-cmdline  *\"[^\"]*\"/ /g
-	s/-ignore  *'[^']*'/ /g; s/-ignore  *\"[^\"]*\"/ /g
-	s/-def  *'[^']*'/ /g; s/-def  *\"[^\"]*\"/ /g"` ;;
-
-  # If we are using fort77 (the f2c wrapper) then filter output and delete quotes.
-  *fort77*f2c*gcc*)
-    ac_fc_v_output=`echo "$ac_fc_v_output" | sed -n '
-        /:[	 ]\+Running[	 ]\{1,\}"gcc"/{
-          /"-c"/d
-          /[.]c"*/d
-          s/^.*"gcc"/"gcc"/
-          s/"//gp
-        }'` ;;
-
-  # If we are using Cray Fortran then delete quotes.
-  *cft90*)
-    ac_fc_v_output=`echo $ac_fc_v_output | sed 's/"//g'` ;;
-esac
-
-
-  # look for -l* and *.a constructs in the output
-  for ac_arg in $ac_fc_v_output; do
-     case $ac_arg in
-	[\\/]*.a | ?:[\\/]*.a | -[lLRu]*)
-	  ac_cv_prog_fc_v=$ac_verb
-	  break 2 ;;
-     esac
-  done
-done
-if test -z "$ac_cv_prog_fc_v"; then
-   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: cannot determine how to obtain linking information from $FC" >&5
-printf "%s\n" "$as_me: WARNING: cannot determine how to obtain linking information from $FC" >&2;}
-fi
-else case e in #(
-  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: compilation failed" >&5
-printf "%s\n" "$as_me: WARNING: compilation failed" >&2;} ;;
-esac
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
- ;;
-esac
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_prog_fc_v" >&5
-printf "%s\n" "$ac_cv_prog_fc_v" >&6; }
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Fortran libraries of $FC" >&5
-printf %s "checking for Fortran libraries of $FC... " >&6; }
-if test ${ac_cv_fc_libs+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) if test "x$FCLIBS" != "x"; then
-  ac_cv_fc_libs="$FCLIBS" # Let the user override the test.
-else
-
-cat > conftest.$ac_ext <<_ACEOF
-      program main
-
-      end
-_ACEOF
-
-# Compile and link our simple test program by passing a flag (argument
-# 1 to this macro) to the Fortran compiler in order to get
-# "verbose" output that we can then parse for the Fortran linker
-# flags.
-ac_save_FCFLAGS=$FCFLAGS
-FCFLAGS="$FCFLAGS $ac_cv_prog_fc_v"
-eval "set x $ac_link"
-shift
-printf "%s\n" "$as_me:${as_lineno-$LINENO}: $*" >&5
-# gfortran 4.3 outputs lines setting COLLECT_GCC_OPTIONS, COMPILER_PATH,
-# LIBRARY_PATH; skip all such settings.
-ac_fc_v_output=`eval $ac_link 5>&1 2>&1 |
-  sed '/^Driving:/d; /^Configured with:/d;
-      '"/^[_$as_cr_Letters][_$as_cr_alnum]*=/d"`
-printf "%s\n" "$ac_fc_v_output" >&5
-FCFLAGS=$ac_save_FCFLAGS
-
-rm -rf conftest*
-
-# On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
-# /foo, /bar, and /baz are search directories for the Fortran linker.
-# Here, we change these into -L/foo -L/bar -L/baz (and put it first):
-ac_fc_v_output="`echo $ac_fc_v_output |
-	grep 'LPATH is:' |
-	sed 's|.*LPATH is\(: *[^ ]*\).*|\1|;s|: */| -L/|g'` $ac_fc_v_output"
-
-# FIXME: we keep getting bitten by quoted arguments; a more general fix
-#        that detects unbalanced quotes in FLIBS should be implemented
-#        and (ugh) tested at some point.
-case $ac_fc_v_output in
-  # With xlf replace commas with spaces,
-  # and remove "-link" and closing parenthesis.
-  *xlfentry*)
-    ac_fc_v_output=`echo $ac_fc_v_output |
-      sed '
-        s/,/ /g
-        s/ -link / /g
-        s/) *$//
-      '
-    ` ;;
-
-  # With Intel ifc, ignore the quoted -mGLOB_options_string stuff (quoted
-  # $LIBS confuse us, and the libraries appear later in the output anyway).
-  *mGLOB_options_string*)
-    ac_fc_v_output=`echo $ac_fc_v_output | sed 's/"-mGLOB[^"]*"/ /g'` ;;
-
-  # Portland Group compiler has singly- or doubly-quoted -cmdline argument
-  # Singly-quoted arguments were reported for versions 5.2-4 and 6.0-4.
-  # Doubly-quoted arguments were reported for "PGF90/x86 Linux/x86 5.0-2".
-  *-cmdline\ * | *-ignore\ * | *-def\ *)
-    ac_fc_v_output=`echo $ac_fc_v_output | sed "\
-	s/-cmdline  *'[^']*'/ /g; s/-cmdline  *\"[^\"]*\"/ /g
-	s/-ignore  *'[^']*'/ /g; s/-ignore  *\"[^\"]*\"/ /g
-	s/-def  *'[^']*'/ /g; s/-def  *\"[^\"]*\"/ /g"` ;;
-
-  # If we are using fort77 (the f2c wrapper) then filter output and delete quotes.
-  *fort77*f2c*gcc*)
-    ac_fc_v_output=`echo "$ac_fc_v_output" | sed -n '
-        /:[	 ]\+Running[	 ]\{1,\}"gcc"/{
-          /"-c"/d
-          /[.]c"*/d
-          s/^.*"gcc"/"gcc"/
-          s/"//gp
-        }'` ;;
-
-  # If we are using Cray Fortran then delete quotes.
-  *cft90*)
-    ac_fc_v_output=`echo $ac_fc_v_output | sed 's/"//g'` ;;
-esac
-
-
-
-ac_cv_fc_libs=
-
-# Save positional arguments (if any)
-ac_save_positional="$@"
-
-set X $ac_fc_v_output
-while test $# != 1; do
-  shift
-  ac_arg=$1
-  case $ac_arg in
-	[\\/]*.a | ?:[\\/]*.a)
-	    ac_exists=false
-  for ac_i in $ac_cv_fc_libs; do
-    if test x"$ac_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) ac_cv_fc_libs="$ac_cv_fc_libs $ac_arg" ;;
-esac
-fi
-	  ;;
-	-bI:*)
-	    ac_exists=false
-  for ac_i in $ac_cv_fc_libs; do
-    if test x"$ac_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) if test "$ac_compiler_gnu" = yes; then
-  for ac_link_opt in $ac_arg; do
-    ac_cv_fc_libs="$ac_cv_fc_libs -Xlinker $ac_link_opt"
-  done
-else
-  ac_cv_fc_libs="$ac_cv_fc_libs $ac_arg"
-fi ;;
-esac
-fi
-	  ;;
-	  # Ignore these flags.
-	-lang* | -lcrt*.o | -lc | -lgcc* | -lSystem | -libmil | -little \
-	  |-LANG:=* | -LIST:* | -LNO:* | -link)
-	  ;;
-	-lkernel32 | -lmingw* | -lmoldname)
-	  # Ignore this library only on Windows-like systems.
-	  case $host_os in
-	  cygwin* | msys* | mingw* | windows*) ;;
-	  *)
-	    ac_exists=false
-  for ac_i in $ac_cv_fc_libs; do
-    if test x"$ac_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) ac_cv_fc_libs="$ac_cv_fc_libs $ac_arg" ;;
-esac
-fi
-	    ;;
-	  esac
-	  ;;
-	-[LRuYz])
-	  # These flags, when seen by themselves, take an argument.
-	  # We remove the space between option and argument and re-iterate
-	  # unless we find an empty arg or a new option (starting with -)
-	  case $2 in
-	     "" | -*);;
-	     *)
-		ac_arg="$ac_arg$2"
-		shift; shift
-		set X $ac_arg "$@"
-		;;
-	  esac
-	  ;;
-	-YP,*)
-	  for ac_j in `printf "%s\n" "$ac_arg" | sed -e 's/-YP,/-L/;s/:/ -L/g'`; do
-	      ac_exists=false
-  for ac_i in $ac_cv_fc_libs; do
-    if test x"$ac_j" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) ac_arg="$ac_arg $ac_j"
-			       ac_cv_fc_libs="$ac_cv_fc_libs $ac_j" ;;
-esac
-fi
-	  done
-	  ;;
-	-[lLR]*)
-	    ac_exists=false
-  for ac_i in $ac_cv_fc_libs; do
-    if test x"$ac_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) ac_cv_fc_libs="$ac_cv_fc_libs $ac_arg" ;;
-esac
-fi
-	  ;;
-	-zallextract*| -zdefaultextract)
-	  ac_cv_fc_libs="$ac_cv_fc_libs $ac_arg"
-	  ;;
-	-mllvm) ${2+shift};; # Defend against 'clang -mllvm -loopopt=0'.
-	  # Ignore everything else.
-  esac
-done
-# restore positional arguments
-set X $ac_save_positional; shift
-
-# We only consider "LD_RUN_PATH" on Solaris systems.  If this is seen,
-# then we insist that the "run path" must be an absolute path (i.e. it
-# must begin with a "/").
-case `(uname -sr) 2>/dev/null` in
-   "SunOS 5"*)
-      ac_ld_run_path=`printf "%s\n" "$ac_fc_v_output" |
-			sed -n 's,^.*LD_RUN_PATH *= *\(/[^ ]*\).*$,-R\1,p'`
-      test "x$ac_ld_run_path" != x &&
-	if test "$ac_compiler_gnu" = yes; then
-  for ac_link_opt in $ac_ld_run_path; do
-    ac_cv_fc_libs="$ac_cv_fc_libs -Xlinker $ac_link_opt"
-  done
-else
-  ac_cv_fc_libs="$ac_cv_fc_libs $ac_ld_run_path"
-fi
-      ;;
-esac
-fi # test "x$[]_AC_LANG_PREFIX[]LIBS" = "x"
- ;;
-esac
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_fc_libs" >&5
-printf "%s\n" "$ac_cv_fc_libs" >&6; }
-FCLIBS="$ac_cv_fc_libs"
-
-
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-FLIBS=${FCLIBS}
-if test -z "${MAIN_LD}" ; then
-  LIBS=
-  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking how to get verbose linking output from ${CC}" >&5
-printf %s "checking how to get verbose linking output from ${CC}... " >&6; }
-if test ${r_cv_prog_c_v+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  r_cv_prog_c_v=
-# Try some options frequently used verbose output
-for r_verb in -v -verbose --verbose -V -\#\#\#; do
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-
-# Compile and link our simple test program by passing a flag (argument
-# 1 to this macro) to the Fortran compiler in order to get
-# "verbose" output that we can then parse for the Fortran linker
-# flags.
-r_save_CFLAGS=$CFLAGS
-CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:14628: \"$ac_link\") >&5
-r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
-echo "$r_c_v_output" >&5
-CFLAGS=$r_save_CFLAGS
-
-rm -rf conftest*
-
-# On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
-# /foo, /bar, and /baz are search directories for the Fortran linker.
-# Here, we change these into -L/foo -L/bar -L/baz (and put it first):
-r_c_v_output="`echo $r_c_v_output |
-	grep 'LPATH is:' |
-	sed 's,.*LPATH is\(: *[^ ]*\).*,\1,;s,: */, -L/,g'` $r_c_v_output"
-
-case $r_c_v_output in
-  # If we are using xlc then replace all the commas with spaces.
-  *xlcentry*)
-    r_c_v_output=`echo $r_c_v_output | sed 's/,/ /g'` ;;
-
-  # With Intel ifc, ignore the quoted -mGLOB_options_string stuff (quoted
-  # $LIBS confuse us, and the libraries appear later in the output anyway).
-  *mGLOB_options_string*)
-    r_c_v_output=`echo $r_c_v_output | sed 's/\"-mGLOB[^\"]*\"/ /g'` ;;
-esac
-
-
-  # look for -l* and *.a constructs in the output
-  for r_arg in $r_c_v_output; do
-     case $r_arg in
-        [\\/]*.a | ?:[\\/]*.a | -[lLRu]*)
-          r_cv_prog_c_v=$r_verb
-          break 2 ;;
-     esac
-  done
-done
-if test -z "$r_cv_prog_c_v"; then
-   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: cannot determine how to obtain linking information from ${CC}" >&5
-printf "%s\n" "$as_me: WARNING: cannot determine how to obtain linking information from ${CC}" >&2;}
-fi
-else case e in #(
-  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: compilation failed" >&5
-printf "%s\n" "$as_me: WARNING: compilation failed" >&2;} ;;
-esac
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
- ;;
-esac
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $r_cv_prog_c_v" >&5
-printf "%s\n" "$r_cv_prog_c_v" >&6; }
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for C libraries of ${CC}" >&5
-printf %s "checking for C libraries of ${CC}... " >&6; }
-if test ${r_cv_c_libs+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) if test "x$CLIBS" != "x"; then
-  r_cv_c_libs="$CLIBS" # Let the user override the test.
-else
-
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-
-# Compile and link our simple test program by passing a flag (argument
-# 1 to this macro) to the Fortran compiler in order to get
-# "verbose" output that we can then parse for the Fortran linker
-# flags.
-r_save_CFLAGS=$CFLAGS
-CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:14706: \"$ac_link\") >&5
-r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
-echo "$r_c_v_output" >&5
-CFLAGS=$r_save_CFLAGS
-
-rm -rf conftest*
-
-# On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
-# /foo, /bar, and /baz are search directories for the Fortran linker.
-# Here, we change these into -L/foo -L/bar -L/baz (and put it first):
-r_c_v_output="`echo $r_c_v_output |
-	grep 'LPATH is:' |
-	sed 's,.*LPATH is\(: *[^ ]*\).*,\1,;s,: */, -L/,g'` $r_c_v_output"
-
-case $r_c_v_output in
-  # If we are using xlc then replace all the commas with spaces.
-  *xlcentry*)
-    r_c_v_output=`echo $r_c_v_output | sed 's/,/ /g'` ;;
-
-  # With Intel ifc, ignore the quoted -mGLOB_options_string stuff (quoted
-  # $LIBS confuse us, and the libraries appear later in the output anyway).
-  *mGLOB_options_string*)
-    r_c_v_output=`echo $r_c_v_output | sed 's/\"-mGLOB[^\"]*\"/ /g'` ;;
-esac
-
-
-
-r_cv_c_libs=
-
-# Save positional arguments (if any)
-r_save_positional="$@"
-
-set X $r_c_v_output
-while test $# != 1; do
-  shift
-  r_arg=$1
-  case $r_arg in
-        [\\/]*.a | ?:[\\/]*.a)
-            ac_exists=false
-  for ac_i in $r_cv_c_libs; do
-    if test x"$r_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) r_cv_c_libs="$r_cv_c_libs $r_arg" ;;
-esac
-fi
-          ;;
-        -bI:*)
-            ac_exists=false
-  for ac_i in $r_cv_c_libs; do
-    if test x"$r_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) if test "$ac_compiler_gnu" = yes; then
-  for ac_link_opt in $r_arg; do
-    r_cv_c_libs="$r_cv_c_libs -Xlinker $ac_link_opt"
-  done
-else
-  r_cv_c_libs="$r_cv_c_libs $r_arg"
-fi ;;
-esac
-fi
-          ;;
-          # Ignore these flags.
-        -lang* | -lcrt[01].o | -lcrtbegin.o | -lc | -lgcc | -libmil | -LANG:=*)
-          ;;
-        -lkernel32)
-          test x"$CYGWIN" != xyes && r_cv_c_libs="$r_cv_c_libs $r_arg"
-          ;;
-        -[LRuY])
-          # These flags, when seen by themselves, take an argument.
-          # We remove the space between option and argument and re-iterate
-          # unless we find an empty arg or a new option (starting with -)
-	  case $2 in
-	     "" | -*);;
-	     *)
-		r_arg="$r_arg$2"
-		shift; shift
-		set X $r_arg "$@"
-		;;
-	  esac
-          ;;
-        -YP,*)
-          for r_j in `echo $r_arg | sed -e 's/-YP,/-L/;s/:/ -L/g'`; do
-              ac_exists=false
-  for ac_i in $r_cv_c_libs; do
-    if test x"$r_j" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) r_arg="$r_arg $r_j"
-                               r_cv_c_libs="$r_cv_c_libs $r_j" ;;
-esac
-fi
-          done
-          ;;
-        -[lLR]*)
-            ac_exists=false
-  for ac_i in $r_cv_c_libs; do
-    if test x"$r_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) r_cv_c_libs="$r_cv_c_libs $r_arg" ;;
-esac
-fi
-          ;;
-          # Ignore everything else.
-  esac
-done
-# restore positional arguments
-set X $r_save_positional; shift
-
-# We only consider "LD_RUN_PATH" on Solaris systems.  If this is seen,
-# then we insist that the "run path" must be an absolute path (i.e. it
-# must begin with a "/").
-case `(uname -sr) 2>/dev/null` in
-   "SunOS 5"*)
-      r_ld_run_path=`echo $r_c_v_output |
-                        sed -n 's,^.*LD_RUN_PATH *= *\(/[^ ]*\).*$,-R\1,p'`
-      test "x$r_ld_run_path" != x &&
-        if test "$ac_compiler_gnu" = yes; then
-  for ac_link_opt in $r_ld_run_path; do
-    r_cv_c_libs="$r_cv_c_libs -Xlinker $ac_link_opt"
-  done
-else
-  r_cv_c_libs="$r_cv_c_libs $r_ld_run_path"
-fi
-      ;;
-esac
-fi # test "x$CLIBS" = "x"
- ;;
-esac
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $r_cv_c_libs" >&5
-printf "%s\n" "$r_cv_c_libs" >&6; }
-CLIBS=
-for arg in $r_cv_c_libs; do
-  case "${arg}" in
-    -L*)
-      CLIBS="${CLIBS} $arg"
-      ;;
-  esac
-done
-
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-else
-  CLIBS=
-fi
-LIBS="${r_save_LIBS}"
-case "${host_os}" in
-  linux*)
-    r_libpath_default="/usr/lib64 /lib64 /usr/lib /lib"
-    ;;
-  solaris*)
-    r_libpath_default="/usr/lib /lib"
-    ;;
-  *)
-    r_libpath_default=
-    ;;
-esac
-r_extra_libs=
-for arg in ${LDFLAGS} ${CLIBS}; do
-  case "${arg}" in
-    -L*)
-      lib=`echo ${arg} | sed "s/^-L//"`
-      test -d "${lib}" || continue
-      ## Canonicalize (/usr/lib/gcc-lib/i686-linux/3.4.3/../../..).
-      lib=`cd "${lib}" && ${GETWD}`
-      r_extra_libs="${r_extra_libs} $lib"
-      ;;
-  esac
-done
-
-flibs=
-if test "${GCC}" = yes; then
-  linker_option="-Wl,"
-else
-  linker_option=
-fi
-r_save_flibs=""
-for arg in ${FLIBS}; do
-  case "${arg}" in
-    ## this is not for a Fortran main program
-    -lcrt*.o | -lfrtbegin | -lgfortranbegin | -lmx | -lSystem)
-      ;;
-    -[a-zA-Z]/*\" | -[a-zA-Z]*\\) # ifc
-      ;;
-    -l:*)
-      flibs="${flibs} ${linker_option}${arg}"
-      ;;
-    -L*)
-      lib=`echo ${arg} | sed "s/^-L//"`
-      ## Do not add non-existent directories.
-      test -d "${lib}" || continue
-      ## Canonicalize (/usr/lib/gcc-lib/i686-linux/3.4.3/../../..).
-      lib=`cd "${lib}" && ${GETWD}`
-      r_want_lib=true
-      ## Do not add something twice nor default paths nor those in LDFLAGS
-      for dir in ${r_save_flibs} ${r_libpath_default} ${r_extra_libs}; do
-        if test "${dir}" = "${lib}"; then
-           r_want_lib=false
-           break
-        fi
-      done
-      if test x"${r_want_lib}" = xtrue; then
-        flibs="${flibs} -L${lib}"
-	r_save_flibs="${r_save_flibs} ${lib}"
-      fi
-      ;;
-    *)
-      flibs="${flibs} ${arg}"
-      ;;
-  esac
-done
-FLIBS="${flibs}"
-
-fi
 
 if test -z "$FLIBS_IN_SO"; then
   FLIBS_IN_SO=${FLIBS}
 fi
 
-
-case "${ac_cv_fc_mangling}" in
-  "upper "*)
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Fortran compiler uses uppercase external names" >&5
-printf "%s\n" "$as_me: WARNING: Fortran compiler uses uppercase external names" >&2;}
-    as_fn_error $? "cannot use Fortran" "$LINENO" 5
-    ;;
-esac
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${FC} appends underscores to external names" >&5
-printf %s "checking whether ${FC} appends underscores to external names... " >&6; }
-if test ${r_cv_prog_fc_append_underscore+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) case "${ac_cv_fc_mangling}" in
-  *", underscore, "*)
-    r_cv_prog_fc_append_underscore=yes
-    ;;
-  *", no underscore, "*)
-    r_cv_prog_fc_append_underscore=no
-    ;;
-esac ;;
-esac
-fi
-
-if test -n "${r_cv_prog_fc_append_underscore}"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${r_cv_prog_fc_append_underscore}" >&5
-printf "%s\n" "${r_cv_prog_fc_append_underscore}" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
-printf "%s\n" "unknown" >&6; }
-  as_fn_error $? "cannot use Fortran" "$LINENO" 5
-fi
-if test "${r_cv_prog_fc_append_underscore}" = yes; then
-
-printf "%s\n" "#define HAVE_F77_UNDERSCORE 1" >>confdefs.h
-
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${FC} appends extra underscores to external names" >&5
-printf %s "checking whether ${FC} appends extra underscores to external names... " >&6; }
-if test ${r_cv_prog_fc_append_second_underscore+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) case "${ac_cv_fc_mangling}" in
-  *", extra underscore")
-    r_cv_prog_fc_append_second_underscore=yes
-    ;;
-  *", no extra underscore")
-    r_cv_prog_fc_append_second_underscore=no
-    ;;
-esac ;;
-esac
-fi
-
-if test -n "${r_cv_prog_fc_append_second_underscore}"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${r_cv_prog_fc_append_second_underscore}" >&5
-printf "%s\n" "${r_cv_prog_fc_append_second_underscore}" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
-printf "%s\n" "unknown" >&6; }
-  as_fn_error $? "cannot use Fortran" "$LINENO" 5
-fi
-if test "${r_cv_prog_fc_append_second_underscore}" = yes; then
-
-printf "%s\n" "#define HAVE_F77_EXTRA_UNDERSCORE 1" >>confdefs.h
-
-fi
 
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether mixed C/Fortran code can be run" >&5
@@ -15384,14 +15515,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 ### *** C++ compiler
 
-r_cxx_rules_frag=Makefrag.cxx
-
-r_cxx_rules_frag=Makefrag.cxx
-
-
-
-ac_config_commands="$ac_config_commands r_cxx_rules_frag"
-
 
 
 ### *** Rust compiler
@@ -15399,498 +15522,6 @@ ac_config_commands="$ac_config_commands r_cxx_rules_frag"
 
 
 
-
-# Check whether --enable-rust was given.
-if test ${enable_rust+y}
-then :
-  enableval=$enable_rust; want_rust=$enableval
-else case e in #(
-  e) want_rust=yes ;;
-esac
-fi
-
-
-if test "x${want_rust}" = "xyes"; then
-  # Extract the first word of "rustc", so it can be a program name with args.
-set dummy rustc; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_RUSTC+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) case $RUSTC in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_RUSTC="$RUSTC" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_RUSTC="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac ;;
-esac
-fi
-RUSTC=$ac_cv_path_RUSTC
-if test -n "$RUSTC"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $RUSTC" >&5
-printf "%s\n" "$RUSTC" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-  if test -z "${RUSTC}"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: rustc not found: Rust sources will not be built" >&5
-printf "%s\n" "$as_me: WARNING: rustc not found: Rust sources will not be built" >&2;}
-    RUSTC=:
-    HAVE_RUST=0
-  else
-    HAVE_RUST=1
-
-    # Check and report rustc version
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking rustc version" >&5
-printf %s "checking rustc version... " >&6; }
-    RUST_VERSION=`${RUSTC} --version 2>/dev/null | cut -d' ' -f2`
-    if test -n "${RUST_VERSION}"; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_VERSION}" >&5
-printf "%s\n" "${RUST_VERSION}" >&6; }
-
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
-printf "%s\n" "unknown" >&6; }
-      RUST_VERSION=unknown
-    fi
-
-    # Extract major.minor for comparison
-    RUST_VERSION_MAJOR=`echo ${RUST_VERSION} | cut -d. -f1`
-    RUST_VERSION_MINOR=`echo ${RUST_VERSION} | cut -d. -f2`
-
-
-
-    # Check for each edition (optional) - skip if fast-config enabled
-    if test "x${enable_fast_config}" = "xyes"; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: fast-config: assuming Rust 2021 edition support" >&5
-printf "%s\n" "$as_me: fast-config: assuming Rust 2021 edition support" >&6;}
-      RUST2015=yes
-      RUST2015STD="--edition=2015"
-      HAVE_RUST2015=1
-      RUST2018=yes
-      RUST2018STD="--edition=2018"
-      HAVE_RUST2018=1
-      RUST2021=yes
-      RUST2021STD="--edition=2021"
-      HAVE_RUST2021=1
-      RUST2024=no
-      RUST2024STD=""
-      HAVE_RUST2024=0
-      RUST_DEFAULT_EDITION=2021
-    else
-          ax_rust_compile_edition_2015_required=false
-  ac_success=no
-
-  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2015 edition" >&5
-printf %s "checking whether ${RUSTC} supports Rust 2015 edition... " >&6; }
-
-        cat > conftest.rs << '_ACEOF'
-
-// Rust 2015 edition test
-fn main() {
-    let x: i32 = 42;
-    println!("{}", x);
-}
-
-_ACEOF
-
-        if ${RUSTC} --edition=2015 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-      ac_success=yes
-      RUST2015=yes
-      RUST2015STD="--edition=2015"
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-      RUST2015=no
-      RUST2015STD=""
-    fi
-    rm -f conftest.rs conftest.rmeta
-  fi
-
-  if test x$ax_rust_compile_edition_2015_required = xtrue; then
-    if test x$ac_success = xno; then
-      as_fn_error $? "*** A Rust compiler with support for edition 2015 is required." "$LINENO" 5
-    fi
-  fi
-
-  if test x$ac_success = xno; then
-    HAVE_RUST2015=0
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2015 support was found" >&5
-printf "%s\n" "$as_me: No Rust compiler with edition 2015 support was found" >&6;}
-  else
-    HAVE_RUST2015=1
-  fi
-
-
-
-
-          ax_rust_compile_edition_2018_required=false
-  ac_success=no
-
-  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2018 edition" >&5
-printf %s "checking whether ${RUSTC} supports Rust 2018 edition... " >&6; }
-
-        cat > conftest.rs << '_ACEOF'
-
-// Rust 2018 edition test - uses 2018-specific module system
-// In 2018, 'dyn Trait' is required instead of bare 'Trait'
-fn takes_trait_object(_: &dyn std::fmt::Debug) {}
-
-fn main() {
-    let x = 42;
-    takes_trait_object(&x);
-}
-
-_ACEOF
-
-        if ${RUSTC} --edition=2018 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-      ac_success=yes
-      RUST2018=yes
-      RUST2018STD="--edition=2018"
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-      RUST2018=no
-      RUST2018STD=""
-    fi
-    rm -f conftest.rs conftest.rmeta
-  fi
-
-  if test x$ax_rust_compile_edition_2018_required = xtrue; then
-    if test x$ac_success = xno; then
-      as_fn_error $? "*** A Rust compiler with support for edition 2018 is required." "$LINENO" 5
-    fi
-  fi
-
-  if test x$ac_success = xno; then
-    HAVE_RUST2018=0
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2018 support was found" >&5
-printf "%s\n" "$as_me: No Rust compiler with edition 2018 support was found" >&6;}
-  else
-    HAVE_RUST2018=1
-  fi
-
-
-
-
-          ax_rust_compile_edition_2021_required=false
-  ac_success=no
-
-  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2021 edition" >&5
-printf %s "checking whether ${RUSTC} supports Rust 2021 edition... " >&6; }
-
-        cat > conftest.rs << '_ACEOF'
-
-// Rust 2021 edition test - uses 2021-specific features
-fn main() {
-    // IntoIterator for arrays is stable in 2021
-    let arr = [1, 2, 3];
-    for x in arr {
-        let _ = x;
-    }
-
-    // Disjoint capture in closures (2021 feature)
-    let s = (String::from("hello"), String::from("world"));
-    let c = || {
-        let _ = &s.0;  // Only captures s.0, not all of s
-    };
-    c();
-    let _ = s.1;  // s.1 is still accessible
-}
-
-_ACEOF
-
-        if ${RUSTC} --edition=2021 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-      ac_success=yes
-      RUST2021=yes
-      RUST2021STD="--edition=2021"
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-      RUST2021=no
-      RUST2021STD=""
-    fi
-    rm -f conftest.rs conftest.rmeta
-  fi
-
-  if test x$ax_rust_compile_edition_2021_required = xtrue; then
-    if test x$ac_success = xno; then
-      as_fn_error $? "*** A Rust compiler with support for edition 2021 is required." "$LINENO" 5
-    fi
-  fi
-
-  if test x$ac_success = xno; then
-    HAVE_RUST2021=0
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2021 support was found" >&5
-printf "%s\n" "$as_me: No Rust compiler with edition 2021 support was found" >&6;}
-  else
-    HAVE_RUST2021=1
-  fi
-
-
-
-
-          ax_rust_compile_edition_2024_required=false
-  ac_success=no
-
-  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2024 edition" >&5
-printf %s "checking whether ${RUSTC} supports Rust 2024 edition... " >&6; }
-
-        cat > conftest.rs << '_ACEOF'
-
-// Rust 2024 edition test
-// 2024 makes unsafe_op_in_unsafe_fn a hard error
-#![deny(unsafe_op_in_unsafe_fn)]
-
-unsafe fn unsafe_inner() {}
-
-unsafe fn unsafe_outer() {
-    // In 2024, must explicitly use unsafe block
-    unsafe { unsafe_inner(); }
-}
-
-fn main() {
-    unsafe { unsafe_outer(); }
-}
-
-_ACEOF
-
-        if ${RUSTC} --edition=2024 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-      ac_success=yes
-      RUST2024=yes
-      RUST2024STD="--edition=2024"
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-      RUST2024=no
-      RUST2024STD=""
-    fi
-    rm -f conftest.rs conftest.rmeta
-  fi
-
-  if test x$ax_rust_compile_edition_2024_required = xtrue; then
-    if test x$ac_success = xno; then
-      as_fn_error $? "*** A Rust compiler with support for edition 2024 is required." "$LINENO" 5
-    fi
-  fi
-
-  if test x$ac_success = xno; then
-    HAVE_RUST2024=0
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2024 support was found" >&5
-printf "%s\n" "$as_me: No Rust compiler with edition 2024 support was found" >&6;}
-  else
-    HAVE_RUST2024=1
-  fi
-
-
-
-
-
-      # Set default edition based on what's available
-      if test "x${RUST2021}" = "xyes"; then
-        RUST_DEFAULT_EDITION=2021
-      elif test "x${RUST2018}" = "xyes"; then
-        RUST_DEFAULT_EDITION=2018
-      else
-        RUST_DEFAULT_EDITION=2015
-      fi
-    fi
-
-
-    # Check for cargo (optional but useful)
-    # Extract the first word of "cargo", so it can be a program name with args.
-set dummy cargo; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_CARGO+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) case $CARGO in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_CARGO="$CARGO" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_CARGO="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac ;;
-esac
-fi
-CARGO=$ac_cv_path_CARGO
-if test -n "$CARGO"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $CARGO" >&5
-printf "%s\n" "$CARGO" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-    if test -z "${CARGO}"; then
-      CARGO=:
-      HAVE_CARGO=0
-    else
-      HAVE_CARGO=1
-    fi
-
-
-
-    # Get target triple
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking rustc target triple" >&5
-printf %s "checking rustc target triple... " >&6; }
-    RUST_TARGET=`${RUSTC} --version --verbose 2>/dev/null | grep "^host:" | cut -d' ' -f2`
-    if test -n "${RUST_TARGET}"; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_TARGET}" >&5
-printf "%s\n" "${RUST_TARGET}" >&6; }
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
-printf "%s\n" "unknown" >&6; }
-      RUST_TARGET=unknown
-    fi
-
-  fi
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Rust support disabled by user" >&5
-printf "%s\n" "$as_me: Rust support disabled by user" >&6;}
-  RUSTC=:
-  HAVE_RUST=0
-fi
-
-# Set up flags
-if test -z "${RUSTFLAGS}"; then
-  RUSTFLAGS=""
-fi
-if test -z "${RUSTPICFLAGS}"; then
-  RUSTPICFLAGS="-C relocation-model=pic"
-fi
-
-# Optimization flags
-if test -z "${RUSTOPTFLAGS}"; then
-  RUSTOPTFLAGS="-C opt-level=2"
-fi
-
-# Debug flags
-if test -z "${RUSTDEBUGFLAGS}"; then
-  RUSTDEBUGFLAGS="-g -C opt-level=0"
-fi
-
-
-
-
-
-
-
- if test "x${RUSTC}" != "x:"; then
-  BUILD_RUST_TRUE=
-  BUILD_RUST_FALSE='#'
-else
-  BUILD_RUST_TRUE='#'
-  BUILD_RUST_FALSE=
-fi
-
- if test "x${RUSTC}" != "x:"; then
-  BUILD_RUST_TEST_TRUE=
-  BUILD_RUST_TEST_FALSE='#'
-else
-  BUILD_RUST_TEST_TRUE='#'
-  BUILD_RUST_TEST_FALSE=
-fi
-
-
-
-r_rust_rules_frag=Makefrag.rs
-r_rust_rules_frag=Makefrag.rs
-
-
-
-ac_config_commands="$ac_config_commands r_rust_rules_frag"
-
-
-
-
-if test "x${enable_fast_config}" = "xyes"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: fast-config: assuming standard Rust native static libs" >&5
-printf "%s\n" "$as_me: fast-config: assuming standard Rust native static libs" >&6;}
-  RUST_NATIVE_STATIC_LIBS=""
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Rust native static libs" >&5
-printf %s "checking for Rust native static libs... " >&6; }
-  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
-    cat > conftest.rs << 'EOF'
-#[no_mangle]
-pub extern "C" fn rust_dummy() -> i32 { 0 }
-EOF
-    RUST_NATIVE_STATIC_LIBS=`${RUSTC} --crate-type=staticlib --print native-static-libs conftest.rs 2>&1 | grep "native-static-libs:" | sed 's/.*native-static-libs: //'`
-    rm -f conftest.rs libconftest.a
-    if test -n "${RUST_NATIVE_STATIC_LIBS}"; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_NATIVE_STATIC_LIBS}" >&5
-printf "%s\n" "${RUST_NATIVE_STATIC_LIBS}" >&6; }
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: none detected" >&5
-printf "%s\n" "none detected" >&6; }
-      RUST_NATIVE_STATIC_LIBS=""
-    fi
-  else
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: rustc not available" >&5
-printf "%s\n" "rustc not available" >&6; }
-    RUST_NATIVE_STATIC_LIBS=""
-  fi
-fi
 
 
 
@@ -19266,18 +18897,6 @@ else
 printf "%s\n" "$as_me: Not using the 'long double' type" >&6;}
 fi
 
-r_cc_rules_frag=Makefrag.cc
-
-r_cc_rules_frag=Makefrag.cc
-
-
-
-
-r_cc_lo_rules_frag=Makefrag.cc_lo
-
-r_cc_lo_rules_frag=Makefrag.cc_lo
-
-
 
 
 
@@ -19359,859 +18978,11 @@ printf "%s\n" "$ac_cv_prog_c_openmp" >&6; }
 
 ### *** Fortran compiler.
 
-if test -z "${FLIBS}"; then
-r_save_LIBS="${LIBS}"
-LIBS=
-ac_ext=${ac_fc_srcext-f}
-ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
-ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_fc_compiler_gnu
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking how to get verbose linking output from $FC" >&5
-printf %s "checking how to get verbose linking output from $FC... " >&6; }
-if test ${ac_cv_prog_fc_v+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) cat > conftest.$ac_ext <<_ACEOF
-      program main
-
-      end
-_ACEOF
-if ac_fn_fc_try_compile "$LINENO"
-then :
-  ac_cv_prog_fc_v=
-# Try some options frequently used verbose output
-for ac_verb in -v -verbose --verbose -V -\#\#\#; do
-  cat > conftest.$ac_ext <<_ACEOF
-      program main
-
-      end
-_ACEOF
-
-# Compile and link our simple test program by passing a flag (argument
-# 1 to this macro) to the Fortran compiler in order to get
-# "verbose" output that we can then parse for the Fortran linker
-# flags.
-ac_save_FCFLAGS=$FCFLAGS
-FCFLAGS="$FCFLAGS $ac_verb"
-eval "set x $ac_link"
-shift
-printf "%s\n" "$as_me:${as_lineno-$LINENO}: $*" >&5
-# gfortran 4.3 outputs lines setting COLLECT_GCC_OPTIONS, COMPILER_PATH,
-# LIBRARY_PATH; skip all such settings.
-ac_fc_v_output=`eval $ac_link 5>&1 2>&1 |
-  sed '/^Driving:/d; /^Configured with:/d;
-      '"/^[_$as_cr_Letters][_$as_cr_alnum]*=/d"`
-printf "%s\n" "$ac_fc_v_output" >&5
-FCFLAGS=$ac_save_FCFLAGS
-
-rm -rf conftest*
-
-# On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
-# /foo, /bar, and /baz are search directories for the Fortran linker.
-# Here, we change these into -L/foo -L/bar -L/baz (and put it first):
-ac_fc_v_output="`echo $ac_fc_v_output |
-	grep 'LPATH is:' |
-	sed 's|.*LPATH is\(: *[^ ]*\).*|\1|;s|: */| -L/|g'` $ac_fc_v_output"
-
-# FIXME: we keep getting bitten by quoted arguments; a more general fix
-#        that detects unbalanced quotes in FLIBS should be implemented
-#        and (ugh) tested at some point.
-case $ac_fc_v_output in
-  # With xlf replace commas with spaces,
-  # and remove "-link" and closing parenthesis.
-  *xlfentry*)
-    ac_fc_v_output=`echo $ac_fc_v_output |
-      sed '
-        s/,/ /g
-        s/ -link / /g
-        s/) *$//
-      '
-    ` ;;
-
-  # With Intel ifc, ignore the quoted -mGLOB_options_string stuff (quoted
-  # $LIBS confuse us, and the libraries appear later in the output anyway).
-  *mGLOB_options_string*)
-    ac_fc_v_output=`echo $ac_fc_v_output | sed 's/"-mGLOB[^"]*"/ /g'` ;;
-
-  # Portland Group compiler has singly- or doubly-quoted -cmdline argument
-  # Singly-quoted arguments were reported for versions 5.2-4 and 6.0-4.
-  # Doubly-quoted arguments were reported for "PGF90/x86 Linux/x86 5.0-2".
-  *-cmdline\ * | *-ignore\ * | *-def\ *)
-    ac_fc_v_output=`echo $ac_fc_v_output | sed "\
-	s/-cmdline  *'[^']*'/ /g; s/-cmdline  *\"[^\"]*\"/ /g
-	s/-ignore  *'[^']*'/ /g; s/-ignore  *\"[^\"]*\"/ /g
-	s/-def  *'[^']*'/ /g; s/-def  *\"[^\"]*\"/ /g"` ;;
-
-  # If we are using fort77 (the f2c wrapper) then filter output and delete quotes.
-  *fort77*f2c*gcc*)
-    ac_fc_v_output=`echo "$ac_fc_v_output" | sed -n '
-        /:[	 ]\+Running[	 ]\{1,\}"gcc"/{
-          /"-c"/d
-          /[.]c"*/d
-          s/^.*"gcc"/"gcc"/
-          s/"//gp
-        }'` ;;
-
-  # If we are using Cray Fortran then delete quotes.
-  *cft90*)
-    ac_fc_v_output=`echo $ac_fc_v_output | sed 's/"//g'` ;;
-esac
-
-
-  # look for -l* and *.a constructs in the output
-  for ac_arg in $ac_fc_v_output; do
-     case $ac_arg in
-	[\\/]*.a | ?:[\\/]*.a | -[lLRu]*)
-	  ac_cv_prog_fc_v=$ac_verb
-	  break 2 ;;
-     esac
-  done
-done
-if test -z "$ac_cv_prog_fc_v"; then
-   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: cannot determine how to obtain linking information from $FC" >&5
-printf "%s\n" "$as_me: WARNING: cannot determine how to obtain linking information from $FC" >&2;}
-fi
-else case e in #(
-  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: compilation failed" >&5
-printf "%s\n" "$as_me: WARNING: compilation failed" >&2;} ;;
-esac
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
- ;;
-esac
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_prog_fc_v" >&5
-printf "%s\n" "$ac_cv_prog_fc_v" >&6; }
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Fortran libraries of $FC" >&5
-printf %s "checking for Fortran libraries of $FC... " >&6; }
-if test ${ac_cv_fc_libs+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) if test "x$FCLIBS" != "x"; then
-  ac_cv_fc_libs="$FCLIBS" # Let the user override the test.
-else
-
-cat > conftest.$ac_ext <<_ACEOF
-      program main
-
-      end
-_ACEOF
-
-# Compile and link our simple test program by passing a flag (argument
-# 1 to this macro) to the Fortran compiler in order to get
-# "verbose" output that we can then parse for the Fortran linker
-# flags.
-ac_save_FCFLAGS=$FCFLAGS
-FCFLAGS="$FCFLAGS $ac_cv_prog_fc_v"
-eval "set x $ac_link"
-shift
-printf "%s\n" "$as_me:${as_lineno-$LINENO}: $*" >&5
-# gfortran 4.3 outputs lines setting COLLECT_GCC_OPTIONS, COMPILER_PATH,
-# LIBRARY_PATH; skip all such settings.
-ac_fc_v_output=`eval $ac_link 5>&1 2>&1 |
-  sed '/^Driving:/d; /^Configured with:/d;
-      '"/^[_$as_cr_Letters][_$as_cr_alnum]*=/d"`
-printf "%s\n" "$ac_fc_v_output" >&5
-FCFLAGS=$ac_save_FCFLAGS
-
-rm -rf conftest*
-
-# On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
-# /foo, /bar, and /baz are search directories for the Fortran linker.
-# Here, we change these into -L/foo -L/bar -L/baz (and put it first):
-ac_fc_v_output="`echo $ac_fc_v_output |
-	grep 'LPATH is:' |
-	sed 's|.*LPATH is\(: *[^ ]*\).*|\1|;s|: */| -L/|g'` $ac_fc_v_output"
-
-# FIXME: we keep getting bitten by quoted arguments; a more general fix
-#        that detects unbalanced quotes in FLIBS should be implemented
-#        and (ugh) tested at some point.
-case $ac_fc_v_output in
-  # With xlf replace commas with spaces,
-  # and remove "-link" and closing parenthesis.
-  *xlfentry*)
-    ac_fc_v_output=`echo $ac_fc_v_output |
-      sed '
-        s/,/ /g
-        s/ -link / /g
-        s/) *$//
-      '
-    ` ;;
-
-  # With Intel ifc, ignore the quoted -mGLOB_options_string stuff (quoted
-  # $LIBS confuse us, and the libraries appear later in the output anyway).
-  *mGLOB_options_string*)
-    ac_fc_v_output=`echo $ac_fc_v_output | sed 's/"-mGLOB[^"]*"/ /g'` ;;
-
-  # Portland Group compiler has singly- or doubly-quoted -cmdline argument
-  # Singly-quoted arguments were reported for versions 5.2-4 and 6.0-4.
-  # Doubly-quoted arguments were reported for "PGF90/x86 Linux/x86 5.0-2".
-  *-cmdline\ * | *-ignore\ * | *-def\ *)
-    ac_fc_v_output=`echo $ac_fc_v_output | sed "\
-	s/-cmdline  *'[^']*'/ /g; s/-cmdline  *\"[^\"]*\"/ /g
-	s/-ignore  *'[^']*'/ /g; s/-ignore  *\"[^\"]*\"/ /g
-	s/-def  *'[^']*'/ /g; s/-def  *\"[^\"]*\"/ /g"` ;;
-
-  # If we are using fort77 (the f2c wrapper) then filter output and delete quotes.
-  *fort77*f2c*gcc*)
-    ac_fc_v_output=`echo "$ac_fc_v_output" | sed -n '
-        /:[	 ]\+Running[	 ]\{1,\}"gcc"/{
-          /"-c"/d
-          /[.]c"*/d
-          s/^.*"gcc"/"gcc"/
-          s/"//gp
-        }'` ;;
-
-  # If we are using Cray Fortran then delete quotes.
-  *cft90*)
-    ac_fc_v_output=`echo $ac_fc_v_output | sed 's/"//g'` ;;
-esac
-
-
-
-ac_cv_fc_libs=
-
-# Save positional arguments (if any)
-ac_save_positional="$@"
-
-set X $ac_fc_v_output
-while test $# != 1; do
-  shift
-  ac_arg=$1
-  case $ac_arg in
-	[\\/]*.a | ?:[\\/]*.a)
-	    ac_exists=false
-  for ac_i in $ac_cv_fc_libs; do
-    if test x"$ac_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) ac_cv_fc_libs="$ac_cv_fc_libs $ac_arg" ;;
-esac
-fi
-	  ;;
-	-bI:*)
-	    ac_exists=false
-  for ac_i in $ac_cv_fc_libs; do
-    if test x"$ac_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) if test "$ac_compiler_gnu" = yes; then
-  for ac_link_opt in $ac_arg; do
-    ac_cv_fc_libs="$ac_cv_fc_libs -Xlinker $ac_link_opt"
-  done
-else
-  ac_cv_fc_libs="$ac_cv_fc_libs $ac_arg"
-fi ;;
-esac
-fi
-	  ;;
-	  # Ignore these flags.
-	-lang* | -lcrt*.o | -lc | -lgcc* | -lSystem | -libmil | -little \
-	  |-LANG:=* | -LIST:* | -LNO:* | -link)
-	  ;;
-	-lkernel32 | -lmingw* | -lmoldname)
-	  # Ignore this library only on Windows-like systems.
-	  case $host_os in
-	  cygwin* | msys* | mingw* | windows*) ;;
-	  *)
-	    ac_exists=false
-  for ac_i in $ac_cv_fc_libs; do
-    if test x"$ac_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) ac_cv_fc_libs="$ac_cv_fc_libs $ac_arg" ;;
-esac
-fi
-	    ;;
-	  esac
-	  ;;
-	-[LRuYz])
-	  # These flags, when seen by themselves, take an argument.
-	  # We remove the space between option and argument and re-iterate
-	  # unless we find an empty arg or a new option (starting with -)
-	  case $2 in
-	     "" | -*);;
-	     *)
-		ac_arg="$ac_arg$2"
-		shift; shift
-		set X $ac_arg "$@"
-		;;
-	  esac
-	  ;;
-	-YP,*)
-	  for ac_j in `printf "%s\n" "$ac_arg" | sed -e 's/-YP,/-L/;s/:/ -L/g'`; do
-	      ac_exists=false
-  for ac_i in $ac_cv_fc_libs; do
-    if test x"$ac_j" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) ac_arg="$ac_arg $ac_j"
-			       ac_cv_fc_libs="$ac_cv_fc_libs $ac_j" ;;
-esac
-fi
-	  done
-	  ;;
-	-[lLR]*)
-	    ac_exists=false
-  for ac_i in $ac_cv_fc_libs; do
-    if test x"$ac_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) ac_cv_fc_libs="$ac_cv_fc_libs $ac_arg" ;;
-esac
-fi
-	  ;;
-	-zallextract*| -zdefaultextract)
-	  ac_cv_fc_libs="$ac_cv_fc_libs $ac_arg"
-	  ;;
-	-mllvm) ${2+shift};; # Defend against 'clang -mllvm -loopopt=0'.
-	  # Ignore everything else.
-  esac
-done
-# restore positional arguments
-set X $ac_save_positional; shift
-
-# We only consider "LD_RUN_PATH" on Solaris systems.  If this is seen,
-# then we insist that the "run path" must be an absolute path (i.e. it
-# must begin with a "/").
-case `(uname -sr) 2>/dev/null` in
-   "SunOS 5"*)
-      ac_ld_run_path=`printf "%s\n" "$ac_fc_v_output" |
-			sed -n 's,^.*LD_RUN_PATH *= *\(/[^ ]*\).*$,-R\1,p'`
-      test "x$ac_ld_run_path" != x &&
-	if test "$ac_compiler_gnu" = yes; then
-  for ac_link_opt in $ac_ld_run_path; do
-    ac_cv_fc_libs="$ac_cv_fc_libs -Xlinker $ac_link_opt"
-  done
-else
-  ac_cv_fc_libs="$ac_cv_fc_libs $ac_ld_run_path"
-fi
-      ;;
-esac
-fi # test "x$[]_AC_LANG_PREFIX[]LIBS" = "x"
- ;;
-esac
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_fc_libs" >&5
-printf "%s\n" "$ac_cv_fc_libs" >&6; }
-FCLIBS="$ac_cv_fc_libs"
-
-
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-FLIBS=${FCLIBS}
-if test -z "${MAIN_LD}" ; then
-  LIBS=
-  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking how to get verbose linking output from ${CC}" >&5
-printf %s "checking how to get verbose linking output from ${CC}... " >&6; }
-if test ${r_cv_prog_c_v+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  r_cv_prog_c_v=
-# Try some options frequently used verbose output
-for r_verb in -v -verbose --verbose -V -\#\#\#; do
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-
-# Compile and link our simple test program by passing a flag (argument
-# 1 to this macro) to the Fortran compiler in order to get
-# "verbose" output that we can then parse for the Fortran linker
-# flags.
-r_save_CFLAGS=$CFLAGS
-CFLAGS="$CFLAGS $r_verb"
-(eval echo $as_me:19807: \"$ac_link\") >&5
-r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
-echo "$r_c_v_output" >&5
-CFLAGS=$r_save_CFLAGS
-
-rm -rf conftest*
-
-# On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
-# /foo, /bar, and /baz are search directories for the Fortran linker.
-# Here, we change these into -L/foo -L/bar -L/baz (and put it first):
-r_c_v_output="`echo $r_c_v_output |
-	grep 'LPATH is:' |
-	sed 's,.*LPATH is\(: *[^ ]*\).*,\1,;s,: */, -L/,g'` $r_c_v_output"
-
-case $r_c_v_output in
-  # If we are using xlc then replace all the commas with spaces.
-  *xlcentry*)
-    r_c_v_output=`echo $r_c_v_output | sed 's/,/ /g'` ;;
-
-  # With Intel ifc, ignore the quoted -mGLOB_options_string stuff (quoted
-  # $LIBS confuse us, and the libraries appear later in the output anyway).
-  *mGLOB_options_string*)
-    r_c_v_output=`echo $r_c_v_output | sed 's/\"-mGLOB[^\"]*\"/ /g'` ;;
-esac
-
-
-  # look for -l* and *.a constructs in the output
-  for r_arg in $r_c_v_output; do
-     case $r_arg in
-        [\\/]*.a | ?:[\\/]*.a | -[lLRu]*)
-          r_cv_prog_c_v=$r_verb
-          break 2 ;;
-     esac
-  done
-done
-if test -z "$r_cv_prog_c_v"; then
-   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: cannot determine how to obtain linking information from ${CC}" >&5
-printf "%s\n" "$as_me: WARNING: cannot determine how to obtain linking information from ${CC}" >&2;}
-fi
-else case e in #(
-  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: compilation failed" >&5
-printf "%s\n" "$as_me: WARNING: compilation failed" >&2;} ;;
-esac
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
- ;;
-esac
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $r_cv_prog_c_v" >&5
-printf "%s\n" "$r_cv_prog_c_v" >&6; }
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for C libraries of ${CC}" >&5
-printf %s "checking for C libraries of ${CC}... " >&6; }
-if test ${r_cv_c_libs+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) if test "x$CLIBS" != "x"; then
-  r_cv_c_libs="$CLIBS" # Let the user override the test.
-else
-
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-
-# Compile and link our simple test program by passing a flag (argument
-# 1 to this macro) to the Fortran compiler in order to get
-# "verbose" output that we can then parse for the Fortran linker
-# flags.
-r_save_CFLAGS=$CFLAGS
-CFLAGS="$CFLAGS $r_cv_prog_c_v"
-(eval echo $as_me:19893: \"$ac_link\") >&5
-r_c_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
-echo "$r_c_v_output" >&5
-CFLAGS=$r_save_CFLAGS
-
-rm -rf conftest*
-
-# On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
-# /foo, /bar, and /baz are search directories for the Fortran linker.
-# Here, we change these into -L/foo -L/bar -L/baz (and put it first):
-r_c_v_output="`echo $r_c_v_output |
-	grep 'LPATH is:' |
-	sed 's,.*LPATH is\(: *[^ ]*\).*,\1,;s,: */, -L/,g'` $r_c_v_output"
-
-case $r_c_v_output in
-  # If we are using xlc then replace all the commas with spaces.
-  *xlcentry*)
-    r_c_v_output=`echo $r_c_v_output | sed 's/,/ /g'` ;;
-
-  # With Intel ifc, ignore the quoted -mGLOB_options_string stuff (quoted
-  # $LIBS confuse us, and the libraries appear later in the output anyway).
-  *mGLOB_options_string*)
-    r_c_v_output=`echo $r_c_v_output | sed 's/\"-mGLOB[^\"]*\"/ /g'` ;;
-esac
-
-
-
-r_cv_c_libs=
-
-# Save positional arguments (if any)
-r_save_positional="$@"
-
-set X $r_c_v_output
-while test $# != 1; do
-  shift
-  r_arg=$1
-  case $r_arg in
-        [\\/]*.a | ?:[\\/]*.a)
-            ac_exists=false
-  for ac_i in $r_cv_c_libs; do
-    if test x"$r_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) r_cv_c_libs="$r_cv_c_libs $r_arg" ;;
-esac
-fi
-          ;;
-        -bI:*)
-            ac_exists=false
-  for ac_i in $r_cv_c_libs; do
-    if test x"$r_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) if test "$ac_compiler_gnu" = yes; then
-  for ac_link_opt in $r_arg; do
-    r_cv_c_libs="$r_cv_c_libs -Xlinker $ac_link_opt"
-  done
-else
-  r_cv_c_libs="$r_cv_c_libs $r_arg"
-fi ;;
-esac
-fi
-          ;;
-          # Ignore these flags.
-        -lang* | -lcrt[01].o | -lcrtbegin.o | -lc | -lgcc | -libmil | -LANG:=*)
-          ;;
-        -lkernel32)
-          test x"$CYGWIN" != xyes && r_cv_c_libs="$r_cv_c_libs $r_arg"
-          ;;
-        -[LRuY])
-          # These flags, when seen by themselves, take an argument.
-          # We remove the space between option and argument and re-iterate
-          # unless we find an empty arg or a new option (starting with -)
-	  case $2 in
-	     "" | -*);;
-	     *)
-		r_arg="$r_arg$2"
-		shift; shift
-		set X $r_arg "$@"
-		;;
-	  esac
-          ;;
-        -YP,*)
-          for r_j in `echo $r_arg | sed -e 's/-YP,/-L/;s/:/ -L/g'`; do
-              ac_exists=false
-  for ac_i in $r_cv_c_libs; do
-    if test x"$r_j" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) r_arg="$r_arg $r_j"
-                               r_cv_c_libs="$r_cv_c_libs $r_j" ;;
-esac
-fi
-          done
-          ;;
-        -[lLR]*)
-            ac_exists=false
-  for ac_i in $r_cv_c_libs; do
-    if test x"$r_arg" = x"$ac_i"; then
-      ac_exists=true
-      break
-    fi
-  done
-
-  if test x"$ac_exists" = xtrue
-then :
-
-else case e in #(
-  e) r_cv_c_libs="$r_cv_c_libs $r_arg" ;;
-esac
-fi
-          ;;
-          # Ignore everything else.
-  esac
-done
-# restore positional arguments
-set X $r_save_positional; shift
-
-# We only consider "LD_RUN_PATH" on Solaris systems.  If this is seen,
-# then we insist that the "run path" must be an absolute path (i.e. it
-# must begin with a "/").
-case `(uname -sr) 2>/dev/null` in
-   "SunOS 5"*)
-      r_ld_run_path=`echo $r_c_v_output |
-                        sed -n 's,^.*LD_RUN_PATH *= *\(/[^ ]*\).*$,-R\1,p'`
-      test "x$r_ld_run_path" != x &&
-        if test "$ac_compiler_gnu" = yes; then
-  for ac_link_opt in $r_ld_run_path; do
-    r_cv_c_libs="$r_cv_c_libs -Xlinker $ac_link_opt"
-  done
-else
-  r_cv_c_libs="$r_cv_c_libs $r_ld_run_path"
-fi
-      ;;
-esac
-fi # test "x$CLIBS" = "x"
- ;;
-esac
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $r_cv_c_libs" >&5
-printf "%s\n" "$r_cv_c_libs" >&6; }
-CLIBS=
-for arg in $r_cv_c_libs; do
-  case "${arg}" in
-    -L*)
-      CLIBS="${CLIBS} $arg"
-      ;;
-  esac
-done
-
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-else
-  CLIBS=
-fi
-LIBS="${r_save_LIBS}"
-case "${host_os}" in
-  linux*)
-    r_libpath_default="/usr/lib64 /lib64 /usr/lib /lib"
-    ;;
-  solaris*)
-    r_libpath_default="/usr/lib /lib"
-    ;;
-  *)
-    r_libpath_default=
-    ;;
-esac
-r_extra_libs=
-for arg in ${LDFLAGS} ${CLIBS}; do
-  case "${arg}" in
-    -L*)
-      lib=`echo ${arg} | sed "s/^-L//"`
-      test -d "${lib}" || continue
-      ## Canonicalize (/usr/lib/gcc-lib/i686-linux/3.4.3/../../..).
-      lib=`cd "${lib}" && ${GETWD}`
-      r_extra_libs="${r_extra_libs} $lib"
-      ;;
-  esac
-done
-
-flibs=
-if test "${GCC}" = yes; then
-  linker_option="-Wl,"
-else
-  linker_option=
-fi
-r_save_flibs=""
-for arg in ${FLIBS}; do
-  case "${arg}" in
-    ## this is not for a Fortran main program
-    -lcrt*.o | -lfrtbegin | -lgfortranbegin | -lmx | -lSystem)
-      ;;
-    -[a-zA-Z]/*\" | -[a-zA-Z]*\\) # ifc
-      ;;
-    -l:*)
-      flibs="${flibs} ${linker_option}${arg}"
-      ;;
-    -L*)
-      lib=`echo ${arg} | sed "s/^-L//"`
-      ## Do not add non-existent directories.
-      test -d "${lib}" || continue
-      ## Canonicalize (/usr/lib/gcc-lib/i686-linux/3.4.3/../../..).
-      lib=`cd "${lib}" && ${GETWD}`
-      r_want_lib=true
-      ## Do not add something twice nor default paths nor those in LDFLAGS
-      for dir in ${r_save_flibs} ${r_libpath_default} ${r_extra_libs}; do
-        if test "${dir}" = "${lib}"; then
-           r_want_lib=false
-           break
-        fi
-      done
-      if test x"${r_want_lib}" = xtrue; then
-        flibs="${flibs} -L${lib}"
-	r_save_flibs="${r_save_flibs} ${lib}"
-      fi
-      ;;
-    *)
-      flibs="${flibs} ${arg}"
-      ;;
-  esac
-done
-FLIBS="${flibs}"
-
-fi
 
 if test -z "$FLIBS_IN_SO"; then
   FLIBS_IN_SO=${FLIBS}
 fi
 
-
-case "${ac_cv_fc_mangling}" in
-  "upper "*)
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Fortran compiler uses uppercase external names" >&5
-printf "%s\n" "$as_me: WARNING: Fortran compiler uses uppercase external names" >&2;}
-    as_fn_error $? "cannot use Fortran" "$LINENO" 5
-    ;;
-esac
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${FC} appends underscores to external names" >&5
-printf %s "checking whether ${FC} appends underscores to external names... " >&6; }
-if test ${r_cv_prog_fc_append_underscore+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) case "${ac_cv_fc_mangling}" in
-  *", underscore, "*)
-    r_cv_prog_fc_append_underscore=yes
-    ;;
-  *", no underscore, "*)
-    r_cv_prog_fc_append_underscore=no
-    ;;
-esac ;;
-esac
-fi
-
-if test -n "${r_cv_prog_fc_append_underscore}"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${r_cv_prog_fc_append_underscore}" >&5
-printf "%s\n" "${r_cv_prog_fc_append_underscore}" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
-printf "%s\n" "unknown" >&6; }
-  as_fn_error $? "cannot use Fortran" "$LINENO" 5
-fi
-if test "${r_cv_prog_fc_append_underscore}" = yes; then
-
-printf "%s\n" "#define HAVE_F77_UNDERSCORE 1" >>confdefs.h
-
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${FC} appends extra underscores to external names" >&5
-printf %s "checking whether ${FC} appends extra underscores to external names... " >&6; }
-if test ${r_cv_prog_fc_append_second_underscore+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) case "${ac_cv_fc_mangling}" in
-  *", extra underscore")
-    r_cv_prog_fc_append_second_underscore=yes
-    ;;
-  *", no extra underscore")
-    r_cv_prog_fc_append_second_underscore=no
-    ;;
-esac ;;
-esac
-fi
-
-if test -n "${r_cv_prog_fc_append_second_underscore}"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${r_cv_prog_fc_append_second_underscore}" >&5
-printf "%s\n" "${r_cv_prog_fc_append_second_underscore}" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
-printf "%s\n" "unknown" >&6; }
-  as_fn_error $? "cannot use Fortran" "$LINENO" 5
-fi
-if test "${r_cv_prog_fc_append_second_underscore}" = yes; then
-
-printf "%s\n" "#define HAVE_F77_EXTRA_UNDERSCORE 1" >>confdefs.h
-
-fi
 
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether mixed C/Fortran code can be run" >&5
@@ -20571,12 +19342,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 ### *** C++ compiler
 
-r_cxx_rules_frag=Makefrag.cxx
-
-r_cxx_rules_frag=Makefrag.cxx
-
-
-
 
 
 ### *** Rust compiler
@@ -20584,496 +19349,6 @@ r_cxx_rules_frag=Makefrag.cxx
 
 
 
-
-# Check whether --enable-rust was given.
-if test ${enable_rust+y}
-then :
-  enableval=$enable_rust; want_rust=$enableval
-else case e in #(
-  e) want_rust=yes ;;
-esac
-fi
-
-
-if test "x${want_rust}" = "xyes"; then
-  # Extract the first word of "rustc", so it can be a program name with args.
-set dummy rustc; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_RUSTC+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) case $RUSTC in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_RUSTC="$RUSTC" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_RUSTC="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac ;;
-esac
-fi
-RUSTC=$ac_cv_path_RUSTC
-if test -n "$RUSTC"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $RUSTC" >&5
-printf "%s\n" "$RUSTC" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-  if test -z "${RUSTC}"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: rustc not found: Rust sources will not be built" >&5
-printf "%s\n" "$as_me: WARNING: rustc not found: Rust sources will not be built" >&2;}
-    RUSTC=:
-    HAVE_RUST=0
-  else
-    HAVE_RUST=1
-
-    # Check and report rustc version
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking rustc version" >&5
-printf %s "checking rustc version... " >&6; }
-    RUST_VERSION=`${RUSTC} --version 2>/dev/null | cut -d' ' -f2`
-    if test -n "${RUST_VERSION}"; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_VERSION}" >&5
-printf "%s\n" "${RUST_VERSION}" >&6; }
-
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
-printf "%s\n" "unknown" >&6; }
-      RUST_VERSION=unknown
-    fi
-
-    # Extract major.minor for comparison
-    RUST_VERSION_MAJOR=`echo ${RUST_VERSION} | cut -d. -f1`
-    RUST_VERSION_MINOR=`echo ${RUST_VERSION} | cut -d. -f2`
-
-
-
-    # Check for each edition (optional) - skip if fast-config enabled
-    if test "x${enable_fast_config}" = "xyes"; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: fast-config: assuming Rust 2021 edition support" >&5
-printf "%s\n" "$as_me: fast-config: assuming Rust 2021 edition support" >&6;}
-      RUST2015=yes
-      RUST2015STD="--edition=2015"
-      HAVE_RUST2015=1
-      RUST2018=yes
-      RUST2018STD="--edition=2018"
-      HAVE_RUST2018=1
-      RUST2021=yes
-      RUST2021STD="--edition=2021"
-      HAVE_RUST2021=1
-      RUST2024=no
-      RUST2024STD=""
-      HAVE_RUST2024=0
-      RUST_DEFAULT_EDITION=2021
-    else
-          ax_rust_compile_edition_2015_required=false
-  ac_success=no
-
-  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2015 edition" >&5
-printf %s "checking whether ${RUSTC} supports Rust 2015 edition... " >&6; }
-
-        cat > conftest.rs << '_ACEOF'
-
-// Rust 2015 edition test
-fn main() {
-    let x: i32 = 42;
-    println!("{}", x);
-}
-
-_ACEOF
-
-        if ${RUSTC} --edition=2015 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-      ac_success=yes
-      RUST2015=yes
-      RUST2015STD="--edition=2015"
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-      RUST2015=no
-      RUST2015STD=""
-    fi
-    rm -f conftest.rs conftest.rmeta
-  fi
-
-  if test x$ax_rust_compile_edition_2015_required = xtrue; then
-    if test x$ac_success = xno; then
-      as_fn_error $? "*** A Rust compiler with support for edition 2015 is required." "$LINENO" 5
-    fi
-  fi
-
-  if test x$ac_success = xno; then
-    HAVE_RUST2015=0
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2015 support was found" >&5
-printf "%s\n" "$as_me: No Rust compiler with edition 2015 support was found" >&6;}
-  else
-    HAVE_RUST2015=1
-  fi
-
-
-
-
-          ax_rust_compile_edition_2018_required=false
-  ac_success=no
-
-  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2018 edition" >&5
-printf %s "checking whether ${RUSTC} supports Rust 2018 edition... " >&6; }
-
-        cat > conftest.rs << '_ACEOF'
-
-// Rust 2018 edition test - uses 2018-specific module system
-// In 2018, 'dyn Trait' is required instead of bare 'Trait'
-fn takes_trait_object(_: &dyn std::fmt::Debug) {}
-
-fn main() {
-    let x = 42;
-    takes_trait_object(&x);
-}
-
-_ACEOF
-
-        if ${RUSTC} --edition=2018 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-      ac_success=yes
-      RUST2018=yes
-      RUST2018STD="--edition=2018"
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-      RUST2018=no
-      RUST2018STD=""
-    fi
-    rm -f conftest.rs conftest.rmeta
-  fi
-
-  if test x$ax_rust_compile_edition_2018_required = xtrue; then
-    if test x$ac_success = xno; then
-      as_fn_error $? "*** A Rust compiler with support for edition 2018 is required." "$LINENO" 5
-    fi
-  fi
-
-  if test x$ac_success = xno; then
-    HAVE_RUST2018=0
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2018 support was found" >&5
-printf "%s\n" "$as_me: No Rust compiler with edition 2018 support was found" >&6;}
-  else
-    HAVE_RUST2018=1
-  fi
-
-
-
-
-          ax_rust_compile_edition_2021_required=false
-  ac_success=no
-
-  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2021 edition" >&5
-printf %s "checking whether ${RUSTC} supports Rust 2021 edition... " >&6; }
-
-        cat > conftest.rs << '_ACEOF'
-
-// Rust 2021 edition test - uses 2021-specific features
-fn main() {
-    // IntoIterator for arrays is stable in 2021
-    let arr = [1, 2, 3];
-    for x in arr {
-        let _ = x;
-    }
-
-    // Disjoint capture in closures (2021 feature)
-    let s = (String::from("hello"), String::from("world"));
-    let c = || {
-        let _ = &s.0;  // Only captures s.0, not all of s
-    };
-    c();
-    let _ = s.1;  // s.1 is still accessible
-}
-
-_ACEOF
-
-        if ${RUSTC} --edition=2021 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-      ac_success=yes
-      RUST2021=yes
-      RUST2021STD="--edition=2021"
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-      RUST2021=no
-      RUST2021STD=""
-    fi
-    rm -f conftest.rs conftest.rmeta
-  fi
-
-  if test x$ax_rust_compile_edition_2021_required = xtrue; then
-    if test x$ac_success = xno; then
-      as_fn_error $? "*** A Rust compiler with support for edition 2021 is required." "$LINENO" 5
-    fi
-  fi
-
-  if test x$ac_success = xno; then
-    HAVE_RUST2021=0
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2021 support was found" >&5
-printf "%s\n" "$as_me: No Rust compiler with edition 2021 support was found" >&6;}
-  else
-    HAVE_RUST2021=1
-  fi
-
-
-
-
-          ax_rust_compile_edition_2024_required=false
-  ac_success=no
-
-  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ${RUSTC} supports Rust 2024 edition" >&5
-printf %s "checking whether ${RUSTC} supports Rust 2024 edition... " >&6; }
-
-        cat > conftest.rs << '_ACEOF'
-
-// Rust 2024 edition test
-// 2024 makes unsafe_op_in_unsafe_fn a hard error
-#![deny(unsafe_op_in_unsafe_fn)]
-
-unsafe fn unsafe_inner() {}
-
-unsafe fn unsafe_outer() {
-    // In 2024, must explicitly use unsafe block
-    unsafe { unsafe_inner(); }
-}
-
-fn main() {
-    unsafe { unsafe_outer(); }
-}
-
-_ACEOF
-
-        if ${RUSTC} --edition=2024 --emit=metadata -o conftest.rmeta conftest.rs 2>/dev/null; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-      ac_success=yes
-      RUST2024=yes
-      RUST2024STD="--edition=2024"
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-      RUST2024=no
-      RUST2024STD=""
-    fi
-    rm -f conftest.rs conftest.rmeta
-  fi
-
-  if test x$ax_rust_compile_edition_2024_required = xtrue; then
-    if test x$ac_success = xno; then
-      as_fn_error $? "*** A Rust compiler with support for edition 2024 is required." "$LINENO" 5
-    fi
-  fi
-
-  if test x$ac_success = xno; then
-    HAVE_RUST2024=0
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: No Rust compiler with edition 2024 support was found" >&5
-printf "%s\n" "$as_me: No Rust compiler with edition 2024 support was found" >&6;}
-  else
-    HAVE_RUST2024=1
-  fi
-
-
-
-
-
-      # Set default edition based on what's available
-      if test "x${RUST2021}" = "xyes"; then
-        RUST_DEFAULT_EDITION=2021
-      elif test "x${RUST2018}" = "xyes"; then
-        RUST_DEFAULT_EDITION=2018
-      else
-        RUST_DEFAULT_EDITION=2015
-      fi
-    fi
-
-
-    # Check for cargo (optional but useful)
-    # Extract the first word of "cargo", so it can be a program name with args.
-set dummy cargo; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_CARGO+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) case $CARGO in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_CARGO="$CARGO" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_CARGO="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac ;;
-esac
-fi
-CARGO=$ac_cv_path_CARGO
-if test -n "$CARGO"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $CARGO" >&5
-printf "%s\n" "$CARGO" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-    if test -z "${CARGO}"; then
-      CARGO=:
-      HAVE_CARGO=0
-    else
-      HAVE_CARGO=1
-    fi
-
-
-
-    # Get target triple
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking rustc target triple" >&5
-printf %s "checking rustc target triple... " >&6; }
-    RUST_TARGET=`${RUSTC} --version --verbose 2>/dev/null | grep "^host:" | cut -d' ' -f2`
-    if test -n "${RUST_TARGET}"; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_TARGET}" >&5
-printf "%s\n" "${RUST_TARGET}" >&6; }
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
-printf "%s\n" "unknown" >&6; }
-      RUST_TARGET=unknown
-    fi
-
-  fi
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Rust support disabled by user" >&5
-printf "%s\n" "$as_me: Rust support disabled by user" >&6;}
-  RUSTC=:
-  HAVE_RUST=0
-fi
-
-# Set up flags
-if test -z "${RUSTFLAGS}"; then
-  RUSTFLAGS=""
-fi
-if test -z "${RUSTPICFLAGS}"; then
-  RUSTPICFLAGS="-C relocation-model=pic"
-fi
-
-# Optimization flags
-if test -z "${RUSTOPTFLAGS}"; then
-  RUSTOPTFLAGS="-C opt-level=2"
-fi
-
-# Debug flags
-if test -z "${RUSTDEBUGFLAGS}"; then
-  RUSTDEBUGFLAGS="-g -C opt-level=0"
-fi
-
-
-
-
-
-
-
- if test "x${RUSTC}" != "x:"; then
-  BUILD_RUST_TRUE=
-  BUILD_RUST_FALSE='#'
-else
-  BUILD_RUST_TRUE='#'
-  BUILD_RUST_FALSE=
-fi
-
- if test "x${RUSTC}" != "x:"; then
-  BUILD_RUST_TEST_TRUE=
-  BUILD_RUST_TEST_FALSE='#'
-else
-  BUILD_RUST_TEST_TRUE='#'
-  BUILD_RUST_TEST_FALSE=
-fi
-
-
-
-r_rust_rules_frag=Makefrag.rs
-r_rust_rules_frag=Makefrag.rs
-
-
-
-
-
-
-if test "x${enable_fast_config}" = "xyes"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: fast-config: assuming standard Rust native static libs" >&5
-printf "%s\n" "$as_me: fast-config: assuming standard Rust native static libs" >&6;}
-  RUST_NATIVE_STATIC_LIBS=""
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Rust native static libs" >&5
-printf %s "checking for Rust native static libs... " >&6; }
-  if test "x${RUSTC}" != "x:" && test -n "${RUSTC}"; then
-    cat > conftest.rs << 'EOF'
-#[no_mangle]
-pub extern "C" fn rust_dummy() -> i32 { 0 }
-EOF
-    RUST_NATIVE_STATIC_LIBS=`${RUSTC} --crate-type=staticlib --print native-static-libs conftest.rs 2>&1 | grep "native-static-libs:" | sed 's/.*native-static-libs: //'`
-    rm -f conftest.rs libconftest.a
-    if test -n "${RUST_NATIVE_STATIC_LIBS}"; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${RUST_NATIVE_STATIC_LIBS}" >&5
-printf "%s\n" "${RUST_NATIVE_STATIC_LIBS}" >&6; }
-    else
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: none detected" >&5
-printf "%s\n" "none detected" >&6; }
-      RUST_NATIVE_STATIC_LIBS=""
-    fi
-  else
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: rustc not available" >&5
-printf "%s\n" "rustc not available" >&6; }
-    RUST_NATIVE_STATIC_LIBS=""
-  fi
-fi
 
 
 
@@ -57190,14 +55465,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${COMPILE_FORTRAN_DOUBLE_COMPLEX_TRUE}" && test -z "${COMPILE_FORTRAN_DOUBLE_COMPLEX_FALSE}"; then
   as_fn_error $? "conditional \"COMPILE_FORTRAN_DOUBLE_COMPLEX\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${BUILD_RUST_TRUE}" && test -z "${BUILD_RUST_FALSE}"; then
-  as_fn_error $? "conditional \"BUILD_RUST\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${BUILD_RUST_TEST_TRUE}" && test -z "${BUILD_RUST_TEST_FALSE}"; then
-  as_fn_error $? "conditional \"BUILD_RUST_TEST\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${DYLIB_UNDEFINED_ALLOWED_TRUE}" && test -z "${DYLIB_UNDEFINED_ALLOWED_FALSE}"; then

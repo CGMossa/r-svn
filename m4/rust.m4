@@ -151,7 +151,8 @@ fn main() {
 ## R_PROG_RUST
 ## -----------
 ## Detect Rust compiler and set up variables
-AC_DEFUN([R_PROG_RUST],
+## Uses AC_DEFUN_ONCE to prevent duplicate expansion from AC_REQUIRE chains
+AC_DEFUN_ONCE([R_PROG_RUST],
 [
 AC_ARG_VAR([RUSTC], [Rust compiler command])
 AC_ARG_VAR([RUSTFLAGS], [Rust compiler flags])
@@ -310,7 +311,7 @@ fi
 ## R_RUST_NATIVE_STATIC_LIBS
 ## -------------------------
 ## Detect the native static libraries needed when linking Rust code
-AC_DEFUN([R_RUST_NATIVE_STATIC_LIBS],
+AC_DEFUN_ONCE([R_RUST_NATIVE_STATIC_LIBS],
 [
 if test "x${enable_fast_config}" = "xyes"; then
   AC_MSG_NOTICE([fast-config: assuming standard Rust native static libs])
@@ -342,7 +343,7 @@ AC_SUBST(RUST_NATIVE_STATIC_LIBS)
 ## R_PROG_RUST_MAKEFRAG
 ## --------------------
 ## Generate a Make fragment with suffix rules for the Rust compiler.
-AC_DEFUN([R_PROG_RUST_MAKEFRAG],
+AC_DEFUN_ONCE([R_PROG_RUST_MAKEFRAG],
 [r_rust_rules_frag=Makefrag.rs
 AC_SUBST([r_rust_rules_frag], [Makefrag.rs])
 AC_SUBST_FILE(r_rust_rules_frag)

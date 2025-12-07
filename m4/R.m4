@@ -384,7 +384,7 @@ rm -Rf conftest* TMP])
 ## ------------------
 ## Generate a Make fragment with suffix rules for the C compiler.
 ## Used for both building R (Makeconf) and add-ons (etc/Makeconf).
-AC_DEFUN([R_PROG_CC_MAKEFRAG],
+AC_DEFUN_ONCE([R_PROG_CC_MAKEFRAG],
 [r_cc_rules_frag=Makefrag.cc
 AC_REQUIRE([R_PROG_CC_M])
 AC_SUBST([r_cc_rules_frag], [Makefrag.cc])
@@ -411,7 +411,7 @@ EOF
 ## Need to make .lo files in src/nmath/standalone only
 ## NB test -d .libs || mkdir .libs can be run more than once
 ##    and hence race when a parallel make is used
-AC_DEFUN([R_PROG_CC_LO_MAKEFRAG],
+AC_DEFUN_ONCE([R_PROG_CC_LO_MAKEFRAG],
 [r_cc_lo_rules_frag=Makefrag.cc_lo
 AC_REQUIRE([R_PROG_CC_C_O_LO])
 AC_SUBST([r_cc_lo_rules_frag], [Makefrag.cc_lo])
@@ -542,7 +542,7 @@ fi])
 ## Generate a Make fragment with suffix rules for the C++ compiler.
 ## Used for both building R (Makeconf) and add-ons (etc/Makeconf).
 ## <FIXME> If the .d rules were actually use, use CXXXPP? </FIXME>
-AC_DEFUN([R_PROG_CXX_MAKEFRAG],
+AC_DEFUN_ONCE([R_PROG_CXX_MAKEFRAG],
 [r_cxx_rules_frag=Makefrag.cxx
 AC_REQUIRE([R_PROG_CXX_M])
 AC_SUBST([r_cxx_rules_frag], [Makefrag.cxx])
@@ -610,7 +610,8 @@ fi
 ## ----------------
 ## Run AC_FC_LIBRARY_LDFLAGS rename to FLIBS, and fix some known problems with FLIBS.
 ## Only do this if the user has not already set FLIBS.
-AC_DEFUN([R_PROG_FC_FLIBS],
+## Uses AC_DEFUN_ONCE to prevent duplicate expansion from AC_REQUIRE chains
+AC_DEFUN_ONCE([R_PROG_FC_FLIBS],
 [dnl We check if FLIBS is already set to allow overriding.
 if test -z "${FLIBS}"; then
 dnl
@@ -756,7 +757,8 @@ fi
 ## in the former case; as ISO Fortran 77 does not allow underscores in
 ## function names, we do nothing about the latter in F77_*
 ## (but do in R_dlsym).
-AC_DEFUN([R_PROG_FC_APPEND_UNDERSCORE],
+## Uses AC_DEFUN_ONCE to prevent duplicate expansion from AC_REQUIRE chains
+AC_DEFUN_ONCE([R_PROG_FC_APPEND_UNDERSCORE],
 [dnl Note: AC_FC_WRAPPERS requires AC_FC_LIBRARY_LDFLAGS internally.
 AC_REQUIRE([AC_FC_WRAPPERS])
 dnl DANGER!  We really need the results of _AC_FC_NAME_MANGLING as
@@ -2646,7 +2648,7 @@ AC_SUBST(use_tcltk)
 ## 2020-11-27 --with-blas=foo now does not fallback to search.
 ## Based on acx_blas.m4 version 1.2 (2001-12-13)
 ## (Since renamed to ax_blas.m4)
-AC_DEFUN([R_BLAS_LIBS],
+AC_DEFUN_ONCE([R_BLAS_LIBS],
 [AC_REQUIRE([R_PROG_FC_FLIBS])
 AC_REQUIRE([R_PROG_FC_APPEND_UNDERSCORE])
 
@@ -3130,7 +3132,7 @@ AC_SUBST(BLAS_LIBS)
 ## Test function was zgeev, changed to dpstrf which is LAPACK 3.2.
 ## (2009 version used cheev)
 
-AC_DEFUN([R_LAPACK_LIBS],
+AC_DEFUN_ONCE([R_LAPACK_LIBS],
 [AC_REQUIRE([R_PROG_FC_FLIBS])
 AC_REQUIRE([R_PROG_FC_APPEND_UNDERSCORE])
 AC_REQUIRE([R_BLAS_LIBS])
