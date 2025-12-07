@@ -1,13 +1,14 @@
 /* Unity build file for grid library
  * Combines all source files into single translation unit
  *
- * No Defn.h includes - no USE_RINTERNALS ordering needed
- * No static function conflicts between files
+ * grid.c must be first - it defines GRID_MAIN which controls
+ * whether R_gridEvalEnv is defined vs extern in grid.h.
+ * Due to header guards, the first includer of grid.h wins.
  */
 
+#include "grid.c"
 #include "clippath.c"
 #include "gpar.c"
-#include "grid.c"
 #include "just.c"
 #include "layout.c"
 #include "mask.c"
