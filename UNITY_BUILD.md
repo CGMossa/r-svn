@@ -6,9 +6,9 @@ Unity builds (also called jumbo builds) compile multiple source files together a
 
 **7 of 8 R library packages now use unity builds** (methods, parallel, tcltk, grDevices, graphics, utils, grid).
 
-**src/nmath now uses batched unity builds** (114 → 13 files, 89% reduction).
+**src/nmath now uses batched unity builds** (120 → 13 files, 89% reduction).
 
-**src/main now uses batched unity builds** (98 → 15 files, 85% reduction).
+**src/main now uses batched unity builds** (99 → 15 files, 85% reduction).
 
 All conflicts resolved via preprocessor techniques (`#define`/`#undef`) in the unity files. Only `grid.h` required source modification (adding include guards). Only stats and tools remain non-unity due to complex conflicts (`.c` file includes, yacc parser conflicts).
 
@@ -21,26 +21,26 @@ All conflicts resolved via preprocessor techniques (`#define`/`#undef`) in the u
 | tcltk | 3 | 1 | 2 |
 | grDevices | 14 | 2* | 12 |
 | graphics | 7 | 1 | 6 |
-| utils | 6 | 1 | 5 |
+| utils | 7 | 1 | 6 |
 | grid | 14 | 1 | 13 |
-| **nmath** | **114** | **13** | **101 (89%)** |
-| **main** | **98** | **15** | **83 (85%)** |
-| **Total** | **266** | **36** | **230 (86%)** |
+| **nmath** | **120** | **13** | **107 (89%)** |
+| **main** | **99** | **15** | **84 (85%)** |
+| **Total** | **274** | **36** | **238 (87%)** |
 
 *grDevices: `devQuartz.c` compiled separately due to macOS header conflict
 
 ### Build Time Comparison
 
-Measured on Apple M1 (8-core, `-j8`):
+Measured on Apple M1 (8-core):
 
-**Full unity-enabled build (main + nmath + libs):**
+| Parallelism | Unity (36 units) | Non-unity (274 units) | Winner |
+|-------------|------------------|----------------------|--------|
+| `-j1` (1 core) | **32s** | 40s | Unity (+20%) |
+| `-j8` (8 cores) | ~10s | **~9s** | Non-unity (+10%) |
 
-| Mode | Compilation Units | Time |
-|------|-------------------|------|
-| Unity | 36 | ~10s |
-| Non-unity | 238 | ~9s |
+**Key insight:** Unity builds shine with lower parallelism due to reduced I/O overhead (system time: 3.5s vs 6.4s at `-j1`). With high parallelism, many small files distribute across cores more evenly than fewer large batches.
 
-**Note:** With high parallelism (8 cores), non-unity builds can be slightly faster because 238 small files distribute across cores more evenly than 36 larger batches. Unity builds provide more benefit with:
+Unity builds provide more benefit with:
 
 - Single-threaded or low-parallelism builds
 - Slow I/O (network drives, HDDs)

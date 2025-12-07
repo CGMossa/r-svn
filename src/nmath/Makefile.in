@@ -13,7 +13,7 @@ include $(top_builddir)/Makeconf
 ## <NOTE>
 ## Keep these in sync with ./standalone/Makefile.in and *.win!
 ifneq ($(UNITY_BUILD),no)
-## Unity build - 13 batched translation units (86 -> 13 files)
+## Unity build - 13 batched translation units (120 -> 13 files)
 ## Separate batches needed because:
 ## - qDiscrete_search.h generates static functions with different signatures
 ## - wilcox.c and signrank.c have conflicting static symbols (w, w_free, etc.)

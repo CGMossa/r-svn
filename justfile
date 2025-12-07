@@ -759,7 +759,7 @@ test-all-rust: test-rust test-rust-shlib
 
 # Time library builds WITH unity builds (default)
 # Requires an existing configured build in _build/
-# Note: This only times src/library packages, not src/main (15 vs 98) or src/nmath (13 vs 86)
+# Note: This only times src/library packages, not src/main (15 vs 99) or src/nmath (13 vs 120)
 time-libs:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -798,7 +798,7 @@ time-libs:
 
 # Time library builds WITHOUT unity builds
 # Requires an existing configured build in _build/
-# Note: This only times src/library packages, not src/main (98) or src/nmath (86)
+# Note: This only times src/library packages, not src/main (99) or src/nmath (120)
 time-libs-no-unity:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -812,7 +812,7 @@ time-libs-no-unity:
     libs="methods parallel tcltk grDevices graphics utils grid"
 
     echo "=== Timing library builds (WITHOUT unity) ==="
-    echo "Library compilation units: 54 (full R: 238 with main+nmath)"
+    echo "Library compilation units: 55 (full R: 274 with main+nmath)"
     echo
 
     total_start=$(date +%s.%N)
@@ -894,7 +894,7 @@ time-full-no-unity:
     fi
 
     echo "=== Timing FULL R build (WITHOUT unity) ==="
-    echo "Compilation units: 238 (main:98 + nmath:86 + libs:54)"
+    echo "Compilation units: 274 (main:99 + nmath:120 + libs:55)"
     echo "Build dir: $BUILD"
     echo
 
