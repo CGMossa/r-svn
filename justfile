@@ -49,12 +49,14 @@ make *ARGS:
     set -euo pipefail
     srcdir="{{justfile_directory()}}"
     make -C "$srcdir" -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" R {{ARGS}}
-    # Fix rpath for lldb debugging on macOS (binary uses relative libR.dylib path)
+    # Fix rpath and codesign for macOS (needed for VS Code sandbox and lldb)
     if [[ "$(uname)" == "Darwin" ]] && [[ -f "$srcdir/bin/exec/R" ]]; then
         if ! otool -L "$srcdir/bin/exec/R" | grep -q '@rpath/libR'; then
             install_name_tool -add_rpath "@executable_path/../../lib" "$srcdir/bin/exec/R" 2>/dev/null || true
             install_name_tool -change "libR.dylib" "@rpath/libR.dylib" "$srcdir/bin/exec/R" 2>/dev/null || true
         fi
+        # Re-sign binary (linker signature not accepted by VS Code sandbox)
+        codesign -s - -f "$srcdir/bin/exec/R" 2>/dev/null || true
     fi
 
 # Make a specific component (e.g., src/main, src/nmath, src/library/grid/src)
@@ -184,6 +186,7 @@ ci-check-no-pdf:
     make check-all RCHK="R_LIBS_USER=NULL ${srcdir}/bin/R CMD check --no-manual"
 
 # Open a dev shell with the in-tree R at front of PATH (builds if needed)
+# Use dev-shell-clean for fully isolated R (no site/user config)
 dev-shell: make
     #!/usr/bin/env bash
     srcdir="{{justfile_directory()}}"
@@ -223,6 +226,59 @@ dev-shell: make
         > "$tmpdir/.bashrc"
 
     # Launch shell with our custom config dir
+    if [[ "$SHELL" == *zsh ]]; then
+        exec env ZDOTDIR="$tmpdir" "$SHELL" -i
+    else
+        exec env BASH_ENV="$tmpdir/.bashrc" "$SHELL" --rcfile "$tmpdir/.bashrc" -i
+    fi
+
+# Fully isolated dev shell (like --vanilla but as env vars)
+# No site config, no user config, no saved workspaces
+dev-shell-clean: make
+    #!/usr/bin/env bash
+    srcdir="{{justfile_directory()}}"
+
+    echo "=== R Dev Shell (Clean) ==="
+    echo "R binary: $srcdir/bin/R"
+    echo "R --version: $($srcdir/bin/R --version | head -1)"
+    echo
+    echo "All R config disabled (like --vanilla)"
+    echo "Type 'exit' to leave dev shell"
+
+    # Create temp dir for shell config
+    tmpdir=$(mktemp -d)
+    trap "rm -rf $tmpdir" EXIT
+
+    # For zsh
+    printf '%s\n' \
+        'test -f ~/.zshrc && source ~/.zshrc' \
+        "export PATH=\"$srcdir/bin:\$PATH\"" \
+        "export R_HOME=\"$srcdir\"" \
+        'export R_LIBS_USER=""' \
+        'export R_LIBS_SITE=""' \
+        'export R_PROFILE_USER=""' \
+        'export R_PROFILE=""' \
+        'export R_ENVIRON_USER=""' \
+        'export R_ENVIRON=""' \
+        'export R_HISTFILE=""' \
+        "export DYLD_LIBRARY_PATH=\"$srcdir/lib:\${DYLD_LIBRARY_PATH:-}\"" \
+        > "$tmpdir/.zshrc"
+
+    # For bash
+    printf '%s\n' \
+        'test -f ~/.bashrc && source ~/.bashrc' \
+        "export PATH=\"$srcdir/bin:\$PATH\"" \
+        "export R_HOME=\"$srcdir\"" \
+        'export R_LIBS_USER=""' \
+        'export R_LIBS_SITE=""' \
+        'export R_PROFILE_USER=""' \
+        'export R_PROFILE=""' \
+        'export R_ENVIRON_USER=""' \
+        'export R_ENVIRON=""' \
+        'export R_HISTFILE=""' \
+        "export DYLD_LIBRARY_PATH=\"$srcdir/lib:\${DYLD_LIBRARY_PATH:-}\"" \
+        > "$tmpdir/.bashrc"
+
     if [[ "$SHELL" == *zsh ]]; then
         exec env ZDOTDIR="$tmpdir" "$SHELL" -i
     else

@@ -226,3 +226,157 @@ These static functions/variables have the same name in different files:
 
 - `tools/make-unity-smart.sh` - Unity build generator with full conflict list
 - `UNITY_CONFLICTS.md` - Original conflict investigation notes
+
+---
+
+## macOS Code Signing and VS Code Sandbox
+
+### The Problem
+
+When building R from source on macOS and running it from VS Code's integrated terminal, the R binary gets killed immediately with SIGKILL (signal 9, exit code 137).
+
+```bash
+$ ./bin/R --version
+Killed: 9
+```
+
+This happens even though:
+
+- The binary is valid and runs fine from Terminal.app
+- The same binary runs successfully during `make check-all`
+- `R CMD config --version` works (because it's a shell script, not the binary)
+
+### Root Cause
+
+#### Linker-Signed vs Explicitly-Signed Binaries
+
+When you compile a binary on macOS, the linker creates an **ad-hoc linker-signed** signature:
+
+```bash
+$ codesign -dv bin/exec/R
+Signature=adhoc
+flags=0x20002(adhoc,linker-signed)
+```
+
+The `linker-signed` flag indicates this signature was automatically created by the linker, not explicitly by a developer.
+
+#### VS Code's Sandbox
+
+VS Code's integrated terminal runs in a **sandboxed environment**. This sandbox has stricter security policies than a regular terminal. Specifically:
+
+- It does **not** trust `linker-signed` binaries
+- It sends SIGKILL to processes it doesn't trust
+- This is a macOS security feature, not a VS Code bug
+
+#### Why Terminal.app Works
+
+Terminal.app is not sandboxed (or has different sandbox rules as a system application), so it runs linker-signed binaries without issue.
+
+#### Why `make check-all` Worked
+
+The CI check ran as a **background process** which may have different sandbox constraints, or the timing/context of how make invokes R avoided the sandbox trigger.
+
+### The Fix
+
+Re-sign the binary with an **explicit ad-hoc signature**:
+
+```bash
+codesign -s - -f bin/exec/R
+```
+
+After this:
+
+```bash
+$ codesign -dv bin/exec/R
+Signature=adhoc
+flags=0x20002(adhoc)  # Note: no 'linker-signed' flag
+```
+
+The binary now runs in VS Code's terminal.
+
+### Implications
+
+#### 1. Build Workflow Impact
+
+Any macOS build workflow that produces binaries for use in VS Code (or other sandboxed environments) needs explicit codesigning as a post-build step.
+
+This is now handled automatically in `just make`:
+
+```bash
+codesign -s - -f "$srcdir/bin/exec/R" 2>/dev/null || true
+```
+
+#### 2. Security Considerations
+
+**Ad-hoc signing** (`-s -`) means:
+
+- No identity verification (anyone can sign)
+- No revocation capability
+- No notarization
+- Binary can be modified and re-signed trivially
+
+This is fine for local development but has implications:
+
+- The signature only proves the binary hasn't been modified *since signing*
+- It does NOT prove who built it or that it's safe
+- For distribution, proper Developer ID signing + notarization is required
+
+#### 3. Why Does the Sandbox Care?
+
+Apple's security model increasingly restricts what can run. The distinction between linker-signed and explicitly-signed may be:
+
+- **Linker-signed**: "This binary was just compiled, we know nothing about it"
+- **Explicitly-signed**: "Someone deliberately signed this binary"
+
+The explicit signing is a minimal assertion of intent, even if it's just ad-hoc.
+
+#### 4. Other Affected Binaries
+
+This issue affects **any binary** built from source that you want to run in VS Code:
+
+- `bin/exec/R` (main R binary)
+- Potentially shared libraries (`lib/libR.dylib`)
+- R packages with compiled code
+
+Currently we only sign `bin/exec/R`. If other binaries cause issues, they may need signing too.
+
+#### 5. Rebuilds Invalidate Signatures
+
+Every time the binary is recompiled, the linker creates a new linker-signed signature, invalidating any explicit signature. The `just make` recipe handles this by always re-signing after build.
+
+### Alternative Solutions Considered
+
+| Solution | Pros | Cons |
+|----------|------|------|
+| Grant VS Code Full Disk Access | No code changes needed | Overly permissive, defeats sandbox purpose |
+| Use Terminal.app | Works immediately | Poor IDE integration |
+| Ad-hoc codesign (chosen) | Minimal, targeted fix | Must re-sign after each build |
+| Developer ID signing | Proper identity | Requires Apple Developer account, complex |
+| Disable SIP | Would work | Extremely bad idea, security nightmare |
+
+### Open Questions
+
+1. **Does this affect CI?** GitHub Actions runners may have different sandbox behavior. The CI uses containerized Linux for most builds, but macOS runners might be affected.
+
+2. **Library signing**: Do we need to sign `libR.dylib` and other shared libraries? Currently only the main binary is signed.
+
+3. **Future macOS versions**: Apple tends to tighten security. Will explicit ad-hoc signing continue to work, or will notarization eventually be required even for local development?
+
+4. **Other IDEs**: Do other IDEs (JetBrains, Sublime, etc.) have similar sandbox restrictions?
+
+### Testing
+
+To verify the fix works:
+
+```bash
+# Check current signature
+codesign -dv bin/exec/R 2>&1 | grep -E 'Signature|flags'
+
+# If it shows 'linker-signed', re-sign:
+codesign -s - -f bin/exec/R
+
+# Test in VS Code terminal:
+just run --version
+```
+
+Expected output: R version information, not "Killed: 9"
