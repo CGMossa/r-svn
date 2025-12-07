@@ -759,6 +759,7 @@ test-all-rust: test-rust test-rust-shlib
 
 # Time library builds WITH unity builds (default)
 # Requires an existing configured build in _build/
+# Note: This only times src/library packages, not src/main (15 vs 98) or src/nmath (13 vs 86)
 time-libs:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -772,7 +773,7 @@ time-libs:
     libs="methods parallel tcltk grDevices graphics utils grid"
 
     echo "=== Timing library builds (WITH unity) ==="
-    echo "Compilation units: 8"
+    echo "Library compilation units: 8 (full R: 36 with main+nmath)"
     echo
 
     total_start=$(date +%s.%N)
@@ -797,6 +798,7 @@ time-libs:
 
 # Time library builds WITHOUT unity builds
 # Requires an existing configured build in _build/
+# Note: This only times src/library packages, not src/main (98) or src/nmath (86)
 time-libs-no-unity:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -810,7 +812,7 @@ time-libs-no-unity:
     libs="methods parallel tcltk grDevices graphics utils grid"
 
     echo "=== Timing library builds (WITHOUT unity) ==="
-    echo "Compilation units: 54"
+    echo "Library compilation units: 54 (full R: 238 with main+nmath)"
     echo
 
     total_start=$(date +%s.%N)
@@ -833,7 +835,7 @@ time-libs-no-unity:
     echo
     printf "Total: %.2fs\n" "$total"
 
-# Compare unity vs non-unity build times
+# Compare unity vs non-unity build times (libraries only)
 time-libs-compare:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -842,6 +844,88 @@ time-libs-compare:
     echo
     echo "Running non-unity build timing..."
     just time-libs-no-unity
+
+# Time full R build WITH unity builds
+# Uses existing build in /tmp/r-conf-build-unity-*
+time-full:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    BUILD=$(ls -td /tmp/r-conf-build-unity-* 2>/dev/null | head -1)
+    if [ -z "$BUILD" ] || [ ! -f "$BUILD/build/Makefile" ]; then
+        echo "No existing unity build found. Run 'just build-unity' first."
+        exit 1
+    fi
+
+    echo "=== Timing FULL R build (WITH unity) ==="
+    echo "Compilation units: 36 (main:15 + nmath:13 + libs:8)"
+    echo "Build dir: $BUILD"
+    echo
+
+    # Clean main, nmath, and libraries
+    echo "Cleaning..."
+    rm -f "$BUILD/build/src/main"/*.o "$BUILD/build/src/main"/*.a 2>/dev/null || true
+    rm -f "$BUILD/build/src/nmath"/*.o "$BUILD/build/src/nmath"/*.a "$BUILD/build/src/nmath"/Makedeps 2>/dev/null || true
+    for lib in methods parallel grDevices graphics utils grid; do
+        libdir="$BUILD/build/src/library/$lib/src"
+        [ -d "$libdir" ] && rm -f "$libdir"/*.o "$libdir"/*.so 2>/dev/null || true
+    done
+
+    cd "$BUILD/build"
+
+    echo "Building..."
+    start=$(date +%s.%N)
+    make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" R >/dev/null 2>&1
+    end=$(date +%s.%N)
+
+    elapsed=$(echo "$end - $start" | bc)
+    printf "\nTotal build time: %.2fs\n" "$elapsed"
+
+# Time full R build WITHOUT unity builds
+# Uses existing build in /tmp/r-conf-build-unity-*
+time-full-no-unity:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    BUILD=$(ls -td /tmp/r-conf-build-unity-* 2>/dev/null | head -1)
+    if [ -z "$BUILD" ] || [ ! -f "$BUILD/build/Makefile" ]; then
+        echo "No existing unity build found. Run 'just build-unity' first."
+        exit 1
+    fi
+
+    echo "=== Timing FULL R build (WITHOUT unity) ==="
+    echo "Compilation units: 238 (main:98 + nmath:86 + libs:54)"
+    echo "Build dir: $BUILD"
+    echo
+
+    # Clean main, nmath, and libraries
+    echo "Cleaning..."
+    rm -f "$BUILD/build/src/main"/*.o "$BUILD/build/src/main"/*.a 2>/dev/null || true
+    rm -f "$BUILD/build/src/nmath"/*.o "$BUILD/build/src/nmath"/*.a "$BUILD/build/src/nmath"/Makedeps 2>/dev/null || true
+    for lib in methods parallel grDevices graphics utils grid; do
+        libdir="$BUILD/build/src/library/$lib/src"
+        [ -d "$libdir" ] && rm -f "$libdir"/*.o "$libdir"/*.so 2>/dev/null || true
+    done
+
+    cd "$BUILD/build"
+
+    echo "Building..."
+    start=$(date +%s.%N)
+    make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" UNITY_BUILD=no R >/dev/null 2>&1
+    end=$(date +%s.%N)
+
+    elapsed=$(echo "$end - $start" | bc)
+    printf "\nTotal build time: %.2fs\n" "$elapsed"
+
+# Compare full unity vs non-unity build times
+time-full-compare:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Running FULL unity build timing..."
+    just time-full
+    echo
+    echo "Running FULL non-unity build timing..."
+    just time-full-no-unity
 
 # Build with unity build enabled (combines .c files for faster compilation)
 # This passes UNITY_BUILD=yes to make, enabling the conditional in Makefiles
@@ -900,4 +984,63 @@ build-unity:
 
     echo
     echo "Unity build completed in: $tmpdir/build"
+    echo "R binary: $tmpdir/build/bin/R"
+
+# Build without unity build enabled (combines .c files for faster compilation)
+# This passes UNITY_BUILD=no to make, enabling the conditional in Makefiles
+build-no-unity:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    srcroot="{{justfile_directory()}}"
+    tmpdir="$(mktemp -d /tmp/r-conf-build-unity-XXXXXX)"
+    echo "Using unity build directory: $tmpdir"
+
+    # Copy source tree to temp
+    rsync -a --delete \
+        --exclude='.git' \
+        --exclude='autom4te.cache' \
+        --exclude='src/include/Rversion.h' \
+        --exclude='src/include/Rconfig.h' \
+        --exclude='src/include/Rmath.h' \
+        --exclude='src/include/config.h' \
+        "$srcroot"/ "$tmpdir/src/"
+    if [ ! -f "$tmpdir/src/share/make/vars.mk" ]; then
+        mkdir -p "$tmpdir/src/share/make"
+        if [ -f "$srcroot/share/make/vars.mk" ]; then
+            cp "$srcroot/share/make/vars.mk" "$tmpdir/src/share/make/vars.mk"
+        else
+            echo "R_PKGS_RECOMMENDED =" > "$tmpdir/src/share/make/vars.mk"
+        fi
+    fi
+    mkdir -p "$tmpdir/build"
+    cd "$tmpdir/build"
+
+    # Platform-specific library paths
+    {{setup-paths}}
+
+    # Use config.cache for faster subsequent runs
+    cache_file="${R_CONFIG_CACHE:-$HOME/.r-config-cache}"
+
+    echo "Configuring..."
+    ../src/configure \
+        --config-cache \
+        --cache-file="$cache_file" \
+        --prefix="$tmpdir/install" \
+        --disable-site-config \
+        --enable-fast-config \
+        --with-aqua=no \
+        --disable-R-framework \
+        --without-x \
+        --without-cairo \
+        --without-tcltk \
+        --without-recommended-packages \
+        --disable-html-docs
+
+    # Build without unity build
+    echo "Building with UNITY_BUILD=no..."
+    make -j"$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)" UNITY_BUILD=no R
+
+    echo
+    echo "Non-unity build completed in: $tmpdir/build"
     echo "R binary: $tmpdir/build/bin/R"

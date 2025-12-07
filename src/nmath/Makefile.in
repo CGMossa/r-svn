@@ -12,8 +12,27 @@ include $(top_builddir)/Makeconf
 
 ## <NOTE>
 ## Keep these in sync with ./standalone/Makefile.in and *.win!
-## NOTE: nmath has too many cross-file macro dependencies for unity builds
-## to work reliably. Individual file compilation is used instead.
+ifneq ($(UNITY_BUILD),no)
+## Unity build - 13 batched translation units (86 -> 13 files)
+## Separate batches needed because:
+## - qDiscrete_search.h generates static functions with different signatures
+## - wilcox.c and signrank.c have conflicting static symbols (w, w_free, etc.)
+SOURCES = \
+	unity_nmath_batch1.c \
+	unity_nmath_batch2.c \
+	unity_nmath_batch3.c \
+	unity_nmath_batch4.c \
+	unity_nmath_batch5.c \
+	unity_nmath_batch6.c \
+	unity_nmath_batch7.c \
+	unity_nmath_batch8.c \
+	unity_nmath_batch9.c \
+	unity_nmath_batch10.c \
+	unity_nmath_batch11.c \
+	unity_nmath_batch12.c \
+	unity_nmath_batch13.c
+else
+## Individual file compilation
 SOURCES = \
 	mlutils.c \
 	d1mach.c i1mach.c \
@@ -49,6 +68,7 @@ SOURCES = \
 	ptukey.c qtukey.c \
 	toms708.c wilcox.c \
 	signrank.c
+endif
 ## </NOTE>
 DEPENDS = $(SOURCES:.c=.d)
 OBJECTS = $(SOURCES:.c=.o)
