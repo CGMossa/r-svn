@@ -3,6 +3,7 @@
 These are preprocessor macros used in R's C source code that are **not** configure options. They're primarily for debugging, testing, or represent dead/experimental code.
 
 To enable any of these, add to `CPPFLAGS` or `DEFS`:
+
 ```bash
 ./configure CPPFLAGS="-DMACRO_NAME"
 # or in config.site:
@@ -18,6 +19,14 @@ DEFS="-DMACRO_NAME"
 | `STRICT_R_HEADERS` | Stricter header checking, hide deprecated APIs |
 | `USE_RINTERNALS` | Access to internal SEXPREC structure (use with caution) |
 | `R_USE_C99_IN_CXX` | Use C99 features in C++ code |
+
+## Vector & Memory Layout
+
+| Macro | Files | Description |
+|-------|-------|-------------|
+| `LONG_VECTOR_SUPPORT` | 66 | Support vectors > 2^31 elements (default on 64-bit) |
+| `INLINE_PROTECT` | 6 | Inline PROTECT/UNPROTECT macros |
+| `NA_TO_COMPLEX_NA` | 5 | NA handling for complex numbers |
 
 ## Reference Counting vs NAMED
 
@@ -52,6 +61,7 @@ Note: `SWITCH_TO_REFCNT` is the default. Define `SWITCH_TO_NAMED` to revert to o
 |-------|-------|-------------|
 | `BC_PROFILING` | 8 | Profile bytecode execution |
 | `THREADED_CODE` | 2 | Use threaded code dispatch |
+| `SUPPORT_TAILCALL` | 6 | Enable tail call optimization (defined in eval.c) |
 | `DEBUG_JIT` | 1 | Debug JIT compilation |
 | `TIMING_ON` | 1 | Enable timing instrumentation |
 
@@ -124,6 +134,21 @@ Note: `SWITCH_TO_REFCNT` is the default. Define `SWITCH_TO_NAMED` to revert to o
 | `UNIMP` | 2 | Unimplemented code |
 | `_NOT_YET_` | ? | Not yet implemented |
 | `NO_LONGER_IN_R_4_` | ? | Removed in R 4.x |
+
+## Profiling & Valgrind
+
+| Macro | Files | Description |
+|-------|-------|-------------|
+| `R_PROFILING` | 5 | Enable R profiling support (configure option) |
+| `VALGRIND_LEVEL` | config | Valgrind instrumentation level (0-2, configure option) |
+| `NVALGRIND` | config | Disable Valgrind entirely |
+
+## Signals & Unix
+
+| Macro | Files | Description |
+|-------|-------|-------------|
+| `R_USE_SIGNALS` | many | Use signal handling (defined in Parse.h) |
+| `UNIX_EXTRAS` | 5 | Enable Unix-specific extras |
 
 ## Platform-Specific
 
