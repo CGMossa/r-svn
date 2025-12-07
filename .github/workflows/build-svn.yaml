@@ -55,6 +55,16 @@ jobs:
       if: always()
       run: tail -n100 tests/*.fail || true
 
+    - name: Upload logs on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-linux-${{ matrix.CC }}-${{ matrix.OS }}-${{ matrix.ARCH }}
+        path: |
+          config.log
+          tests/*.Rout.fail
+        retention-days: 3
+
   macos:
     name: MacOS
     strategy:
@@ -137,6 +147,16 @@ jobs:
     - name: Print failed tests
       if: always()
       run: tail -n100 tests/*.fail || true
+
+    - name: Upload logs on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-macos-${{ matrix.OS }}
+        path: |
+          config.log
+          tests/*.Rout.fail
+        retention-days: 3
 
   windows:
     name: Windows
@@ -303,6 +323,16 @@ jobs:
     - name: Print failed tests
       if: failure() && matrix.script == 'check'
       run: tail -n100 tests/*.fail || true
+
+    - name: Upload logs on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-windows-${{ matrix.script }}-${{ matrix.arch }}
+        path: |
+          src/gnuwin32/MkRules.local
+          tests/*.Rout.fail
+        retention-days: 3
 
     - name: Run Installer
       if: matrix.script == 'installer'

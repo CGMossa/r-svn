@@ -81,7 +81,22 @@
 
 ## Next
 
-- Map remaining “system invasion” points (config.site default, prefix defaults, R_HOME install paths) and decide if sandbox mode should flip defaults.
+- Simplify `.tmp` + `mv` pattern in `src/extra/{intl,tre,tzone,xdr}/Makefile.in` - the atomic write is overkill for static libs; just use the RANLIB conditional without `.tmp`:
+
+  ```makefile
+  # Current (complex):
+  @rm -f $@.tmp
+  $(AR) -cr $@.tmp $(OBJECTS)
+  @if test -n "$(RANLIB)"; then $(RANLIB) $@.tmp; fi
+  @mv -f $@.tmp $@
+
+  # Could be (simpler):
+  @rm -f $@
+  $(AR) -cr $@ $(OBJECTS)
+  @if test -n "$(RANLIB)"; then $(RANLIB) $@; fi
+  ```
+
+- Map remaining "system invasion" points (config.site default, prefix defaults, R_HOME install paths) and decide if sandbox mode should flip defaults.
 - Broaden pkg-config coverage candidates where still manual (ICU, Tcl/Tk, jpeg2000/webp2); log feasibility with Homebrew pkg-config probes in CONSIDER.md.
 - Verify config.h.in coverage for key defines after header generation cleanups; flag anything that would regress runtime.
 - Keep libcurl HTTPS test stable across SecureTransport/openssl builds; note current success with pkg-config `-lcurl`.
