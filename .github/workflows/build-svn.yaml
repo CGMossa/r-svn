@@ -175,16 +175,16 @@ jobs:
         $page = Invoke-WebRequest -Uri $baseUrl -UseBasicParsing
 
         if ($arch -eq "arm") {
-          # Match: rtools45-aarch64-NNNN.exe (largest NNNN wins)
-          $pattern = 'rtools45-aarch64-(\d+)\.exe'
+          # Match: rtools45-aarch64-MAJOR-MINOR.exe
+          $pattern = 'rtools45-aarch64-(\d+)-(\d+)\.exe'
         } else {
-          # Match: rtools45-NNNN.exe (not aarch64, largest NNNN wins)
-          $pattern = 'rtools45-(\d+)\.exe'
+          # Match: rtools45-MAJOR-MINOR.exe (exclude aarch64 via negative lookbehind)
+          $pattern = '(?<!aarch64-)rtools45-(\d+)-(\d+)\.exe'
         }
 
         $matches = [regex]::Matches($page.Content, $pattern) |
-          ForEach-Object { @{ File = $_.Value; Version = [int]$_.Groups[1].Value } } |
-          Sort-Object -Property Version -Descending
+          ForEach-Object { @{ File = $_.Value; Major = [int]$_.Groups[1].Value; Minor = [int]$_.Groups[2].Value } } |
+          Sort-Object -Property @{Expression={$_.Major}; Descending=$true}, @{Expression={$_.Minor}; Descending=$true}
 
         if ($matches.Count -eq 0) {
           Write-Error "No Rtools45 installer found for arch=$arch"
@@ -193,7 +193,7 @@ jobs:
 
         $latest = $matches[0]
         $url = "$baseUrl$($latest.File)"
-        Write-Host "Found latest Rtools45: $($latest.File) (version $($latest.Version))"
+        Write-Host "Found latest Rtools45: $($latest.File) (version $($latest.Major)-$($latest.Minor))"
         Write-Host "Downloading from: $url"
 
         $installer = "$env:RUNNER_TEMP\rtools45-installer.exe"
@@ -202,8 +202,9 @@ jobs:
         Start-Process -FilePath $installer -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/DIR=C:\rtools45" -Wait -NoNewWindow
         Write-Host "Rtools45 installed"
 
-        # Export version for Tcl/Tk download
-        echo "RTOOLS_VERSION=$($latest.Version)" >> $env:GITHUB_ENV
+        # Export versions for Tcl/Tk download
+        echo "RTOOLS_MAJOR=$($latest.Major)" >> $env:GITHUB_ENV
+        echo "RTOOLS_MINOR=$($latest.Minor)" >> $env:GITHUB_ENV
 
     - name: Install InnoSetup
       if: matrix.script == 'installer'
@@ -229,34 +230,20 @@ jobs:
       shell: powershell
       run: |
         $arch = "${{ matrix.arch }}"
-        $rtoolsVer = "${{ env.RTOOLS_VERSION }}"
+        $rtoolsMajor = "${{ env.RTOOLS_MAJOR }}"
+        $rtoolsMinor = "${{ env.RTOOLS_MINOR }}"
         $baseUrl = "https://cran.r-project.org/bin/windows/Rtools/rtools45/files/"
 
-        # Fetch directory listing and find matching tcltk bundle
-        Write-Host "Finding Tcl/Tk bundle for Rtools version $rtoolsVer"
-        $page = Invoke-WebRequest -Uri $baseUrl -UseBasicParsing
-
+        # Tcl/Tk bundle uses same MAJOR-MINOR version as Rtools
         if ($arch -eq "arm") {
-          # Match: tcltk-aarch64-RTOOLS_VER-TCLTK_VER.zip
-          $pattern = "tcltk-aarch64-$rtoolsVer-(\d+)\.zip"
+          $tcltkFile = "tcltk-aarch64-$rtoolsMajor-$rtoolsMinor.zip"
         } else {
-          # Match: tcltk-RTOOLS_VER-TCLTK_VER.zip (not aarch64)
-          $pattern = "tcltk-$rtoolsVer-(\d+)\.zip"
+          $tcltkFile = "tcltk-$rtoolsMajor-$rtoolsMinor.zip"
         }
 
-        $matches = [regex]::Matches($page.Content, $pattern) |
-          ForEach-Object { @{ File = $_.Value; TcltkVersion = [int]$_.Groups[1].Value } } |
-          Sort-Object -Property TcltkVersion -Descending
-
-        if ($matches.Count -eq 0) {
-          Write-Error "No Tcl/Tk bundle found for Rtools $rtoolsVer arch=$arch"
-          exit 1
-        }
-
-        $latest = $matches[0]
-        $url = "$baseUrl$($latest.File)"
-        Write-Host "Found Tcl/Tk: $($latest.File)"
-        Write-Host "Downloading from: $url"
+        $url = "$baseUrl$tcltkFile"
+        Write-Host "Downloading Tcl/Tk: $tcltkFile"
+        Write-Host "URL: $url"
 
         Invoke-WebRequest -Uri $url -OutFile "tcltk.zip" -UseBasicParsing
         Expand-Archive -Path "tcltk.zip" -DestinationPath "." -Force
