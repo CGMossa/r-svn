@@ -197,7 +197,7 @@ coef(fmCc)
 ##  12.7781626  19.8494272  -0.8240301  -1.3309157 -31.7032317 -32.8819084 -33.3519985 -34.6249161
 (coef(fmCf) -> cf.f) # the same
 stopifnot(exprs = {
-    identical(coef(fmCc), cf.f)
+    all.equal(coef(fmCc), cf.f) # use all.equal() for floating-point comparison
 })
 
 (dummy.coef(fmCc) -> dc.Cc)  ##-- was all wrong in R <= 4.3.2

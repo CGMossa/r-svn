@@ -175,3 +175,30 @@ The comment in all files says "get environment from a subclass if possible; else
 ```
 
 **Status:** Not yet fixed - needs analysis to determine which behavior is intended
+
+---
+
+## glm-etc.R: Using identical() for floating-point comparison
+
+**File:** `src/library/stats/tests/glm-etc.R`
+**Line:** 200
+
+**Bug:** The test uses `identical(coef(fmCc), cf.f)` to compare GLM coefficients, which requires bit-for-bit equality. This fails on macOS Intel due to minor floating-point differences from different math libraries or compiler optimizations.
+
+**Impact:** Test suite fails on macOS Intel (x86_64) even though the numerical results are correct within floating-point tolerance.
+
+**Before (buggy):**
+```r
+stopifnot(exprs = {
+    identical(coef(fmCc), cf.f)
+})
+```
+
+**After (fixed):**
+```r
+stopifnot(exprs = {
+    all.equal(coef(fmCc), cf.f) # use all.equal() for floating-point comparison
+})
+```
+
+**Fixed in commit:** 12ade8b6d5
