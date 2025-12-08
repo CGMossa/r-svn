@@ -44,9 +44,9 @@ CONFIGURE_DEPENDENCIES = $(srcdir)/VERSION
 config.status: $(srcdir)/configure
 	@$(SHELL) ./config.status --recheck
 $(srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(srcdir)/configure.ac $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
-	@BD=`pwd`; cd $(srcdir) && $(AUTOCONF) -f -B $${BD}
+	@BD=`$(GETWD)`; cd $(srcdir) && $(AUTOCONF) -f -B $${BD}
 $(ACLOCAL_M4): $(srcdir)/configure.ac acinclude.m4
-	@BD=`pwd`; cd $(srcdir) && $(ACLOCAL) --output=$${BD}/$@ -I $${BD}
+	@BD=`$(GETWD)`; cd $(srcdir) && $(ACLOCAL) --output=$${BD}/$@ -I $${BD}
 acinclude.m4: $(srcdir)/configure.ac $(ACINCLUDE_DEPENDENCIES)
 	@(cd $(srcdir) && cat $(ACINCLUDE_DEPENDENCIES)) > $@
 
@@ -204,8 +204,8 @@ distcheck-unix: dist
 	fi; \
 	mkdir $${dirname}/_build $${dirname}/_inst; \
 	test -d $${dirname}/_build || exit 0; \
-	dc_install_base=`cd $${dirname}/_inst && pwd` \
-	  && save__cwd=`pwd` \
+	dc_install_base=`cd $${dirname}/_inst && $(GETWD)` \
+	  && save__cwd=`$(GETWD)` \
 	  && cd $${dirname}/_build \
 	  && ../configure --srcdir=.. --prefix="$$dc_install_base" \
 	  && $(MAKE) \
