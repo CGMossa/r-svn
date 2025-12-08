@@ -836,6 +836,7 @@ void GConvert(double *x, double *y, GUnit from, GUnit to, pGEDevDesc dd)
     case CHARS:
 	*x = xDevtoChar(devx, dd);
 	*y = yDevtoChar(devy, dd);
+	break;
     case NIC:
 	*x = xDevtoNIC(devx, dd);
 	*y = yDevtoNIC(devy, dd);
@@ -1699,14 +1700,17 @@ void mapping(pGEDevDesc dd, int which)
     switch(which) {
     case 0:
 	mapNDC2Dev(dd);
+	R_FALLTHROUGH;
     case 1:
 	updateOuterMargins(dd);
 	mapInner2Dev(dd);
+	R_FALLTHROUGH;
     case 2:
 	if (gpptr(dd)->defaultFigure)
 	    mapFigureRegion(dd);
 	updateFigureRegion(dd);
 	mapFig2Dev(dd);
+	R_FALLTHROUGH;
     case 3:
 	updateFigureMargins(dd);
 	if (gpptr(dd)->defaultPlot)

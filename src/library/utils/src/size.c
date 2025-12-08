@@ -80,6 +80,7 @@ static R_size_t objectsize(SEXP s)
 	break;
     case ENVSXP:
 	R_CheckStack(); /* in case attributes might lead to a cycle */
+	R_FALLTHROUGH;
     case PROMSXP:
     case SPECIALSXP:
     case BUILTINSXP:

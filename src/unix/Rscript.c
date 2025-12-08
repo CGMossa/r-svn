@@ -195,21 +195,21 @@ int main(int argc_, char *argv_[])
 	argv[0] = argv_[0];
 
 	size_t len = strlen(s);
-	char *buf = (char *)malloc((size_t) (len+1)*sizeof(char));
-	if (!buf) {
+	char *split_buf = (char *)malloc((size_t) (len+1)*sizeof(char));
+	if (!split_buf) {
 	    fprintf(stderr, "malloc failure\n");
 	    exit(1);
 	}
-	strcpy(buf, s);
+	strcpy(split_buf, s);
 
 	i = 1;
 	for(j = 0; s[j] != 0; j++)
 	    if (s[j] == ' ' || s[j] == '\t')
 		/* turn space into end-of-string */
-		buf[j] = 0;
+		split_buf[j] = 0;
 	    else if (j == 0 || s[j-1] == ' ' || s[j-1] == '\t')
 		/* first character of an argument */
-		argv[i++] = buf + j;
+		argv[i++] = split_buf + j;
 	/* assert i - 1 == njoined */
 
 	for(i = 2; i < argc_; i++)

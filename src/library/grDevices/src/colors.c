@@ -1354,14 +1354,16 @@ static rcolor rgb2col(const char *rgb)
     switch (strlen(rgb)) {
     case 9:
 	a = 16 * hexdigit(rgb[7]) + hexdigit(rgb[8]);
+	R_FALLTHROUGH;
     case 7:
 	r = 16 * hexdigit(rgb[1]) + hexdigit(rgb[2]);
 	g = 16 * hexdigit(rgb[3]) + hexdigit(rgb[4]);
 	b = 16 * hexdigit(rgb[5]) + hexdigit(rgb[6]);
 	break;
-    case 5: 
+    case 5:
 	// Equivalent to 16 * hexdigit(rgb[4]) + hexdigit(rgb[4]);
 	a = (16 + 1) * hexdigit(rgb[4]);
+	R_FALLTHROUGH;
     case 4:
 	r = (16 + 1) * hexdigit(rgb[1]);
 	g = (16 + 1) * hexdigit(rgb[2]);

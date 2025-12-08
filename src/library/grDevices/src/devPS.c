@@ -3722,8 +3722,10 @@ static void PS_cleanup(int stage, pDevDesc dd, PostScriptDesc *pd)
     case 4: /* Allocated fonts */
     freeDeviceFontList(pd->fonts);
     freeDeviceCIDFontList(pd->cidfonts);
+    R_FALLTHROUGH;
     case 3: /* Allocated encodings */
     freeDeviceEncList(pd->encodings);
+    R_FALLTHROUGH;
     case 1: /* Allocated PDFDesc */
     free(pd);
     GEfreeDD(dd);
@@ -5432,8 +5434,10 @@ static void addLinearGradient(SEXP gradient, char* colormodel,
     case R_GE_patternExtendRepeat:
     case R_GE_patternExtendReflect:
         warning("Repeat or reflect pattern not supported on PDF device");
+	R_FALLTHROUGH;
     case R_GE_patternExtendNone:
         strcpy(extend, "false");
+	break;
     }
     snprintf(buf,
              200,
@@ -5485,8 +5489,10 @@ static void addRadialGradient(SEXP gradient, char* colormodel,
     case R_GE_patternExtendRepeat:
     case R_GE_patternExtendReflect:
         warning("Repeat or reflect pattern not supported on PDF device");
+	R_FALLTHROUGH;
     case R_GE_patternExtendNone:
         strcpy(extend, "false");
+	break;
     }
     snprintf(buf,
              200,
@@ -6833,10 +6839,13 @@ static void PDFcleanup(int stage, PDFDesc *pd) {
     switch (stage) {
     case 7: /* Allocated defns */
         killDefinitions(pd);
+	R_FALLTHROUGH;
     case 6: /* Allocated masks */
 	free(pd->masks);
+	R_FALLTHROUGH;
     case 5: /* Allocated rasters */
 	free(pd->rasters);
+	R_FALLTHROUGH;
     case 4: /* Allocated fonts */
 	freeDeviceFontList(pd->fonts);
 	freeDeviceCIDFontList(pd->cidfonts);
@@ -6844,10 +6853,13 @@ static void PDFcleanup(int stage, PDFDesc *pd) {
 	pd->fonts = NULL;
 	pd->cidfonts = NULL;
 	pd->encodings = NULL;
+	R_FALLTHROUGH;
     case 3: /* Allocated pageobj */
 	free(pd->pageobj);
+	R_FALLTHROUGH;
     case 2: /* Allocated pos */
 	free(pd->pos);
+	R_FALLTHROUGH;
     case 1: /* Allocated PDFDesc */
 	free(pd);
     }
