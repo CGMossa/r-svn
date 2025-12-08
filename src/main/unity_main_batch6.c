@@ -7,6 +7,6 @@
 #include "grep.c"
 #include "identical.c"
 /* inlined.c excluded - must be compiled separately to export non-inline API functions */
-#include "inspect.c"
+/* inspect.c excluded - requires USE_RINTERNALS before Defn.h, compile separately */
 #include "internet.c"
 #include "iosupport.c"

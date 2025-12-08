@@ -13,14 +13,16 @@ R_HOME=$(top_builddir)
 include $(top_builddir)/Makeconf
 
 ifneq ($(UNITY_BUILD),no)
-## Unity build - 12 batches + main.c + memory.c + inlined.c separate (99 -> 15 files)
+## Unity build - 12 batches + main.c + memory.c + inlined.c + inspect.c separate (99 -> 16 files)
 ## main.c must be compiled separately due to __MAIN__ pattern
 ## memory.c must be compiled separately due to STRING_ELT redefinition
 ## inlined.c must be compiled separately to export non-inline API functions
+## inspect.c must be compiled separately (requires USE_RINTERNALS before Defn.h)
 SOURCES_C = \
 	main.c \
 	memory.c \
 	inlined.c \
+	inspect.c \
 	unity_main_batch1.c \
 	unity_main_batch2.c \
 	unity_main_batch3.c \

@@ -6,6 +6,9 @@
  * declares IS_UTF8/ENC_KNOWN as function prototypes.
  */
 
+/* Define USE_RINTERNALS before any includes for size.c compatibility */
+#define USE_RINTERNALS
+
 /* Files that include Defn.h - must come first for USE_RINTERNALS */
 #include "io.c"
 #include "size.c"
