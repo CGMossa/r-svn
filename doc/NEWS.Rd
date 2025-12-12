@@ -147,6 +147,11 @@
       convenience and code readability, from an R-devel suggestion, after
       many years of private definitions mostly hidden in packages,
       including in \R's \pkg{tools} package.
+
+      \item The default method of \code{sequence()} gets a new option
+      \code{recycle} to swap between current (not fully recycling) and
+      future behaviour where all three of \code{(nvec, from, by)} are
+      jointly recycled.
     }
   }
 
@@ -301,6 +306,11 @@
 
   \subsection{BUG FIXES}{
     \itemize{
+      \item \code{chol(x, pivot=TRUE)} now zeroes the trailing submatrix when
+      the algorithm stops early. Following the help page instructions on
+      how to reconstruct the matrix in postive semidefinite cases gave
+      incorrect results if the rank was 2 or more less than the dimension.
+
       \item Profiling \code{"mle"} objects (\pkg{stats4} package) could fail
       because profile MLE used starting value from full MLE. Now starts from profile MLE
       from previous step.
@@ -415,21 +425,36 @@
       Sepal vs Petal dimensions in its first iris data plot, thanks to
       \I{Jeff Dick}'s post on R-devel.
 
-      \item \code{all.equal(obj, simple, check.class=FALSE)} now is true, also
-      when \code{simple} is a bare atomic vector and \code{obj} has a simple
-      class, fixing the first part of \PR{18971} thanks to \I{Jan Gorecki}.
-
       \item \code{diff(m, lag, dif)} for matrix \code{m} now still returns
       matrices, also when \code{lag * dif > nrow(m)} (\PR{18972}, thanks to
       \I{Mikael Jagan} and \I{Suharto Anggono}).
       \code{diff(<ts-matrix>)} remains matrix, even when it has length zero.
 
-      \item \code{str(x, give.attr=FALSE)} no longer shows attributes when
-      \code{x} is a zero length \code{"Date"} or \code{"POSIXt"} object.
-
       \item \code{model.frame(~1, list(), na.action=na.pass)} and similar
       \dQuote{border-line} uses no longer produce invalid data frames,
       fixing \PR{18977}, reported with patch by \I{Mikael Jagan}.
+
+      \item Values returned by active binding functions are now marked as
+      not mutable to prevent unintended mutation in complex assignment
+      operations.
+
+      \item The default method of \code{sequence()} now allows to
+      fully recycle all three of \code{(nvec, from, by)} as always
+      documented; with thanks to \I{Mikael Jagan}'s report and patch in
+      \PR{18304}.  Its behaviour remains back compatible for now, but can
+      be switched to future behaviour via enviroment variable
+      \env{R_sequence_recycle}, or explicit \code{recycle = TRUE}.
+
+      \item Subassignment, \code{x[ind] <- val}, to 1-dimensional
+      \code{array}s no longer \dQuote{drops} them to simple vectors when
+      \code{ind} is a name, fixing \PR{18973}, reported by \I{Thomas Soeiro}.
+
+      \item The implicitGeneric definition for \code{toeplitz()} produced a
+      default method that failed when \code{toeplitz(x, r)} was called with
+      more than the first argument.  Simple fix from \I{Mikael Jagan}.
+
+      \item The error message for \code{array(dim = c())} now uses
+      \code{"'dim'"}, thanks to \I{Hugo Gruson}.
     }
   }
 }
@@ -438,7 +463,16 @@
 
   \subsection{BUG FIXES}{
     \itemize{
-      \item .
+      \item \code{all.equal(obj, simple, check.class=FALSE)} now is true, also
+      when \code{simple} is a bare atomic vector and \code{obj} has a simple
+      class, fixing the first part of \PR{18971} thanks to \I{Jan Gorecki}.
+
+      \item \code{str(x, give.attr=FALSE)} no longer shows attributes when
+      \code{x} is a zero length \code{"Date"} or \code{"POSIXt"} object.
+
+      \item Tweaks to binning for \code{bw.SJ()}, \code{bw.bcv()} and
+	\code{bw.bcv()} in the very rare case of data which have an
+	extremely small range of very large absolute values.
     }
   }
 }

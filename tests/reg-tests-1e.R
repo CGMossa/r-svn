@@ -2400,6 +2400,76 @@ stopifnot(chk0(structure(.Date   (numeric()), foobar = list(Dt = "A"))),
           chk0(structure(.POSIXct(numeric()), foobar = list(ct = "C"))))
 ## in R <= 4.5.2, give.attr=FALSE was not obeyed for 0-length "Date" / "POSIXt"
 
+## guard against mutation through active bindings
+y <- 1 + 0
+if (exists("x")) rm(x)
+makeActiveBinding("x", function(v) y, .GlobalEnv)
+x[1] <- 2
+stopifnot(y == 1)
+rm(x)
+
+## PR#18304 -- recycling `nvec` argument of sequence.default()
+chkS <- function(n, nvec, recyc=FALSE) {
+    lxn <- rep.int(1L, n)
+    stopifnot(exprs = {
+	identical(sequence.default(from = lxn, by = 1L, nvec = nvec, recycle=recyc),
+		  sequence.default(from = 1L, by = lxn, nvec = nvec, recycle=recyc) -> s1)
+        is.integer(s2 <- unlist(mapply(seq, from = lxn, by = 1L,
+                                       length.out = rep_len(nvec, n),# <- to avoid warning: longer argument
+									# not a multiple of length of shorter
+				       SIMPLIFY=FALSE, USE.NAMES=FALSE)))
+        identical(s1, if(recyc || n <= length(nvec)) s2 else s2[seq_along(s1)])
+    })
+    s1
+}
+for(recycl in c(FALSE, TRUE)) withAutoprint({
+    cat("\n>>>> recycl: ", recycl, "-----\n",strrep("-", 25),"\n", sep="")
+    ## These all worked identically previously:
+    chkS(1, 1,   recyc = recycl) # 1
+    chkS(2, 1:2, recyc = recycl) # 1,  1 2
+    chkS(3, 1:3, recyc = recycl) # 1,  1 2,  1 2 3
+    chkS(3, 3:1, recyc = recycl) # 1 2 3,  1 2,  1
+    chkS(4, 1:4, recyc = recycl) # 1,  1 2,  1 2 3,  1 2 3 4
+    chkS(4, 4:1, recyc = recycl) # 1 2 3 4,  1 2 3,  1 2,  1
+    chkS(5, 1:5, recyc = recycl) # 1,   1 2,   1 2 3,   1 2 3 4,   1 2 3 4 5
+    ## These did not:  length(nvec) < n :
+    if(recycl)           chkS(3, 2:3, recyc = TRUE)
+    else { rF <- getVaW( chkS(3, 2:3, recyc = FALSE) )
+       ## the very first produces a  __once per R session__ warning:
+       if(!is.null(wrn <- attr(rF, "warning"))) {
+         cat("Caught warning: ")
+         writeLines(wrn) }       #          recycl: FALSE  ||  TRUE
+       as.vector(rF) }           # 1 2, 1 2 3              ||  1 2, 1 2 3, 1 2
+    chkS(5, 2:3, recyc = recycl) # 1 2, 1 2 3              ||  1 2, 1 2 3, 1 2, 1 2 3, 1 2
+    chkS(6, 2:3, recyc = recycl) # 1 2, 1 2 3              ||  1 2, 1 2 3, 1 2, 1 2 3, 1 2, 1 2 3
+    chkS(4, 2:1, recyc = recycl) # 1 2, 1                  ||  1 2, 1, 1 2, 1
+    chkS(4, 5:6, recyc = recycl) # 1 2 3 4 5, 1 2 3 4 5 6  ||  1 2 3 4 5, 1 2 3 4 5 6, 1 2 3 4 5, 1 2 3 4 5 6
+    chkS(5, 1:4, recyc = recycl) # 1, 1 2, 1 2 3, 1 2 3 4  ||  1, 1 2, 1 2 3, 1 2 3 4, 1
+    ## the last 6 cases all failed chkS() for recycle = TRUE
+})
+
+
+## <1d-arrary>[<name>] <- <val>  -- dropped dim & dimnames in transforming to atomic vector -- PR#18973
+mk1d <- function(N) {
+    stopifnot(length(N) == 1, N >= 1, is.integer(n <- 1:N))
+    array(n, dimnames = list(letters[n]))
+}
+chk1d <- function(a)
+    stopifnot(is.array(a), length(d <- dim(a)) == 1L, is.list(dn <- dimnames(a)), length(dn) == 1L)
+str(x <- mk1d(3)); chk1d(x)
+x[1]   <- 99 ; chk1d(x)
+x["a"] <- 100; chk1d(x)
+## x["a"] <- .. did drop dim() & dimnames() {getting names() instead}.
+
+
+## error message when length(dim) == 0:
+(m1 <- tryCmsg(array(NULL )))
+(m2 <- tryCmsg(array(,NULL)))
+if(englishMsgs)
+  stopifnot(grepl(" was 'NULL'",   m1, fixed=TRUE),
+            grepl("'dim' cannot ", m2, fixed=TRUE))
+## had 'dims'
+
 
 
 ## keep at end
