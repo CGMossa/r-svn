@@ -13,6 +13,7 @@ This document tracks bugs discovered in R source code that should be reported/fi
 **Impact:** Any code calling `GConvert()` with `to = CHARS` would receive incorrect NIC coordinates instead of the expected character-based coordinates.
 
 **Before (buggy):**
+
 ```c
 case CHARS:
     *x = xDevtoChar(devx, dd);
@@ -24,6 +25,7 @@ case NIC:  /* falls through! */
 ```
 
 **After (fixed):**
+
 ```c
 case CHARS:
     *x = xDevtoChar(devx, dd);
@@ -50,12 +52,14 @@ case NIC:
 **Impact:** The NA check for the file argument never triggers, allowing NA values to pass through unchecked (though the feature is disabled by default).
 
 **Before (buggy):**
+
 ```c
 if (TYPEOF(file) != STRSXP || LENGTH(file) != 1 || file == NA_STRING)
     error("invalid 'file' argument");
 ```
 
 **After (fixed):**
+
 ```c
 if (TYPEOF(file) != STRSXP || LENGTH(file) != 1 || STRING_ELT(file, 0) == NA_STRING)
     error("invalid 'file' argument");
@@ -71,17 +75,20 @@ if (TYPEOF(file) != STRSXP || LENGTH(file) != 1 || STRING_ELT(file, 0) == NA_STR
 **Line:** ~2251
 
 **Bug:** Multiple issues in the shell conditional:
+
 1. Wrong variable name `sys_times_h` instead of `sys_time_h`
 2. Malformed quoting with mismatched braces: `${ac_cv_header_sys_times_h} = "no""`
 
 **Impact:** Configure script has broken logic for checking sys/time.h header availability on Unix systems.
 
 **Before (buggy):**
+
 ```sh
 if test "${ac_cv_header_sys_select_h}" = "no" -a "${ac_cv_header_sys_times_h} = "no""; then
 ```
 
 **After (fixed):**
+
 ```sh
 if test "${ac_cv_header_sys_select_h}" = "no" -a "${ac_cv_header_sys_time_h}" = "no"; then
 ```
@@ -100,11 +107,13 @@ if test "${ac_cv_header_sys_select_h}" = "no" -a "${ac_cv_header_sys_time_h}" = 
 **Impact:** Inconsistent interrupt checking frequency across R modules. The smaller value causes 10x more interrupt checks than intended.
 
 **Before (inconsistent):**
+
 ```c
 #define NINTERRUPT 1000000
 ```
 
 **After (consistent):**
+
 ```c
 #define NINTERRUPT 10000000
 ```
@@ -123,25 +132,27 @@ if test "${ac_cv_header_sys_select_h}" = "no" -a "${ac_cv_header_sys_time_h}" = 
 **Impact:** Parallel builds (`make -jN` with N > 1) would randomly fail with missing library errors. Serial builds worked fine because make happened to process directories in the right order.
 
 **Before (buggy):**
+
 ```makefile
 ../extra/intl/libintl.a:
-	(cd $(@D); $(MAKE))
+ (cd $(@D); $(MAKE))
 # Missing rules for libtre.a, libtz.a, libxdr.a
 ```
 
 **After (fixed):**
+
 ```makefile
 ../extra/intl/libintl.a:
-	(cd $(@D); $(MAKE))
+ (cd $(@D); $(MAKE))
 
 ../extra/tre/libtre.a:
-	(cd $(@D); $(MAKE))
+ (cd $(@D); $(MAKE))
 
 ../extra/tzone/libtz.a:
-	(cd $(@D); $(MAKE))
+ (cd $(@D); $(MAKE))
 
 ../extra/xdr/libxdr.a:
-	(cd $(@D); $(MAKE))
+ (cd $(@D); $(MAKE))
 ```
 
 **Fixed in commit:** 76dc7e8b1c
@@ -163,12 +174,14 @@ The comment in all files says "get environment from a subclass if possible; else
 **Impact:** Different behavior when passing non-environment, non-S4 objects to functions that use this macro. In `builtin.c`, the original argument passes through; in `eval.c`/`envir.c`, it becomes `R_NilValue`.
 
 **In eval.c and envir.c (correct per comment):**
+
 ```c
 /* get environment from a subclass if possible; else return NULL */
 #define simple_as_environment(arg) (IS_S4_OBJECT(arg) && (TYPEOF(arg) == OBJSXP) ? R_getS4DataSlot(arg, ENVSXP) : R_NilValue)
 ```
 
 **In builtin.c (inconsistent with comment):**
+
 ```c
 /* get environment from a subclass if possible; else return NULL */
 #define simple_as_environment(arg) (IS_S4_OBJECT(arg) && (TYPEOF(arg) == OBJSXP) ? R_getS4DataSlot(arg, ENVSXP) : arg)
@@ -188,6 +201,7 @@ The comment in all files says "get environment from a subclass if possible; else
 **Impact:** Test suite fails on macOS Intel (x86_64) even though the numerical results are correct within floating-point tolerance.
 
 **Before (buggy):**
+
 ```r
 stopifnot(exprs = {
     identical(coef(fmCc), cf.f)
@@ -195,6 +209,7 @@ stopifnot(exprs = {
 ```
 
 **After (fixed):**
+
 ```r
 stopifnot(exprs = {
     all.equal(coef(fmCc), cf.f) # use all.equal() for floating-point comparison
